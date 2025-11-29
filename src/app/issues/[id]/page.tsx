@@ -21,7 +21,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/common";
 import { useIssue } from "@/hooks/useIssue";
 import { useAuthStore } from "@/store/auth-store";
 import { Dropdown, DropdownMenu, DropdownItem } from "@hua-labs/ui";
-import { FormDrawer, MetaInfoCard, ConfirmDialog } from "@/components/common";
+import { FormDrawer, MetaInfoCard, ConfirmDialog, SectionErrorBoundary } from "@/components/common";
 import { useDeleteDialog } from "@/hooks";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -137,32 +137,38 @@ export default function IssueDetailPage({
             </Card>
 
             {/* 서브태스크 */}
-            <SubtaskManager issueId={issue.id} subtasks={issue.subtasks || []} />
+            <SectionErrorBoundary sectionName="서브태스크">
+              <SubtaskManager issueId={issue.id} subtasks={issue.subtasks || []} />
+            </SectionErrorBoundary>
 
             {/* 첨부파일 */}
             {issue.attachments && issue.attachments.length > 0 && (
-              <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-                <CardHeader>
-                  <CardTitle>첨부파일</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <IssueAttachments
-                    attachments={issue.attachments}
-                    canDelete={user?.id === issue.assigneeId || user?.role === "ADMIN"}
-                  />
-                </CardContent>
-              </Card>
+              <SectionErrorBoundary sectionName="첨부파일">
+                <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+                  <CardHeader>
+                    <CardTitle>첨부파일</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <IssueAttachments
+                      attachments={issue.attachments}
+                      canDelete={user?.id === issue.assigneeId || user?.role === "ADMIN"}
+                    />
+                  </CardContent>
+                </Card>
+              </SectionErrorBoundary>
             )}
 
             {/* 댓글 섹션 */}
-            <CommentList
-              comments={issue.comments || []}
-              issueId={issue.id}
-              currentUserId={user?.id}
-              onCommentAdd={addComment}
-              onCommentUpdate={updateComment}
-              onCommentDelete={deleteComment}
-            />
+            <SectionErrorBoundary sectionName="댓글">
+              <CommentList
+                comments={issue.comments || []}
+                issueId={issue.id}
+                currentUserId={user?.id}
+                onCommentAdd={addComment}
+                onCommentUpdate={updateComment}
+                onCommentDelete={deleteComment}
+              />
+            </SectionErrorBoundary>
           </div>
 
           {/* 사이드바 */}
@@ -221,7 +227,9 @@ export default function IssueDetailPage({
             </Card>
 
             {/* AI 기능 */}
-            <AIFeatures issue={issue} comments={issue.comments || []} />
+            <SectionErrorBoundary sectionName="AI 기능">
+              <AIFeatures issue={issue} comments={issue.comments || []} />
+            </SectionErrorBoundary>
 
             {/* 메타 정보 */}
             <MetaInfoCard

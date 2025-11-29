@@ -28,6 +28,7 @@ export interface IssueFormFieldsProps {
     field: K,
     value: IssueFormData[K]
   ) => void;
+  onBlur?: <K extends keyof IssueFormData>(field: K) => void;
   projects?: Array<{ id: string; name: string }>;
   users?: Array<{ id: string; name: string; email: string }>;
   labels?: Array<{ id: string; name: string; color: string }>;
@@ -37,6 +38,7 @@ export function IssueFormFields({
   formData,
   errors,
   onChange,
+  onBlur,
   projects = [],
   users = [],
   labels = [],
@@ -69,6 +71,7 @@ export function IssueFormFields({
           type="text"
           value={formData.title}
           onChange={(e) => onChange("title", e.target.value)}
+          onBlur={() => onBlur?.("title")}
           className={errors.title ? "border-red-500" : ""}
           placeholder="이슈 제목을 입력하세요"
         />
@@ -89,6 +92,7 @@ export function IssueFormFields({
           id="description"
           value={formData.description || ""}
           onChange={(e) => onChange("description", e.target.value)}
+          onBlur={() => onBlur?.("description")}
           className={errors.description ? "border-red-500" : ""}
           placeholder="이슈 설명을 입력하세요 (Markdown 지원)"
           rows={6}
@@ -111,6 +115,7 @@ export function IssueFormFields({
             id="projectId"
             value={formData.projectId}
             onChange={(e) => onChange("projectId", e.target.value)}
+            onBlur={() => onBlur?.("projectId")}
             className={errors.projectId ? "border-red-500" : ""}
           >
             <SelectOption value="">프로젝트 선택</SelectOption>
@@ -158,6 +163,7 @@ export function IssueFormFields({
             id="priority"
             value={formData.priority}
             onChange={(e) => onChange("priority", e.target.value as IssuePriority)}
+            onBlur={() => onBlur?.("priority")}
             className={errors.priority ? "border-red-500" : ""}
           >
             {priorityOptions.map((option) => (

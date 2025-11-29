@@ -7,7 +7,7 @@ import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { FormDrawer } from "@/components/common";
-import { EmptyState, LoadingState, ErrorState, StatCard, FilterBar } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, StatCard, FilterBar, SectionErrorBoundary } from "@/components/common";
 import dynamic from "next/dynamic";
 
 const ProjectForm = dynamic(() => import("@/components/project").then((mod) => ({ default: mod.ProjectForm })));
@@ -80,9 +80,10 @@ export default function ProjectsPage() {
       description="프로젝트를 관리하고 이슈를 추적하세요"
       activeItem="projects"
     >
-      <div className="flex flex-col gap-6">
-        {/* 필터 및 검색 */}
-        <FilterBar
+      <SectionErrorBoundary sectionName="프로젝트 페이지">
+        <div className="flex flex-col gap-6">
+          {/* 필터 및 검색 */}
+          <FilterBar
           searchPlaceholder="프로젝트 이름 또는 설명으로 검색..."
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
@@ -109,16 +110,17 @@ export default function ProjectsPage() {
         </div>
 
         {/* 프로젝트 그리드 */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-[var(--text-strong)]">
-              {showArchived ? "모든 프로젝트" : "활성 프로젝트"}
-            </h2>
-            <Button onClick={() => setIsProjectFormOpen(true)}>
-              <Icon name="add" size={16} className="mr-2" />
-              새 프로젝트
-            </Button>
-          </div>
+        <SectionErrorBoundary sectionName="프로젝트 목록">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-[var(--text-strong)]">
+                {showArchived ? "모든 프로젝트" : "활성 프로젝트"}
+              </h2>
+              <Button onClick={() => setIsProjectFormOpen(true)}>
+                <Icon name="add" size={16} className="mr-2" />
+                새 프로젝트
+              </Button>
+            </div>
           {isLoading ? (
             <LoadingState message="프로젝트를 불러오는 중..." />
           ) : filteredProjects.length === 0 ? (
@@ -177,8 +179,10 @@ export default function ProjectsPage() {
               ))}
             </div>
           )}
+          </div>
+        </SectionErrorBoundary>
         </div>
-      </div>
+      </SectionErrorBoundary>
 
       {/* 프로젝트 생성/수정 Drawer */}
       <FormDrawer

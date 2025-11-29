@@ -17,6 +17,7 @@ export interface ProjectFormFieldsProps {
     field: K,
     value: ProjectFormData[K]
   ) => void;
+  onBlur?: <K extends keyof ProjectFormData>(field: K) => void;
   teams?: Array<{ id: string; name: string }>;
 }
 
@@ -24,6 +25,7 @@ export function ProjectFormFields({
   formData,
   errors,
   onChange,
+  onBlur,
   teams = [],
 }: ProjectFormFieldsProps) {
   return (
@@ -41,6 +43,7 @@ export function ProjectFormFields({
           type="text"
           value={formData.name}
           onChange={(e) => onChange("name", e.target.value)}
+          onBlur={() => onBlur?.("name")}
           className={errors.name ? "border-red-500" : ""}
           placeholder="프로젝트 이름을 입력하세요"
         />
@@ -61,6 +64,7 @@ export function ProjectFormFields({
           id="description"
           value={formData.description || ""}
           onChange={(e) => onChange("description", e.target.value)}
+          onBlur={() => onBlur?.("description")}
           className={errors.description ? "border-red-500" : ""}
           placeholder="프로젝트 설명을 입력하세요"
           rows={4}
@@ -82,6 +86,7 @@ export function ProjectFormFields({
           id="teamId"
           value={formData.teamId}
           onChange={(e) => onChange("teamId", e.target.value)}
+          onBlur={() => onBlur?.("teamId")}
           className={errors.teamId ? "border-red-500" : ""}
         >
           <SelectOption value="">팀 선택</SelectOption>
