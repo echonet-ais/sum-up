@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "pretendard/dist/web/static/pretendard.css";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { ErrorBoundary } from "@/components/common";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className="antialiased bg-[var(--background)] text-[var(--text-strong)]">
         <AppProviders>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </AppProviders>
       </body>
     </html>

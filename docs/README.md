@@ -43,6 +43,7 @@
 5. **[UI_DESIGN_GUIDELINES.md](./UI_DESIGN_GUIDELINES.md)** - UI 디자인 가이드라인
    - 디자인 시스템 및 컴포넌트 가이드
    - 색상, 타이포그래피, 간격 등 디자인 토큰
+   - 아이콘 시스템 (통합됨)
 
 ### 개발 문서
 
@@ -63,7 +64,7 @@
    - 공통 로직 분석 및 추출 계획
    - 코드 품질 개선 가이드라인
    - 성능 최적화 방법
-   - 레퍼런스 프로젝트 참고 사항
+   - 레퍼런스 프로젝트 패턴 (통합됨)
 
 ### 운영 문서
 
@@ -73,6 +74,7 @@
     - API 엔드포인트 및 사용 방법
     - 요청/응답 형식 및 에러 처리
     - 인증 미들웨어
+    - AI 기능 설정 및 사용 가이드 (통합됨)
 
 12. **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - 배포 가이드
     - Vercel 배포 방법
@@ -103,6 +105,16 @@
     - 스플리팅 대상 및 적용 방법
     - 성능 최적화 전략
 
+### 통합된 문서 (백업 폴더로 이동)
+
+다음 문서들은 관련 문서에 통합되어 백업 폴더로 이동되었습니다:
+- `AI_SETUP_GUIDE.md` → `BACKEND_API_GUIDE.md` (12. AI 기능 설정 및 사용 가이드)
+- `AI_IMPLEMENTATION_SUMMARY.md` → `BACKEND_API_GUIDE.md` (12. AI 기능 설정 및 사용 가이드)
+- `ICON_USAGE.md` → `UI_DESIGN_GUIDELINES.md` (13. 아이콘 시스템)
+- `REFERENCE_PATTERNS.md` → `REFACTORING_ANALYSIS.md` (6. 레퍼런스 프로젝트 패턴)
+- `NEXT_FEATURES.md` → `DEVELOPMENT_PLAN.md` (13. 다음 구현할 메인 피처 제안)
+- `PRD_COMPARISON_ANALYSIS.md` → 백업 (분석 완료, 참고용)
+
 ---
 
 ## 빠른 링크
@@ -130,21 +142,30 @@
 docs/
 ├── README.md                          # 문서 인덱스 (현재 파일)
 ├── PRD.md                             # 제품 요구사항 문서
-├── DEVELOPMENT_PLAN.md                # 개발 계획서
+├── DEVELOPMENT_PLAN.md                # 개발 계획서 (향후 기능 포함)
+├── DEVELOPMENT_LOG.md                 # 개발 로그 (실시간 작성)
 ├── COLLABORATION_GUIDELINES.md         # 협업 가이드라인
 ├── GITFLOW.md                         # Git 워크플로우
-├── UI_DESIGN_GUIDELINES.md            # UI 디자인 가이드라인
-├── COMPONENTS.md                      # 컴포넌트 문서 (통합)
-├── REFACTORING_ANALYSIS.md            # 리팩토링 분석 및 가이드 (통합)
+├── UI_DESIGN_GUIDELINES.md            # UI 디자인 가이드라인 (아이콘 시스템 포함)
+├── COMPONENTS.md                      # 컴포넌트 문서
+├── CODE_REVIEW.md                     # 코드 리뷰 보고서
+├── REFACTORING_ANALYSIS.md            # 리팩토링 분석 및 가이드 (레퍼런스 패턴 포함)
 ├── CODE_SPLITTING_GUIDE.md            # 코드 스플리팅 가이드
-├── BACKEND_API_GUIDE.md               # 백엔드 API 개발 가이드 (통합)
+├── BACKEND_API_GUIDE.md               # 백엔드 API 개발 가이드 (AI 기능 포함)
 ├── DEPLOYMENT_GUIDE.md                # 배포 가이드
 ├── TROUBLESHOOTING.md                 # 트러블슈팅 가이드
 ├── DOCUMENT_VERSIONING.md             # 문서 버전 관리 가이드
 ├── SUPABASE_SETUP_GUIDE.md            # Supabase 설정 가이드
+├── WORKING_GUIDELINES.md              # 작업 가이드라인
 └── backup/                            # 백업 문서 (gitignore)
     ├── PRD_EN_VER.md                  # 원본 PRD (영문)
     ├── PRD_KR_VER.md                  # 원본 PRD (한글)
+    ├── AI_SETUP_GUIDE.md              # AI 설정 가이드 (통합됨)
+    ├── AI_IMPLEMENTATION_SUMMARY.md   # AI 구현 요약 (통합됨)
+    ├── ICON_USAGE.md                  # 아이콘 사용 가이드 (통합됨)
+    ├── REFERENCE_PATTERNS.md          # 레퍼런스 패턴 (통합됨)
+    ├── NEXT_FEATURES.md               # 다음 기능 제안 (통합됨)
+    ├── PRD_COMPARISON_ANALYSIS.md     # PRD 비교 분석 (참고용)
     └── ... (기타 통합된 문서들)
 ```
 
@@ -171,5 +192,12 @@ docs/
 ---
 
 **마지막 업데이트**: 2025-11-29  
-**문서 버전**: 1.0.0
+**문서 버전**: 1.1.0
+
+**최근 변경사항** (2025-11-29):
+- AI 관련 문서 통합: `AI_SETUP_GUIDE.md`, `AI_IMPLEMENTATION_SUMMARY.md` → `BACKEND_API_GUIDE.md`
+- 아이콘 사용 가이드 통합: `ICON_USAGE.md` → `UI_DESIGN_GUIDELINES.md`
+- 레퍼런스 패턴 통합: `REFERENCE_PATTERNS.md` → `REFACTORING_ANALYSIS.md`
+- 향후 기능 제안 통합: `NEXT_FEATURES.md` → `DEVELOPMENT_PLAN.md`
+- PRD 비교 분석 백업: `PRD_COMPARISON_ANALYSIS.md` → `backup/`
 

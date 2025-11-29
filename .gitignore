@@ -39,3 +39,7 @@ next-env.d.ts
 # docs backup
 docs/backup/
 
+# local packages
+*.tgz
+hua-labs-ui-*.tgz
+
