@@ -41,6 +41,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await fetch("/api/auth/login", {
             method: "POST",
+            credentials: "include", // 쿠키를 포함하여 전송
             headers: {
               "Content-Type": "application/json",
             },
@@ -97,6 +98,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await fetch("/api/auth/signup", {
             method: "POST",
+            credentials: "include", // 쿠키를 포함하여 전송
             headers: {
               "Content-Type": "application/json",
             },
@@ -139,6 +141,7 @@ export const useAuthStore = create<AuthState>()(
           // API 호출 (선택 사항)
           await fetch("/api/auth/logout", {
             method: "POST",
+            credentials: "include", // 쿠키를 포함하여 전송
           });
         } catch (error) {
           console.error("Logout error:", error);

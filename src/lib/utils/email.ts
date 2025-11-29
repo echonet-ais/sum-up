@@ -1,4 +1,5 @@
 import { createServerClient } from "@/lib/supabase/server";
+import { Resend } from "resend";
 
 /**
  * 이메일 발송 유틸리티
@@ -54,7 +55,7 @@ export async function sendTeamInviteEmail(
 }
 
 /**
- * Resend를 통한 이메일 발송
+ * Resend를 통한 이메일 발송 (Resend SDK 사용)
  */
 async function sendViaResend(
   email: string,
@@ -69,26 +70,22 @@ async function sendViaResend(
   }
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || "noreply@example.com",
-        to: email,
-        subject: `${teamName} 팀 초대`,
-        html: generateTeamInviteEmailHTML(teamName, inviterName, inviteUrl),
-        text: generateTeamInviteEmailText(teamName, inviterName, inviteUrl),
-      }),
+    const resend = new Resend(resendApiKey);
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      to: email,
+      subject: `${teamName} 팀 초대`,
+      html: generateTeamInviteEmailHTML(teamName, inviterName, inviteUrl),
+      text: generateTeamInviteEmailText(teamName, inviterName, inviteUrl),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
+    if (error) {
+      console.error("Resend email error:", error);
       throw new Error(error.message || "Failed to send email via Resend");
     }
 
+    console.log("Email sent successfully via Resend:", data);
     return { success: true };
   } catch (error) {
     console.error("Resend email error:", error);

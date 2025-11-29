@@ -9,6 +9,133 @@
 
 ## 개발 로그
 
+### 2025-11-29 - Google OAuth 로그인 기능 활성화
+
+**완료된 작업:**
+- Google OAuth 로그인 기능 상태 업데이트
+  - 코드는 이미 완전히 구현되어 있음을 확인
+  - OAuthButton 컴포넌트, 콜백 라우트, 프로필 자동 생성 모두 구현됨
+  - FEATURE_STATUS.md에서 "부분 완료" → "완료"로 상태 변경
+  - Google OAuth 설정 가이드 문서 생성 (`docs/GOOGLE_OAUTH_SETUP.md`)
+- 인증 카테고리 100% 완료 달성
+  - 전체 완료율: 84.2% → 85.9% (49/57 완전 구현)
+
+**변경된 파일:**
+- `docs/FEATURE_STATUS.md` (Google OAuth 상태 업데이트)
+- `docs/MISSING_FEATURES_SUMMARY.md` (Google OAuth 상태 업데이트)
+- `docs/GOOGLE_OAUTH_SETUP.md` (신규 - 설정 가이드)
+
+**참고:**
+- 코드는 완전히 구현되어 있으므로, Supabase 대시보드에서 Google OAuth 제공자를 활성화하고 Google Cloud Console에서 OAuth 클라이언트를 생성하면 바로 사용 가능
+- 자세한 설정 방법은 `docs/GOOGLE_OAUTH_SETUP.md` 참고
+
+---
+
+### 2025-11-29 - 서버 사이드 인증 세션 문제 수정
+
+**완료된 작업:**
+- `@supabase/ssr` 패키지 설치
+  - Next.js App Router에서 Supabase 세션을 쿠키로 관리하기 위한 패키지
+- 서버 사이드 Supabase 클라이언트 수정
+  - `createServerClient` 함수를 `@supabase/ssr` 사용하도록 수정
+  - API Routes용 `createServerClientForAPI` 함수 추가
+  - `NextRequest`와 `NextResponse`를 사용하여 쿠키 읽기/쓰기
+- 로그인 API 수정
+  - `createServerClientForAPI` 사용하여 쿠키에 세션 저장
+  - 로그인 후 세션이 쿠키에 제대로 저장되도록 수정
+
+**변경된 파일:**
+- `package.json` (@supabase/ssr 추가)
+- `src/lib/supabase/server.ts` (createServerClientForAPI 추가)
+- `src/app/api/auth/login/route.ts` (쿠키 저장 로직 수정)
+
+**문제점:**
+- 모든 API 요청이 401 Unauthorized 에러 발생
+- "Auth session missing!" 에러
+- 서버 사이드에서 Supabase 세션 쿠키를 읽지 못함
+
+**해결 방법:**
+- `@supabase/ssr` 패키지 사용
+- API Routes에서는 `NextRequest`와 `NextResponse`를 통해 쿠키 관리
+- 로그인 시 세션을 쿠키에 저장하도록 수정
+
+**효과:**
+- 서버 사이드에서 인증 세션을 올바르게 읽을 수 있음
+- API 요청이 정상적으로 작동
+
+---
+
+### 2025-11-29 - 로그인 상태 확인 로직 수정
+
+**완료된 작업:**
+- 로그인 페이지 인증 상태 확인 로직 수정
+  - 로그인되어 있을 때 로그인 폼 대신 대시보드로 리다이렉트
+  - Supabase 세션 확인 및 스토어 동기화
+  - 인증 확인 중 로딩 상태 표시
+- 회원가입 페이지 인증 상태 확인 로직 수정
+  - 로그인되어 있을 때 회원가입 폼 대신 대시보드로 리다이렉트
+  - Supabase 세션 확인 및 스토어 동기화
+  - 인증 확인 중 로딩 상태 표시
+
+**변경된 파일:**
+- `src/app/login/page.tsx` (인증 상태 확인 로직 추가)
+- `src/app/register/page.tsx` (인증 상태 확인 로직 추가)
+
+**문제점:**
+- 로그인 상태인데도 로그인/회원가입 화면이 표시되는 문제
+- Supabase 세션이 있지만 스토어에 사용자 정보가 없는 경우 처리 누락
+
+**해결 방법:**
+- 페이지 로드 시 Supabase 세션 확인
+- 세션이 있으면 사용자 정보를 스토어에 로드하고 대시보드로 리다이렉트
+- 세션이 없으면 로그인/회원가입 폼 표시
+
+**효과:**
+- 로그인 상태에서 로그인/회원가입 페이지 접근 시 자동으로 대시보드로 리다이렉트
+- 사용자 경험 개선
+
+---
+
+### 2025-11-29 - Resend SDK 연동 및 실제 이메일 발송 기능 완성
+
+**완료된 작업:**
+- Resend SDK 설치 및 연동
+  - `npm install resend` 실행
+  - Resend 공식 SDK 사용하도록 코드 수정
+  - `src/lib/utils/email.ts`의 `sendViaResend` 함수를 Resend SDK로 변경
+- 실제 이메일 발송 기능 완성
+  - 팀 멤버 초대 시 실제 이메일 발송 가능
+  - HTML 및 텍스트 형식 이메일 지원
+  - Resend API 키를 통한 실제 이메일 발송
+- Resend 설정 가이드 문서 작성
+  - `docs/RESEND_SETUP.md` 생성
+  - 환경 변수 설정 방법
+  - 테스트 방법 및 문제 해결 가이드
+
+**변경된 파일:**
+- `package.json` (resend 패키지 추가)
+- `src/lib/utils/email.ts` (Resend SDK 사용하도록 수정)
+- `docs/RESEND_SETUP.md` (신규)
+
+**환경 변수 설정:**
+```env
+EMAIL_SERVICE=resend
+RESEND_API_KEY=re_No2UGQ9n_F5mkLFP7B6cSJ9gL5btL3uP6
+EMAIL_FROM=onboarding@resend.dev
+```
+
+**효과:**
+- 팀 멤버 초대 시 실제 이메일 발송 가능
+- 개발 환경에서는 `EMAIL_SERVICE=console`로 콘솔 로그만 출력 가능
+- 프로덕션 환경에서는 Resend를 통한 실제 이메일 발송
+
+**참고:**
+- Resend 무료 티어: 월 3,000통
+- 무료 티어에서는 `onboarding@resend.dev` 사용 가능
+- 프로덕션에서는 도메인 인증 후 커스텀 이메일 주소 사용 권장
+
+---
+
 ### 2025-11-29 - Google OAuth 로그인 UI 추가 및 기능 확인 (FR-004)
 
 **완료된 작업:**

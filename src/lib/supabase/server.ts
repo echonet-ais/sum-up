@@ -3,8 +3,10 @@
  * Next.js API Routes 및 Server Components에서 사용하는 Supabase 클라이언트
  */
 
+import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import type { NextRequest, NextResponse } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -19,62 +21,88 @@ if (!supabaseUrl || !supabaseAnonKey) {
 /**
  * 서버 사이드에서 사용하는 Supabase 클라이언트
  * 쿠키에서 세션을 읽어와서 인증된 사용자 정보를 포함합니다.
+ * Next.js App Router의 cookies()를 사용합니다.
+ * Server Components와 API Routes 모두에서 사용 가능합니다.
+ * 
+ * @param request - API Routes에서 사용할 경우 NextRequest (선택사항)
+ * @param response - API Routes에서 사용할 경우 NextResponse (선택사항)
  */
-export async function createServerClient() {
+export function createServerClient(
+  request?: NextRequest,
+  response?: NextResponse
+) {
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
       "Missing Supabase environment variables. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
     );
   }
 
+  // API Routes에서 사용하는 경우
+  if (request) {
+    return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          if (response) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
+          }
+          // response가 없으면 쿠키 설정 불가 (읽기 전용)
+        },
+      },
+    });
+  }
+
+  // Server Components에서 사용하는 경우
   const cookieStore = await cookies();
 
-  // Supabase 쿠키 키 형식: sb-{project-ref}-auth-token
-  const supabaseProjectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1] || "project";
-  const authTokenKey = `sb-${supabaseProjectRef}-auth-token`;
-  
-  // 쿠키에서 세션 읽기
-  const sessionCookie = cookieStore.get(authTokenKey)?.value;
-  
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      storage: {
-        getItem: (key: string) => {
-          if (key === authTokenKey) {
-            return sessionCookie ?? null;
-          }
-          return null;
-        },
-        setItem: (key: string, value: string) => {
-          // 서버 사이드에서는 쿠키를 직접 설정할 수 없음
-          // 콜백에서만 설정 가능
-        },
-        removeItem: (key: string) => {
-          // 서버 사이드에서는 쿠키를 직접 삭제할 수 없음
-        },
+  return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch (error) {
+          // 서버 컴포넌트에서는 쿠키를 설정할 수 없을 수 있음
+        }
       },
     },
   });
+}
 
-  // 쿠키에 세션이 있으면 설정
-  if (sessionCookie) {
-    try {
-      const sessionData = JSON.parse(sessionCookie);
-      if (sessionData.access_token && sessionData.refresh_token) {
-        await client.auth.setSession({
-          access_token: sessionData.access_token,
-          refresh_token: sessionData.refresh_token,
-        });
-      }
-    } catch (error) {
-      console.error("Failed to parse session cookie:", error);
-    }
+/**
+ * API Routes에서 사용하는 Supabase 클라이언트
+ * NextRequest와 NextResponse를 사용하여 쿠키를 읽고 쓸 수 있습니다.
+ */
+export function createServerClientForAPI(
+  request: NextRequest,
+  response: NextResponse
+) {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "Missing Supabase environment variables. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+    );
   }
 
-  return client;
+  return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
 }
 
 /**

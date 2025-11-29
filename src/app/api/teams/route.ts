@@ -131,7 +131,8 @@ function mapTeamRowToTeam(row: any): Team {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const nextResponse = new NextResponse();
+    const supabase = await createServerClient(request, nextResponse);
     const {
       data: { user },
       error: userError,
@@ -201,7 +202,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const nextResponse = new NextResponse();
+    const supabase = await createServerClient(request, nextResponse);
     const {
       data: { user },
       error: userError,

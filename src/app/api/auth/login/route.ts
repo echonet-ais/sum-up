@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClientForAPI } from "@/lib/supabase/server";
 
 /**
  * @swagger
@@ -91,7 +91,7 @@ import { createServerClient } from "@/lib/supabase/server";
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
@@ -103,7 +103,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createServerClient();
+    const response = new NextResponse();
+    const supabase = createServerClientForAPI(request, response);
 
     // Supabase Auth로 로그인
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -164,26 +165,31 @@ export async function POST(request: Request) {
       // 프로필이 없으면 기본 정보만 반환
     }
 
+    // 세션을 쿠키에 저장 (createServerClientForAPI가 자동으로 처리)
+    // signInWithPassword 후 자동으로 쿠키에 저장됨
+    await supabase.auth.setSession({
+      access_token: authData.session.access_token,
+      refresh_token: authData.session.refresh_token,
+    });
+
     // 세션 토큰을 클라이언트에 반환
-    // 클라이언트에서 supabase.auth.setSession()을 호출하여 쿠키에 저장
-    return NextResponse.json(
-      {
-        message: "로그인 성공",
-        user: {
-          id: authData.user.id,
-          email: authData.user.email,
-          name: userProfile?.name || authData.user.user_metadata?.name || "사용자",
-          avatar: userProfile?.avatar,
-          role: userProfile?.role || "MEMBER",
-        },
-        session: {
-          access_token: authData.session.access_token,
-          refresh_token: authData.session.refresh_token,
-          expires_at: authData.session.expires_at,
-        },
+    response.json({
+      message: "로그인 성공",
+      user: {
+        id: authData.user.id,
+        email: authData.user.email,
+        name: userProfile?.name || authData.user.user_metadata?.name || "사용자",
+        avatar: userProfile?.avatar,
+        role: userProfile?.role || "MEMBER",
       },
-      { status: 200 }
-    );
+      session: {
+        access_token: authData.session.access_token,
+        refresh_token: authData.session.refresh_token,
+        expires_at: authData.session.expires_at,
+      },
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

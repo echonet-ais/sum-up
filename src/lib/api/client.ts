@@ -42,6 +42,7 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
   try {
     const response = await fetch(url, {
       ...options,
+      credentials: "include", // 쿠키를 포함하여 전송 (인증 세션 필요)
       headers: {
         "Content-Type": "application/json",
         ...options?.headers,

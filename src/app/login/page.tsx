@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Input } from "@hua-labs/ui";
@@ -8,8 +8,9 @@ import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { OAuthButton, PasswordInput } from "@/components/auth";
 import { useAuthStore } from "@/store/auth-store";
-import { ErrorState, ErrorBoundary } from "@/components/common";
+import { ErrorState, ErrorBoundary, LoadingState } from "@/components/common";
 import { AppLayout } from "@/components/layout";
+import { supabase } from "@/lib/supabase/client";
 import Link from "next/link";
 
 function LoginForm() {
@@ -151,20 +152,67 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const { user, isAuthenticated, setUser, setToken } = useAuthStore();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // 로그인되어 있으면 AppLayout으로 감싸기
-  if (isAuthenticated) {
+  useEffect(() => {
+    const checkAuth = async () => {
+      // 스토어에 사용자 정보가 있으면 대시보드로 리다이렉트
+      if (isAuthenticated || user) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      // Supabase 세션 확인
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        // 세션이 없으면 로그인 폼 표시
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      // 세션이 있지만 스토어에 사용자 정보가 없는 경우
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        // 사용자 프로필 가져오기
+        const { data: profile } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", authUser.id)
+          .single();
+
+        // 스토어에 사용자 정보 저장
+        setUser({
+          id: authUser.id,
+          email: authUser.email!,
+          name: profile?.name || authUser.user_metadata?.name || "사용자",
+          avatar: profile?.avatar || authUser.user_metadata?.avatar_url,
+          role: profile?.role || "MEMBER",
+        });
+        setToken(session.access_token);
+
+        // 대시보드로 리다이렉트
+        router.replace("/dashboard");
+      } else {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router, user, isAuthenticated, setUser, setToken]);
+
+  // 인증 확인 중
+  if (isCheckingAuth) {
     return (
-      <AppLayout>
-        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-          <LoginForm />
-        </div>
-      </AppLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingState message="인증 상태 확인 중..." />
+      </div>
     );
   }
 
-  // 로그인 안 되어 있으면 독립적으로 렌더링
+  // 로그인 안 되어 있으면 로그인 폼 표시
   return (
     <ErrorBoundary>
       <LoginForm />

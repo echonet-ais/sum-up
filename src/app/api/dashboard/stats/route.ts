@@ -7,7 +7,8 @@ import { createServerClient } from "@/lib/supabase/server";
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const response = new NextResponse();
+    const supabase = await createServerClient(request, response);
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
