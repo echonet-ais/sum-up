@@ -2,6 +2,15 @@
 -- 테스트 계정 생성 SQL
 -- Supabase Dashboard > SQL Editor에서 실행
 -- ============================================
+-- 
+-- 주의: auth.users 테이블은 Supabase가 관리하는 테이블입니다.
+-- 직접 삽입 시 많은 필수 컬럼이 필요할 수 있습니다.
+-- 
+-- 권장 방법: Supabase Dashboard > Authentication > Users에서
+-- "Add user" 버튼을 사용하여 수동으로 생성하는 것이 가장 안전합니다.
+-- 
+-- 또는 아래의 간단한 방법(방법 4)을 먼저 시도해보세요.
+-- ============================================
 
 -- 테스트 계정 정보
 -- 이메일: test@example.com
@@ -108,7 +117,7 @@ INSERT INTO auth.users (
 -- );
 
 -- ============================================
--- 방법 2: 간단한 방법 (함수 사용)
+-- 방법 2: 간단한 방법 (함수 사용) - 권장
 -- ============================================
 
 -- 더 간단한 방법: DO 블록을 사용하여 변수로 id 저장
@@ -211,6 +220,77 @@ END $$;
 
 -- ============================================
 -- 방법 3: 여러 테스트 계정 생성
+-- ============================================
+
+-- ============================================
+-- 방법 4: 최소 필수 컬럼만 사용 (가장 간단) - 먼저 시도
+-- ============================================
+-- 
+-- 이 방법은 최소한의 필수 컬럼만 사용합니다.
+-- Supabase 버전에 따라 필요한 컬럼이 다를 수 있으므로,
+-- 오류가 발생하면 방법 2를 사용하세요.
+
+DO $$
+DECLARE
+  user_id UUID;
+BEGIN
+  -- 최소 필수 컬럼만 사용하여 auth.users에 사용자 생성
+  INSERT INTO auth.users (
+    instance_id,
+    id,
+    aud,
+    role,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    created_at,
+    updated_at
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    gen_random_uuid(),
+    'authenticated',
+    'authenticated',
+    'test@example.com',
+    crypt('Test1234!', gen_salt('bf')),
+    NOW(), -- 이메일 인증 우회
+    '{"provider":"email","providers":["email"]}',
+    '{"name":"테스트 사용자"}',
+    NOW(),
+    NOW()
+  ) RETURNING id INTO user_id;
+
+  -- public.users에 프로필 정보 추가
+  INSERT INTO public.users (
+    id,
+    email,
+    name,
+    role,
+    email_confirmed_at,
+    created_at,
+    updated_at
+  ) VALUES (
+    user_id,
+    'test@example.com',
+    '테스트 사용자',
+    'MEMBER',
+    NOW(),
+    NOW(),
+    NOW()
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    name = EXCLUDED.name,
+    role = EXCLUDED.role,
+    email_confirmed_at = EXCLUDED.email_confirmed_at,
+    updated_at = NOW();
+
+  RAISE NOTICE '테스트 계정이 생성되었습니다. ID: %, 이메일: test@example.com, 비밀번호: Test1234!', user_id;
+END $$;
+
+-- ============================================
+-- 방법 5: 여러 테스트 계정 생성 (간단 버전)
 -- ============================================
 
 -- 관리자 계정
