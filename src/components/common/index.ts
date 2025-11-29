@@ -24,3 +24,9 @@ export type { FormActionsProps } from "./FormActions";
 export { ErrorBoundary } from "./ErrorBoundary";
 export type { ErrorBoundaryProps } from "./ErrorBoundary";
 
+export { FormDrawer } from "./FormDrawer";
+export type { FormDrawerProps } from "./FormDrawer";
+
+export { MetaInfoCard } from "./MetaInfoCard";
+export type { MetaInfoCardProps, MetaInfoItem } from "./MetaInfoCard";
+

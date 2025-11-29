@@ -9,6 +9,8 @@ import { Badge } from "@hua-labs/ui";
 import dynamic from "next/dynamic";
 import { NotificationDropdown } from "@/components/notification";
 import { useAuthStore } from "@/store/auth-store";
+import Link from "next/link";
+import Image from "next/image";
 
 const GlobalSearch = dynamic(() => import("@/components/search").then((mod) => ({ default: mod.GlobalSearch })));
 import { useRouter } from "next/navigation";
