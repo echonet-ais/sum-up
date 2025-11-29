@@ -273,7 +273,7 @@ export function IssueFormFields({
                   const newSubtasks = (formData.subtasks || []).filter((_, i) => i !== index);
                   onChange("subtasks", newSubtasks);
                 }}
-                className="px-3 py-2 text-sm text-red-600 hover:text-red-700"
+                className="px-3 py-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
               >
                 삭제
               </button>

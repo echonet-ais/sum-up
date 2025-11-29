@@ -27,6 +27,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
       label,
       buttonText = "파일 선택",
       preview = false,
+      multiple = false,
       ...props
     },
     ref
@@ -38,31 +39,61 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     React.useImperativeHandle(ref, () => fileInputRef.current as HTMLInputElement);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-
-      if (file) {
-        // Check file size
-        if (maxSize && file.size > maxSize * 1024 * 1024) {
-          alert(`파일 크기는 ${maxSize}MB 이하여야 합니다.`);
-          return;
+      const files = e.target.files;
+      
+      if (multiple && files && files.length > 0) {
+        // 여러 파일 선택 모드
+        const validFiles: File[] = [];
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (maxSize && file.size > maxSize * 1024 * 1024) {
+            alert(`파일 "${file.name}"의 크기는 ${maxSize}MB 이하여야 합니다.`);
+            continue;
+          }
+          validFiles.push(file);
         }
-
-        setSelectedFile(file);
-
-        // Create preview URL for images
-        if (preview && file.type.startsWith("image/")) {
-          const url = URL.createObjectURL(file);
-          setPreviewUrl(url);
+        if (validFiles.length > 0) {
+          // 여러 파일 중 첫 번째 파일을 선택된 파일로 표시
+          setSelectedFile(validFiles[0]);
+          if (preview && validFiles[0].type.startsWith("image/")) {
+            const url = URL.createObjectURL(validFiles[0]);
+            setPreviewUrl(url);
+          }
+          // 모든 유효한 파일을 콜백으로 전달
+          onFileSelect?.(validFiles[0]); // 단일 파일 콜백이므로 첫 번째만 전달
         }
       } else {
-        setSelectedFile(null);
-        if (previewUrl) {
-          URL.revokeObjectURL(previewUrl);
-          setPreviewUrl(null);
-        }
-      }
+        const file = files?.[0] || null;
 
-      onFileSelect?.(file);
+        if (file) {
+          // Check file size
+          if (maxSize && file.size > maxSize * 1024 * 1024) {
+            alert(`파일 크기는 ${maxSize}MB 이하여야 합니다.`);
+            return;
+          }
+
+          setSelectedFile(file);
+
+          // Create preview URL for images
+          if (preview && file.type.startsWith("image/")) {
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+          }
+        } else {
+          setSelectedFile(null);
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+          }
+        }
+
+        onFileSelect?.(file);
+      }
+      
+      // Reset input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
 
     const handleRemove = () => {
@@ -88,7 +119,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--text-strong)] mb-1">
             {label}
           </label>
         )}
@@ -100,6 +131,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
               accept={accept}
               onChange={handleFileChange}
               className="hidden"
+              multiple={multiple}
               {...props}
             />
             <Button
@@ -112,7 +144,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
               {buttonText}
             </Button>
             {selectedFile && (
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
                 <span>{selectedFile.name}</span>
                 <Button
                   type="button"
@@ -131,7 +163,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
               <img
                 src={previewUrl}
                 alt="Preview"
-                className="max-w-xs max-h-48 rounded-md border border-gray-200 dark:border-gray-700"
+                className="max-w-xs max-h-48 rounded-md border border-[var(--border-subtle)]"
               />
             </div>
           )}

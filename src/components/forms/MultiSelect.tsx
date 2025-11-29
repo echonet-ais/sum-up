@@ -80,19 +80,19 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
     return (
       <div className={cn("w-full", className)} ref={containerRef} {...props}>
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--text-strong)] mb-1">
             {label}
           </label>
         )}
         <div className="relative">
           <div
             className={cn(
-              "flex min-h-10 w-full items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm transition-colors",
-              "focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2",
+              "flex min-h-10 w-full items-center gap-2 rounded-md border bg-[var(--surface)] px-3 py-2 text-sm transition-colors",
+              "focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--brand-primary)] focus-within:ring-offset-2",
               error
                 ? "border-red-500 focus-within:ring-red-500"
-                : "border-gray-300 dark:border-gray-600",
-              "dark:bg-gray-800 dark:text-white"
+                : "border-[var(--border-subtle)]",
+              "text-[var(--text-strong)]"
             )}
             onClick={() => setIsOpen(!isOpen)}
           >
@@ -113,20 +113,20 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                   </Badge>
                 ))
               ) : (
-                <span className="text-gray-500 dark:text-gray-400">{placeholder}</span>
+                <span className="text-[var(--text-muted)]">{placeholder}</span>
               )}
             </div>
             <Icon
               name="chevronDown"
               className={cn(
-                "h-4 w-4 text-gray-400 transition-transform",
+                "h-4 w-4 text-[var(--text-muted)] transition-transform",
                 isOpen && "rotate-180"
               )}
             />
           </div>
 
           {isOpen && (
-            <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
               {options.map((option) => {
                 const isSelected = value.includes(option.value);
                 const isDisabled = option.disabled || (maxSelections && !isSelected && value.length >= maxSelections);
@@ -138,7 +138,7 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                       "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer transition-colors",
                       isSelected && "bg-blue-50 dark:bg-blue-900/20",
                       isDisabled && "opacity-50 cursor-not-allowed",
-                      !isDisabled && "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      !isDisabled && "hover:bg-[var(--surface-muted)]"
                     )}
                     onClick={() => !isDisabled && handleToggle(option.value)}
                   >
@@ -146,7 +146,7 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => {}}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-[var(--border-subtle)] text-[var(--brand-primary)] focus:ring-[var(--brand-primary)]"
                       disabled={!!isDisabled}
                     />
                     <span>{option.label}</span>

@@ -20,3 +20,5 @@ export { SubtaskManager } from "./SubtaskManager";
 export type { SubtaskManagerProps } from "./SubtaskManager";
 
 export { AIFeatures } from "./AIFeatures";
+export { IssueAttachments } from "./IssueAttachments";
+export type { IssueAttachmentsProps } from "./IssueAttachments";
