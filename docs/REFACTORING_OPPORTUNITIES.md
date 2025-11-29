@@ -414,17 +414,23 @@ export function MetaInfoCard({ title = "정보", items }: MetaInfoCardProps) {
 ## 3. 우선순위 정리
 
 ### P0 (즉시 적용)
-1. ✅ KanbanBoard 동적 import
-2. ✅ GlobalSearch 동적 import
+1. ✅ KanbanBoard 동적 import (완료)
+2. ✅ GlobalSearch 동적 import (완료)
 
 ### P1 (단기 개선)
-3. ✅ 폼 컴포넌트들 동적 import
-4. ✅ 상세 페이지 전용 컴포넌트 동적 import
-5. ✅ 프로젝트 상세 페이지 StatCard 사용
-6. ✅ DetailPageLayout 컴포넌트 생성
-7. ✅ useDeleteDialog 훅 생성
-8. ✅ FormDrawer 컴포넌트 생성
-9. ✅ MetaInfoCard 컴포넌트 생성
+3. ✅ 폼 컴포넌트들 동적 import (완료)
+4. ✅ 상세 페이지 전용 컴포넌트 동적 import (완료)
+5. ✅ 프로젝트 상세 페이지 StatCard 사용 (완료)
+6. ✅ DetailPageLayout 컴포넌트 생성 (완료)
+7. ✅ useDeleteDialog 훅 생성 (완료)
+8. ✅ FormDrawer 컴포넌트 생성 (완료)
+9. ✅ MetaInfoCard 컴포넌트 생성 (완료)
+
+### P2 (적용 완료)
+10. ✅ DetailPageLayout을 상세 페이지에 적용 (완료)
+11. ✅ FormDrawer를 Drawer 사용 부분에 적용 (완료)
+12. ✅ MetaInfoCard를 메타 정보 카드에 적용 (완료)
+13. ✅ useDeleteDialog를 삭제 다이얼로그에 적용 (완료)
 
 ### P2 (중기 개선)
 10. 상세 페이지 리팩토링 (DetailPageLayout 적용)

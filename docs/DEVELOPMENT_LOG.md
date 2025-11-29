@@ -38,6 +38,64 @@
 
 ## 개발 로그
 
+### 2025-11-29 - Supabase 기반 Issues CRUD 전환 (P0)
+
+**완료된 작업:**
+- Issues API Routes 구현 (Supabase 연동)
+  - `GET /api/issues` (필터/검색/페이지네이션/정렬)
+  - `POST /api/issues` (새 이슈 생성)
+  - `GET /api/issues/[id]` (단건 조회)
+  - `PUT /api/issues/[id]` (업데이트)
+  - `DELETE /api/issues/[id]` (삭제)
+- 훅 전환 (목 데이터 제거 → 실제 API 호출)
+  - `useIssues` → `/api/issues` 호출로 리스트/페이지네이션/생성 연동
+  - `useIssue` → `/api/issues/[id]` 호출로 조회/수정/삭제/상태변경 연동
+
+**변경된 파일:**
+- `src/app/api/issues/route.ts` (신규)
+- `src/app/api/issues/[id]/route.ts` (신규)
+- `src/hooks/useIssues.ts` (API 연동)
+- `src/hooks/useIssue.ts` (API 연동)
+
+**비고:**
+- Supabase 실제 스키마 기준으로 컬럼 매핑 적용 (`project_id`, `assignee_id`, `due_date` 등)
+- `labels`, `subtasks`는 별도 테이블/엔드포인트 연동 계획 (후속 작업)
+
+---
+
+### 2025-11-29 - 리팩토링 컴포넌트 적용 (P2)
+
+**완료된 작업:**
+- DetailPageLayout 적용
+  - 이슈 상세 페이지에 적용
+  - 프로젝트 상세 페이지에 적용
+  - 로딩/에러 처리 및 헤더 액션 통일
+- FormDrawer 적용
+  - 이슈 수정 Drawer에 적용
+  - 프로젝트 수정 Drawer에 적용
+  - Drawer 패턴 통일
+- MetaInfoCard 적용
+  - 이슈 상세 페이지 메타 정보 카드에 적용
+  - 메타 정보 표시 패턴 통일
+- useDeleteDialog 훅 적용
+  - 이슈 삭제 기능에 적용
+  - 프로젝트 삭제 기능에 적용
+  - 삭제 확인 다이얼로그 로직 통일
+
+**변경된 파일:**
+- `src/app/issues/[id]/page.tsx` (DetailPageLayout, FormDrawer, MetaInfoCard, useDeleteDialog 적용)
+- `src/app/projects/[id]/page.tsx` (DetailPageLayout, FormDrawer, useDeleteDialog 적용)
+
+**효과:**
+- 코드 라인 수 약 100줄 감소
+- 중복 코드 제거
+- 유지보수성 향상
+
+**참고:**
+- [REFACTORING_OPPORTUNITIES.md](./REFACTORING_OPPORTUNITIES.md) - 리팩토링 기회 분석
+
+---
+
 ### 2025-11-29 - 타입 에러 수정
 
 **완료된 작업:**

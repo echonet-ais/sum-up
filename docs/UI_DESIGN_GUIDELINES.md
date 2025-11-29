@@ -197,19 +197,19 @@ npm install ../hua-platform/packages/hua-ui/hua-labs-ui-1.0.0.tgz
 ### 4.1 아이콘 시스템
 
 **아이콘 프로바이더**:
-- **Lucide Icons** (기본값): 기본적으로 사용되는 아이콘 라이브러리
-- **Phosphor Icons**: 필요시 사용 가능 (lazy loading)
+- **Phosphor Icons** (기본값): 프로젝트 전역에서 기본으로 사용하는 아이콘 라이브러리
+- **Lucide Icons**: 기존 컴포넌트 호환용, 예외적으로만 사용
 - **Untitled Icons**: 향후 지원 예정
 
 **사용 방법**:
 ```tsx
 import { Icon } from "@hua-labs/ui";
 
-// 기본 사용 (Lucide Icons)
+// 기본 사용 (Phosphor Icons)
 <Icon name="folder" size={20} />
 
-// Phosphor Icons 사용
-<Icon name="folder" provider="phosphor" size={20} />
+// Lucide Icons 사용 (예외적으로 필요할 때만)
+<Icon name="folder" provider="lucide" size={20} />
 
 // Untitled Icons 사용 (향후)
 <Icon name="folder" provider="untitled" size={20} />

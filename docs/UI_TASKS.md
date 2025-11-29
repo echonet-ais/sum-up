@@ -57,24 +57,24 @@
 
 ### 2.1 P0 (필수) - 즉시 진행
 
-#### 2.1.1 보더 라디우스 통일 (4-8px 제한)
+#### 2.1.1 보더 라디우스 통일 (4-8px 제한) ✅
 **목표**: 모든 컴포넌트의 보더 라디우스를 4-8px로 제한
 
 **작업 범위**:
-- [ ] 이슈 관련 컴포넌트 (8개 파일)
+- [x] 이슈 관련 컴포넌트 (8개 파일)
   - `IssueForm.tsx`, `SubtaskManager.tsx`, `CommentList.tsx`, `AIFeatures.tsx`
   - `IssueFormFields.tsx`, `CommentForm.tsx`, `CommentItem.tsx`
   - `PriorityBadge.tsx`, `StatusBadge.tsx`
-- [ ] 프로젝트 관련 컴포넌트 (3개 파일)
+- [x] 프로젝트 관련 컴포넌트 (3개 파일)
   - `ProjectForm.tsx`, `ProjectFormFields.tsx`
-- [ ] 공통 컴포넌트 (6개 파일)
+- [x] 공통 컴포넌트 (7개 파일)
   - `StatCard.tsx`, `FilterBar.tsx`, `EmptyState.tsx`, `ErrorState.tsx`
-  - `LoadingState.tsx`, `Markdown.tsx`
-- [ ] 폼 컴포넌트 (3개 파일)
+  - `LoadingState.tsx`, `Markdown.tsx`, `MetaInfoCard.tsx`
+- [x] 폼 컴포넌트 (3개 파일)
   - `DatePicker.tsx`, `FileUpload.tsx`, `MultiSelect.tsx`
-- [ ] 인증 컴포넌트 (2개 파일)
+- [x] 인증 컴포넌트 (2개 파일)
   - `PasswordInput.tsx`, `PasswordChecklist.tsx`
-- [ ] 페이지들 (10개 파일)
+- [x] 페이지들 (10개 파일)
   - `app/issues/page.tsx`, `app/issues/[id]/page.tsx`
   - `app/projects/page.tsx`, `app/projects/[id]/page.tsx`
   - `app/kanban/page.tsx`, `app/page.tsx`
@@ -82,9 +82,11 @@
   - `app/profile/page.tsx`
 
 **변경 규칙**:
-- `rounded-xl` (12px) → `rounded-lg` (8px)
-- 작은 요소: `rounded-md` (6px) 또는 `rounded` (4px)
-- 버튼 내부 아이콘: `rounded-md` (6px)
+- `rounded-xl` (12px) → `rounded-lg` (8px) ✅
+- 작은 요소: `rounded-md` (6px) 또는 `rounded` (4px) ✅
+- 버튼 내부 아이콘: `rounded-md` (6px) ✅
+
+**완료 날짜**: 2025-11-29
 
 #### 2.1.2 다크모드 가독성 개선
 **목표**: 모든 컴포넌트에서 다크모드 가독성 확보
