@@ -1,60 +1,60 @@
-# Collaboration Guidelines
+# 협업 가이드라인
 
-> **Project**: Litmers  
-> **Version**: 1.0  
-> **Date**: 2025-01-XX  
-> **Status**: Draft
-
----
-
-## 1. Overview
-
-### 1.1 Purpose
-This document defines collaboration guidelines for the Litmers project team.
-
-### 1.2 Scope
-- Code style and conventions
-- Communication guidelines
-- Code review process
-- Issue management
-- Documentation standards
+> **프로젝트**: SumUp  
+> **버전**: 1.0  
+> **날짜**: 2025-11-29  
+> **상태**: 초안
 
 ---
 
-## 2. Code Style and Conventions
+## 1. 개요
+
+### 1.1 목적
+본 문서는 SumUp 프로젝트 팀을 위한 협업 가이드라인을 정의합니다.
+
+### 1.2 범위
+- 코드 스타일 및 컨벤션
+- 커뮤니케이션 가이드라인
+- 코드 리뷰 프로세스
+- 이슈 관리
+- 문서화 표준
+
+---
+
+## 2. 코드 스타일 및 컨벤션
 
 ### 2.1 TypeScript
-- Use TypeScript for all new code
-- Enable strict mode
-- Define types for all function parameters and return values
-- Use interfaces for object shapes
-- Use type aliases for unions and intersections
+- 모든 새 코드에 TypeScript 사용
+- strict 모드 활성화
+- 모든 함수 매개변수 및 반환 값에 타입 정의
+- 객체 형태에는 인터페이스 사용
+- 유니온 및 교차 타입에는 타입 별칭 사용
 
-### 2.2 Naming Conventions
-- **Components**: PascalCase (e.g., `UserProfile.tsx`)
-- **Hooks**: camelCase starting with "use" (e.g., `useUserData.ts`)
-- **Utilities**: camelCase (e.g., `formatDate.ts`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `API_BASE_URL`)
-- **Files**: Match the exported name (e.g., `UserProfile.tsx` exports `UserProfile`)
+### 2.2 명명 규칙
+- **컴포넌트**: PascalCase (예: `UserProfile.tsx`)
+- **훅**: "use"로 시작하는 camelCase (예: `useUserData.ts`)
+- **유틸리티**: camelCase (예: `formatDate.ts`)
+- **상수**: UPPER_SNAKE_CASE (예: `API_BASE_URL`)
+- **파일**: 내보낸 이름과 일치 (예: `UserProfile.tsx`는 `UserProfile`을 내보냄)
 
-### 2.3 File Structure
-- One component per file
-- Co-locate related files (components, hooks, types)
-- Use index files for clean imports
-- Group by feature, not by type
+### 2.3 파일 구조
+- 파일당 하나의 컴포넌트
+- 관련 파일을 함께 배치 (컴포넌트, 훅, 타입)
+- 깔끔한 import를 위한 index 파일 사용
+- 타입별이 아닌 기능별로 그룹화
 
-### 2.4 Code Formatting
-- Use ESLint for linting
-- Use Prettier for formatting (if configured)
-- Consistent indentation (2 spaces)
-- Trailing commas in multi-line structures
-- Single quotes for strings (if configured)
+### 2.4 코드 포맷팅
+- ESLint를 사용한 린팅
+- Prettier를 사용한 포맷팅 (설정된 경우)
+- 일관된 들여쓰기 (2칸)
+- 여러 줄 구조에서 후행 쉼표
+- 문자열에 작은따옴표 사용 (설정된 경우)
 
 ---
 
-## 3. Component Guidelines
+## 3. 컴포넌트 가이드라인
 
-### 3.1 Component Structure
+### 3.1 컴포넌트 구조
 ```typescript
 // Imports
 import React from 'react';
@@ -78,38 +78,38 @@ export default function ComponentName({ prop1, prop2 }: Props) {
 }
 ```
 
-### 3.2 Component Best Practices
-- Keep components small and focused
-- Extract reusable logic into custom hooks
-- Use composition over configuration
-- Prefer function components over class components
-- Use TypeScript for all props
+### 3.2 컴포넌트 모범 사례
+- 컴포넌트를 작고 집중적으로 유지
+- 재사용 가능한 로직을 커스텀 훅으로 추출
+- 설정보다는 구성을 선호
+- 클래스 컴포넌트보다 함수 컴포넌트 선호
+- 모든 props에 TypeScript 사용
 
-### 3.3 State Management
-- Use local state for component-specific data
-- Use context for shared state (sparingly)
-- Consider state management library for complex state
-- Keep state as close to where it's used as possible
+### 3.3 상태 관리
+- 컴포넌트별 데이터에는 로컬 상태 사용
+- 공유 상태에는 컨텍스트 사용 (절제적으로)
+- 복잡한 상태에는 상태 관리 라이브러리 고려
+- 상태를 사용하는 곳에 최대한 가깝게 유지
 
 ---
 
-## 4. Git Workflow
+## 4. Git 워크플로우
 
-### 4.1 Branch Strategy
-- `main`: Production-ready code
-- `dev`: Development branch
-- `feature/*`: Feature branches
-- `fix/*`: Bug fix branches
-- `hotfix/*`: Hotfix branches
+### 4.1 브랜치 전략
+- `main`: 프로덕션 준비 코드
+- `dev`: 개발 브랜치
+- `feature/*`: 기능 브랜치
+- `fix/*`: 버그 수정 브랜치
+- `hotfix/*`: 핫픽스 브랜치
 
-### 4.2 Commit Messages
-- Use English
-- Use imperative mood
-- Keep first line under 50 characters
-- Add detailed description if needed
-- Reference issues if applicable
+### 4.2 커밋 메시지
+- 영어 사용
+- 명령형 사용
+- 첫 줄은 50자 이하
+- 필요시 상세 설명 추가
+- 해당되는 경우 이슈 참조
 
-**Format**:
+**형식**:
 ```
 type: short description (max 50 chars)
 
@@ -120,183 +120,182 @@ Longer description if needed
 Fixes #123
 ```
 
-**Types**:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Test additions or changes
-- `chore`: Build process or auxiliary tool changes
+**타입**:
+- `feat`: 새 기능
+- `fix`: 버그 수정
+- `docs`: 문서 변경
+- `style`: 코드 스타일 변경 (포맷팅 등)
+- `refactor`: 코드 리팩토링
+- `test`: 테스트 추가 또는 변경
+- `chore`: 빌드 프로세스 또는 보조 도구 변경
 
-### 4.3 Pull Request Process
-- Create PR from feature branch to `dev` (direct merge)
-- Create PR from `dev` to `main` (requires review)
-- Include clear description
-- Reference related issues
-- Ensure all checks pass
-- Request review from at least one team member
-
----
-
-## 5. Code Review Guidelines
-
-### 5.1 Review Checklist
-- Code follows project conventions
-- TypeScript types are properly defined
-- No console.logs or debug code
-- Error handling is implemented
-- Tests are included (if applicable)
-- Documentation is updated
-
-### 5.2 Review Process
-- Be constructive and respectful
-- Focus on code, not the person
-- Suggest improvements, not just point out issues
-- Approve when satisfied
-- Request changes when necessary
-
-### 5.3 Responding to Reviews
-- Address all comments
-- Ask for clarification if needed
-- Update code and push changes
-- Mark comments as resolved when done
+### 4.3 Pull Request 프로세스
+- 기능 브랜치에서 `dev`로 PR 생성 (직접 머지)
+- `dev`에서 `main`으로 PR 생성 (리뷰 필요)
+- 명확한 설명 포함
+- 관련 이슈 참조
+- 모든 체크 통과 확인
+- 최소 한 명의 팀원에게 리뷰 요청
 
 ---
 
-## 6. Communication
+## 5. 코드 리뷰 가이드라인
 
-### 6.1 Channels
-- GitHub Issues: Bug reports and feature requests
-- GitHub Discussions: General discussions
-- Pull Requests: Code review discussions
-- Commit messages: Change descriptions
+### 5.1 리뷰 체크리스트
+- 코드가 프로젝트 컨벤션을 따름
+- TypeScript 타입이 적절히 정의됨
+- console.logs 또는 디버그 코드 없음
+- 에러 처리가 구현됨
+- 테스트가 포함됨 (해당되는 경우)
+- 문서가 업데이트됨
 
-### 6.2 Communication Guidelines
-- Be clear and concise
-- Use English for technical discussions
-- Reference issues and PRs when relevant
-- Update documentation when making changes
+### 5.2 리뷰 프로세스
+- 건설적이고 존중하는 태도
+- 사람이 아닌 코드에 집중
+- 문제만 지적하지 말고 개선 사항 제안
+- 만족하면 승인
+- 필요시 변경 요청
 
----
-
-## 7. Issue Management
-
-### 7.1 Issue Labels
-- `bug`: Something isn't working
-- `feature`: New feature request
-- `enhancement`: Improvement to existing feature
-- `documentation`: Documentation improvements
-- `question`: Questions or discussions
-- `help wanted`: Extra attention is needed
-
-### 7.2 Issue Template
-- Clear title
-- Description of the issue
-- Steps to reproduce (for bugs)
-- Expected behavior
-- Actual behavior
-- Environment information
-- Screenshots (if applicable)
+### 5.3 리뷰 응답
+- 모든 코멘트에 대응
+- 필요시 명확화 요청
+- 코드 업데이트 및 변경사항 푸시
+- 완료되면 코멘트를 해결됨으로 표시
 
 ---
 
-## 8. Documentation Standards
+## 6. 커뮤니케이션
 
-### 8.1 Code Documentation
-- Document all public APIs
-- Use JSDoc comments for functions
-- Explain complex logic
-- Include examples when helpful
+### 6.1 채널
+- GitHub Issues: 버그 보고 및 기능 요청
+- GitHub Discussions: 일반 토론
+- Pull Requests: 코드 리뷰 토론
+- 커밋 메시지: 변경 설명
 
-### 8.2 README Updates
-- Update README when adding new features
-- Document new environment variables
-- Update installation instructions if needed
-- Keep project structure up to date
-
-### 8.3 Documentation Files
-- Keep docs in `docs/` folder
-- Use Markdown format
-- Keep documents up to date
-- Review and update regularly
+### 6.2 커뮤니케이션 가이드라인
+- 명확하고 간결하게
+- 기술적 토론에는 영어 사용
+- 관련된 경우 이슈 및 PR 참조
+- 변경 시 문서 업데이트
 
 ---
 
-## 9. Testing Guidelines
+## 7. 이슈 관리
 
-### 9.1 Test Coverage
-- Write tests for critical functionality
-- Test edge cases
-- Test error handling
-- Maintain test coverage
+### 7.1 이슈 레이블
+- `bug`: 작동하지 않는 것
+- `feature`: 새 기능 요청
+- `enhancement`: 기존 기능 개선
+- `documentation`: 문서 개선
+- `question`: 질문 또는 토론
+- `help wanted`: 추가 주의가 필요함
 
-### 9.2 Test Structure
-- One test file per source file
-- Use descriptive test names
-- Follow AAA pattern (Arrange, Act, Assert)
-- Keep tests independent
-
----
-
-## 10. Performance Guidelines
-
-### 10.1 Optimization Principles
-- Measure before optimizing
-- Focus on user-perceived performance
-- Optimize critical rendering path
-- Use code splitting
-- Lazy load when appropriate
-
-### 10.2 Best Practices
-- Avoid unnecessary re-renders
-- Use React.memo when appropriate
-- Optimize images and assets
-- Minimize bundle size
-- Use production builds for testing
+### 7.2 이슈 템플릿
+- 명확한 제목
+- 이슈 설명
+- 재현 단계 (버그의 경우)
+- 예상 동작
+- 실제 동작
+- 환경 정보
+- 스크린샷 (해당되는 경우)
 
 ---
 
-## 11. Security Guidelines
+## 8. 문서화 표준
 
-### 11.1 Security Best Practices
-- Never commit secrets or API keys
-- Use environment variables for sensitive data
-- Validate and sanitize user input
-- Keep dependencies up to date
-- Review security advisories
+### 8.1 코드 문서화
+- 모든 공개 API 문서화
+- 함수에 JSDoc 주석 사용
+- 복잡한 로직 설명
+- 도움이 되는 경우 예제 포함
 
-### 11.2 Dependency Management
-- Regularly update dependencies
-- Review dependency changes
-- Use lock files
-- Audit for vulnerabilities
+### 8.2 README 업데이트
+- 새 기능 추가 시 README 업데이트
+- 새 환경 변수 문서화
+- 필요시 설치 지침 업데이트
+- 프로젝트 구조 최신 상태 유지
+
+### 8.3 문서 파일
+- `docs/` 폴더에 문서 보관
+- Markdown 형식 사용
+- 문서를 최신 상태로 유지
+- 정기적으로 검토 및 업데이트
 
 ---
 
-## 12. Project-Specific Guidelines
+## 9. 테스트 가이드라인
 
-### 12.1 Technology Stack
+### 9.1 테스트 커버리지
+- 중요한 기능에 대한 테스트 작성
+- 엣지 케이스 테스트
+- 에러 처리 테스트
+- 테스트 커버리지 유지
+
+### 9.2 테스트 구조
+- 소스 파일당 하나의 테스트 파일
+- 설명적인 테스트 이름 사용
+- AAA 패턴 따르기 (Arrange, Act, Assert)
+- 테스트를 독립적으로 유지
+
+---
+
+## 10. 성능 가이드라인
+
+### 10.1 최적화 원칙
+- 최적화 전에 측정
+- 사용자가 인지하는 성능에 집중
+- 중요한 렌더링 경로 최적화
+- 코드 스플리팅 사용
+- 적절한 경우 지연 로드
+
+### 10.2 모범 사례
+- 불필요한 리렌더링 방지
+- 적절한 경우 React.memo 사용
+- 이미지 및 자산 최적화
+- 번들 크기 최소화
+- 테스트에 프로덕션 빌드 사용
+
+---
+
+## 11. 보안 가이드라인
+
+### 11.1 보안 모범 사례
+- 비밀 또는 API 키를 커밋하지 않음
+- 민감한 데이터에는 환경 변수 사용
+- 사용자 입력 검증 및 정제
+- 의존성 최신 상태 유지
+- 보안 권고사항 검토
+
+### 11.2 의존성 관리
+- 정기적으로 의존성 업데이트
+- 의존성 변경사항 검토
+- lock 파일 사용
+- 취약점 감사
+
+---
+
+## 12. 프로젝트별 가이드라인
+
+### 12.1 기술 스택
 - Next.js 16.0.3
 - React 19.2.0
 - TypeScript 5
 - Tailwind CSS 4
 
-### 12.2 Project Structure
-- Follow established folder structure
-- Keep related files together
-- Use consistent naming
-- Maintain clear separation of concerns
+### 12.2 프로젝트 구조
+- 확립된 폴더 구조 따르기
+- 관련 파일을 함께 유지
+- 일관된 명명 사용
+- 명확한 관심사 분리 유지
 
 ---
 
-## Document History
+## 문서 이력
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-01-XX | Initial | Initial collaboration guidelines creation |
+| 버전 | 날짜 | 작성자 | 변경사항 |
+|------|------|--------|---------|
+| 1.0 | 2025-11-29 | Initial | 초기 협업 가이드라인 작성 |
 
 ---
 
-**End of Document**
-
+**문서 종료**

@@ -1,2 +1,107 @@
 @import "tailwindcss";
+@import "pretendard/dist/web/static/pretendard.css";
+
+:root {
+  /* Layout tokens */
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5f5;
+  --header-height: 76px;
+  --motion-duration-fast: 120ms;
+  --motion-duration-medium: 180ms;
+  --motion-duration-slow: 260ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --text-strong: #0f172a;
+  --text-muted: #475569;
+  --text-subtle: #64748b;
+  --font-scale: 1;
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Brand palette - TBD (프로젝트 특성에 따라 결정) */
+  --brand-primary: #0052cc;
+  --brand-primary-dark: #003a99;
+  --brand-primary-soft: #e6f0ff;
+  --brand-secondary: #00c897;
+  --brand-secondary-dark: #0b7a5b;
+  --brand-secondary-soft: #e9fbf5;
+
+  /* Color System - Grayscale */
+  --color-gray-50: #FAFAFA;
+  --color-gray-100: #F5F5F5;
+  --color-gray-200: #EEEEEE;
+  --color-gray-300: #E0E0E0;
+  --color-gray-400: #BDBDBD;
+  --color-gray-500: #9E9E9E;
+  --color-gray-600: #757575;
+  --color-gray-700: #616161;
+  --color-gray-800: #424242;
+  --color-gray-900: #212121;
+  
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  /* Spacing Scale (8px 기준) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  
+  /* Border Radius */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  /* Shadows (최소한만 사용) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  /* Typography Scale */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-base: 1rem;     /* 16px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-xs: 0.75rem;    /* 12px */
+}
+
+.dark {
+  --background: #04070d;
+  --surface: #0f1525;
+  --surface-muted: #111827;
+  --border-subtle: #1a2436;
+  --border-strong: #2a364d;
+  --text-strong: #f8fafc;
+  --text-muted: #cbd5f5;
+  --text-subtle: #94a3b8;
+  --brand-primary: #3b82f6;
+  --brand-primary-dark: #2563eb;
+  --brand-primary-soft: rgba(59, 130, 246, 0.2);
+  --brand-secondary: #34d399;
+  --brand-secondary-dark: #059669;
+  --brand-secondary-soft: rgba(52, 211, 153, 0.15);
+}
+
+body {
+  font-family: var(--font-family);
+}
 

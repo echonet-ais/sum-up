@@ -1,273 +1,511 @@
-# Product Requirements Document
+# 제품 요구사항 문서
 
-> **Project**: Litmers  
-> **Version**: 1.0  
-> **Date**: 2025-11-29  
-> **Status**: Draft
-
----
-
-## 1. Overview
-
-### 1.1 Purpose
-This document defines the product requirements for the Litmers project.
-
-### 1.2 Project Scope
-
-**In Scope**:
-- TBD
-
-**Out of Scope**:
-- TBD
+> **프로젝트**: SumUp  
+> **버전**: 1.0  
+> **날짜**: 2025-11-29  
+> **상태**: 초안
 
 ---
 
-## 2. Project Overview
+## 1. 개요
 
-### 2.1 Background
-TBD
+### 1.1 목적
+본 문서는 Vibe Coding Hackathon을 위한 SumUp 프로젝트의 제품 요구사항을 정의합니다. SumUp은 현대적인 웹 기술 스택을 활용하여 개발되는 웹 애플리케이션입니다.
 
-### 2.2 Target Users
-TBD
+### 1.2 프로젝트 범위
 
-### 2.3 Success Criteria
-1. TBD
-2. TBD
-3. TBD
+**포함 범위**:
+- Next.js 기반 프론트엔드 애플리케이션 개발
+- TypeScript를 활용한 타입 안전성 확보
+- Tailwind CSS 4를 활용한 반응형 UI 구현
+- API 연동 및 데이터 관리
+- 데스크톱 및 모바일 반응형 디자인
+- 사용자 인증 및 권한 관리 (필요시)
+- 실시간 데이터 업데이트 (필요시)
 
----
-
-## 3. Functional Requirements
-
-### 3.1 Core Features
-
-#### 3.1.1 Feature Name
-**Priority**: P0 (Required)
-
-**Requirements**:
-- TBD
-
-**User Stories**:
-- As a user, I want to...
+**제외 범위**:
+- 백엔드 서버 구현 (API 제공되는 경우 제외)
+- 복잡한 서버 사이드 로직 (필요시 최소한만 구현)
+- 외부 서비스 연동 (필요시 최소한만 구현)
 
 ---
 
-## 4. Technical Requirements
+## 2. 프로젝트 개요
 
-### 4.1 Development Environment
+### 2.1 배경
+SumUp은 Vibe Coding Hackathon을 위해 개발되는 프로젝트로, 다음을 목표로 합니다:
+- Next.js, React, TypeScript 등 현대적인 웹 기술 스택 활용 능력 시연
+- 깔끔하고 직관적인 UI/UX 구현
+- 확장 가능하고 유지보수하기 쉬운 코드 구조
+- 협업을 위한 명확한 문서화 및 개발 프로세스
 
-#### 4.1.1 Runtime Requirements
-- **Node.js**: 20.x LTS (Required)
+### 2.2 대상 사용자
+- **주요 사용자**: 웹 애플리케이션을 사용하는 일반 사용자
+- **보조 사용자**: 개발자 및 관리자 (필요시)
 
-#### 4.1.2 Frontend Framework
-- **React**: 18+ (Required)
-- **TypeScript**: Required
-- **Build Tool**: Next.js
+### 2.3 성공 기준
+1. [x] 프로젝트가 `npm install` 및 `npm run dev`로 정상 실행됨
+2. [x] 모든 핵심 기능이 정상 작동함 (UI 구조 완료, API 연동 대기)
+3. [x] 반응형 디자인이 데스크톱 및 모바일에서 정상 작동함 (레이아웃 구현 완료)
+4. [x] 코드가 잘 구성되고 문서화되어 있으며 모범 사례를 따름
+5. [x] README에 필수 정보 포함 (설정, 의존성, 디자인 노트)
+6. [x] Git Flow를 통한 체계적인 버전 관리
 
-#### 4.1.3 Styling
-- **CSS Framework**: Tailwind CSS 4
+---
 
-### 4.2 Project Structure
+## 3. 기능 요구사항
+
+### 3.1 핵심 기능
+
+#### 3.1.1 메인 대시보드/홈 화면
+**우선순위**: P0 (필수)
+
+**요구사항**:
+- 프로젝트의 주요 정보 및 기능에 대한 개요 제공
+- 주요 지표 또는 통계 표시 (프로젝트 특성에 따라)
+- 빠른 액세스를 위한 네비게이션
+- 반응형 레이아웃
+
+**사용자 스토리**:
+- 사용자로서, 프로젝트의 주요 기능을 한눈에 보고 싶습니다
+- 사용자로서, 원하는 기능에 빠르게 접근하고 싶습니다
+
+#### 3.1.2 기본 레이아웃 및 네비게이션
+**우선순위**: P0 (필수)
+
+**요구사항**:
+- 일관된 레이아웃 구조
+- 데스크톱: 좌측 또는 상단 네비게이션 바
+- 모바일: 햄버거 메뉴 및 드로어 네비게이션
+- 현재 페이지 표시
+- 반응형 디자인
+
+**사용자 스토리**:
+- 사용자로서, 어디에 있는지 항상 알 수 있고 쉽게 이동하고 싶습니다
+
+#### 3.1.3 데이터 표시 및 관리
+**우선순위**: P0 (필수)
+
+**요구사항**:
+- 데이터 목록 표시 (테이블 또는 카드 형식)
+- 필터링 기능 (필요시)
+- 정렬 기능 (필요시)
+- 페이징 또는 무한 스크롤 (필요시)
+- 상세 보기 (필요시)
+
+**사용자 스토리**:
+- 사용자로서, 데이터를 효율적으로 탐색하고 원하는 정보를 찾고 싶습니다
+
+### 3.2 향상 기능
+
+#### 3.2.1 검색 기능
+**우선순위**: P1 (권장)
+
+**요구사항**:
+- 전역 검색 또는 페이지별 검색
+- 실시간 검색 결과 표시
+- 검색 히스토리 (선택)
+
+**사용자 스토리**:
+- 사용자로서, 키워드로 원하는 정보를 빠르게 찾고 싶습니다
+
+#### 3.2.2 사용자 인증 및 프로필
+**우선순위**: P1 (권장, 필요시)
+
+**요구사항**:
+- 로그인/로그아웃 기능
+- 사용자 프로필 관리
+- 권한 관리 (필요시)
+
+**사용자 스토리**:
+- 사용자로서, 개인화된 경험을 받고 싶습니다
+
+#### 3.2.3 데이터 시각화
+**우선순위**: P1 (권장, 필요시)
+
+**요구사항**:
+- 차트 및 그래프를 통한 데이터 시각화
+- 다양한 차트 타입 지원 (선, 막대, 파이 등)
+- 인터랙티브 차트 (필요시)
+
+**사용자 스토리**:
+- 사용자로서, 데이터를 시각적으로 이해하고 싶습니다
+
+### 3.3 추가 기능
+
+#### 3.3.1 설정 페이지
+**우선순위**: P2 (선택)
+
+**요구사항**:
+- 테마 설정 (다크/라이트 모드)
+- 언어 설정 (필요시)
+- 사용자 환경 설정
+
+**사용자 스토리**:
+- 사용자로서, 애플리케이션을 내 취향에 맞게 설정하고 싶습니다
+
+#### 3.3.2 알림 및 피드백
+**우선순위**: P2 (선택)
+
+**요구사항**:
+- 토스트 알림
+- 에러 메시지 표시
+- 성공 피드백
+
+**사용자 스토리**:
+- 사용자로서, 내 행동에 대한 명확한 피드백을 받고 싶습니다
+
+---
+
+## 4. 기술 요구사항
+
+### 4.1 개발 환경
+
+#### 4.1.1 런타임 요구사항
+- **Node.js**: 20.x LTS (필수)
+- **npm**: Node.js와 함께 제공
+
+#### 4.1.2 프론트엔드 프레임워크
+- **React**: 19.2.0 (필수)
+- **TypeScript**: 5 (필수)
+- **빌드 도구**: Next.js 16.0.3
+
+#### 4.1.3 스타일링
+- **CSS 프레임워크**: Tailwind CSS 4
+- **UI 컴포넌트 라이브러리**: @hua-labs/ui (자체 패키지)
+- **폰트**: Pretendard
+
+#### 4.1.4 외부 라이브러리
+
+**필수 라이브러리:**
+- **Drag & Drop**: @dnd-kit/core (^6.3.1), @dnd-kit/sortable (^10.0.0), @dnd-kit/utilities
+- **날짜 선택**: react-datepicker (^8.10.0)
+- **차트**: recharts (^3.5.1)
+- **마크다운**: react-markdown, remark-gfm
+- **상태 관리**: zustand (^5.0.8)
+- **유틸리티**: clsx (^2.1.1), tailwind-merge (^3.4.0)
+
+**UI 컴포넌트 패키지:**
+- **@hua-labs/ui** (1.0.0) - 자체 UI 컴포넌트 라이브러리 (로컬 tarball: `hua-labs-ui-1.0.0.tgz`)
+
+**프로젝트 커스텀 컴포넌트:**
+- 인증: OAuthButton, PasswordInput
+- 폼: DatePicker, FileUpload, MultiSelect
+- 공통: EmptyState, LoadingState, ErrorState, Markdown
+- 이슈: PriorityBadge, StatusBadge
+- 칸반: KanbanBoard, KanbanColumn, KanbanCard
+- 차트: PieChart, LineChart
+- 레이아웃: Header, Sidebar
+
+자세한 내용은 `docs/COMPONENTS.md` 참고
+- **PostCSS**: @tailwindcss/postcss 플러그인 사용
+
+### 4.2 프로젝트 구조
 ```
-litmers/
+sumup/
 ├── src/
-│   ├── app/              # Next.js App Router pages
-│   ├── components/       # Reusable components
-│   ├── lib/              # Utilities, API clients
-│   ├── hooks/            # Custom React hooks
-│   └── types/            # TypeScript type definitions
-├── public/               # Static assets
-├── docs/                 # Documentation
-├── .env.local           # Environment variables (optional)
+│   ├── app/              # Next.js App Router 페이지
+│   │   ├── layout.tsx   # 루트 레이아웃
+│   │   ├── page.tsx     # 홈 페이지
+│   │   └── globals.css  # 전역 스타일
+│   ├── components/       # 재사용 가능한 컴포넌트
+│   ├── lib/              # 유틸리티, API 클라이언트
+│   ├── hooks/            # 커스텀 React 훅
+│   └── types/            # TypeScript 타입 정의
+├── public/               # 정적 자산
+├── docs/                 # 문서
+│   ├── PRD.md
+│   ├── DEVELOPMENT_PLAN.md
+│   ├── COLLABORATION_GUIDELINES.md
+│   ├── GITFLOW.md
+│   └── UI_DESIGN_GUIDELINES.md
+├── .env.local           # 환경 변수 (선택)
+├── .gitignore
 ├── package.json
 ├── README.md
-└── tsconfig.json
+├── tsconfig.json
+├── next.config.ts
+├── postcss.config.mjs
+└── eslint.config.mjs
 ```
 
-### 4.3 Code Quality
-- TypeScript for type safety
-- ESLint configuration
-- Consistent code formatting
-- Component-based architecture
-- Reusable utility functions
-- Error handling and loading states
+### 4.3 코드 품질
+- TypeScript를 통한 타입 안전성
+- ESLint 설정 및 규칙 준수
+- 일관된 코드 포맷팅
+- 컴포넌트 기반 아키텍처
+- 재사용 가능한 유틸리티 함수
+- 에러 처리 및 로딩 상태 관리
+- 접근성 고려 (WCAG AA 기준)
 
 ---
 
-## 5. API Integration
+## 5. API 연동
 
-### 5.1 API Basic Information
-- **Base URL**: TBD
-- **Response Format**: JSON
-- **Authentication**: TBD
+### 5.1 API 기본 정보
+- **Base URL**: TBD (프로젝트 요구사항에 따라 결정)
+- **응답 형식**: JSON
+- **인증**: TBD (필요시)
 
-### 5.2 Expected API Endpoints
-TBD
+### 5.2 예상 API 엔드포인트
+프로젝트 요구사항에 따라 결정됩니다.
 
-### 5.3 API Client Implementation
+### 5.3 API 클라이언트 구현
 
-**Requirements**:
-- Centralized API client setup
-- Environment variables for Base URL (optional but recommended)
-- Error handling for API failures
-- Loading state management
-- Request/response type definitions
+**요구사항**:
+- 중앙화된 API 클라이언트 설정
+- Base URL용 환경 변수 사용 (`.env.local`)
+- API 실패에 대한 에러 처리
+- 로딩 상태 관리
+- 요청/응답 타입 정의 (TypeScript)
+- 재시도 로직 (필요시)
 
----
-
-## 6. UI/UX Requirements
-
-### 6.1 Design Principles
-- **Clarity**: Clear information hierarchy
-- **Efficiency**: Quick access to frequently used features
-- **Consistency**: Uniform component styling and behavior
-- **Responsiveness**: Works on desktop (≥1024px) and tablet/mobile (<1024px)
-
-### 6.2 Layout Structure
-
-#### 6.2.1 Navigation
-- **Desktop**: Collapsible left sidebar with navigation items
-- **Mobile**: Hamburger menu with drawer/overlay
-
-#### 6.2.2 Header
-- Application logo/name
-- User profile/avatar (mock)
-- Date range selector
-- Notification/alert indicator
-
-#### 6.2.3 Main Content Area
-- Responsive grid layout
-- Card-based widget system
-- Consistent spacing and padding
-
-### 6.3 Component States
-All data-fetching components must handle:
-- **Loading**: Skeleton screen or loading spinner
-- **Empty**: Empty state message with helpful actions
-- **Error**: Error message with retry option
-- **Success**: Data displayed with appropriate formatting
-
-### 6.4 Responsive Design
-- **Desktop (≥1280px)**: Full layout with sidebar
-- **Tablet (1024px - 1279px)**: Adjusted grid, collapsible sidebar
-- **Mobile (<1024px)**: Single column, overlay navigation
-
-### 6.5 Accessibility
-- Semantic HTML
-- Keyboard navigation support
-- ARIA labels where appropriate
-- Color contrast compliance (WCAG AA minimum)
+**환경 변수 예시**:
+```env
+NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+```
 
 ---
 
-## 7. Development Priorities
+## 6. UI/UX 요구사항
 
-### Phase 1: Core Features (P0)
-1. Project setup (Next.js/React, TypeScript, Tailwind)
-2. API client setup and environment configuration
-3. TBD
+### 6.1 디자인 원칙
+- **명확성**: 명확한 정보 계층 구조
+- **효율성**: 자주 사용하는 기능에 빠른 접근
+- **일관성**: 균일한 컴포넌트 스타일링 및 동작
+- **반응성**: 데스크톱 (≥1024px) 및 태블릿/모바일 (<1024px)에서 작동
+- **접근성**: 모든 사용자가 접근 가능
 
-### Phase 2: Enhanced Features (P1)
-1. TBD
+### 6.2 레이아웃 구조
 
-### Phase 3: Additional Features (P2)
-1. TBD
+#### 6.2.1 네비게이션
+- **데스크톱**: 좌측 또는 상단 고정 네비게이션 바
+- **모바일**: 햄버거 메뉴 및 오버레이/드로어 네비게이션
+- 현재 페이지 하이라이트
+- 부드러운 전환 애니메이션
+
+#### 6.2.2 헤더
+- 애플리케이션 로고/이름
+- 사용자 프로필/아바타 (필요시)
+- 알림 아이콘 (필요시)
+- 설정 아이콘 (필요시)
+
+#### 6.2.3 메인 콘텐츠 영역
+- 반응형 그리드 레이아웃
+- 카드 기반 위젯 시스템
+- 일관된 간격 및 패딩 (CSS 변수 사용)
+
+### 6.3 컴포넌트 상태
+모든 데이터 가져오기 컴포넌트는 다음을 처리해야 합니다:
+- **로딩**: 스켈레톤 화면 또는 로딩 스피너
+- **빈 상태**: 도움이 되는 작업이 포함된 빈 상태 메시지
+- **에러**: 재시도 옵션이 있는 에러 메시지
+- **성공**: 적절한 포맷팅으로 데이터 표시
+
+### 6.4 반응형 디자인
+- **데스크톱 (≥1280px)**: 전체 레이아웃, 사이드바 표시
+- **태블릿 (1024px - 1279px)**: 조정된 그리드, 접을 수 있는 사이드바
+- **모바일 (<1024px)**: 단일 열, 오버레이 네비게이션, 터치 친화적
+
+### 6.5 접근성
+- 의미론적 HTML 사용
+- 키보드 네비게이션 지원
+- 적절한 곳에 ARIA 레이블
+- 색상 대비 준수 (WCAG AA 최소)
+- 포커스 인디케이터 명확히 표시
+
+### 6.6 디자인 시스템
+- CSS 변수를 통한 일관된 색상 및 스페이싱
+- 재사용 가능한 컴포넌트 라이브러리
+- UI 디자인 가이드라인 준수 (`docs/UI_DESIGN_GUIDELINES.md` 참조)
 
 ---
 
-## 8. Deliverables
+## 7. 개발 우선순위
 
-### 8.1 Code Repository
-- Complete source code in GitHub repository
-- Clean commit history
-- Appropriate `.gitignore` configuration
+### Phase 1: 핵심 기능 (P0) - Week 1
+1. [x] 프로젝트 설정 (Next.js/React, TypeScript, Tailwind CSS 4)
+2. [x] 기본 레이아웃 및 네비게이션 구현 (AppLayout, Header, Sidebar)
+3. [x] 메인 대시보드/홈 화면 구현 (통계 카드, 활동 피드)
+4. [x] 기본 데이터 표시 컴포넌트 구현 (이슈, 프로젝트 목록/상세, 칸반 보드)
+5. [x] API 클라이언트 설정 및 환경 구성 (client.ts, .env.example)
 
-### 8.2 Documentation
+### Phase 2: 향상된 기능 (P1) - Week 2
+1. [x] 검색 기능 구현 (로직 완료, UI 컴포넌트 대기)
+2. [x] 데이터 필터링 및 정렬 기능 (이슈/프로젝트 필터링, 정렬 로직 완료)
+3. [x] 상세 보기 페이지/모달 구현 (이슈 상세, 프로젝트 상세 페이지)
+4. [ ] 사용자 인증 구현 (OAuth 컴포넌트 완료, 인증 로직 대기)
+5. [x] 데이터 시각화 구현 (PieChart, LineChart 컴포넌트 완료)
 
-#### 8.2.1 README.md (Required)
-Must include:
-- Project overview
-- Development environment requirements
-- Installation instructions (`npm install`)
-- Running instructions (`npm run dev` or `npm run start`)
-- Environment variables (if used)
-- Design notes (if custom design)
-
-#### 8.2.2 Code Comments
-- Function/component documentation
-- Complex logic explanations
-- API integration notes
+### Phase 3: 추가 기능 및 마무리 (P2) - Week 3
+1. [x] 설정 페이지 구현 (테마, 언어, 접근성 설정 로직 완료)
+2. [x] 알림 및 피드백 시스템 구현 (토스트 시스템, 알림 훅 완료)
+3. [x] 성능 최적화 (유틸리티 함수 완료: debounce, throttle, 이미지 지연 로딩)
+4. [x] 접근성 개선 (접근성 유틸리티 함수 완료: 키보드 이벤트, 포커스 트랩, ARIA)
+5. [x] 문서화 완료 (PRD, 개발 계획, 협업 가이드라인, Git Flow, UI 가이드라인)
+6. [ ] 테스트 및 버그 수정 (API 연동 후 진행)
 
 ---
 
-## 9. Evaluation Criteria
+## 8. 제출물
 
-### 9.1 Functionality (40%)
-- TBD
+### 8.1 코드 저장소
+- 완전한 소스 코드가 있는 GitHub 저장소
+- 깨끗한 커밋 이력 (Git Flow 준수)
+- 적절한 `.gitignore` 설정
+- `main` 및 `dev` 브랜치 구성
 
-### 9.2 Code Quality (30%)
-- Clean and readable code structure
-- TypeScript usage and type safety
-- Component reusability
-- Error handling
-- Performance considerations
+### 8.2 문서화
+
+#### 8.2.1 README.md (필수)
+포함해야 할 내용:
+- 프로젝트 개요 및 목적
+- 개발 환경 요구사항
+- 설치 지침 (`npm install`)
+- 실행 지침 (`npm run dev`)
+- 빌드 지침 (`npm run build`)
+- 환경 변수 설정 방법
+- 프로젝트 구조 설명
+- 기술 스택 설명
+
+#### 8.2.2 문서 폴더 (docs/)
+- PRD.md: 제품 요구사항 문서
+- DEVELOPMENT_PLAN.md: 개발 계획
+- COLLABORATION_GUIDELINES.md: 협업 가이드라인
+- GITFLOW.md: Git 워크플로우 문서
+- UI_DESIGN_GUIDELINES.md: UI 디자인 가이드라인
+
+#### 8.2.3 코드 주석
+- 함수/컴포넌트 문서화
+- 복잡한 로직 설명
+- API 연동 노트
+- 타입 정의 설명
+
+---
+
+## 9. 평가 기준
+
+### 9.1 기능성 (40%)
+- 핵심 기능이 정상 작동함
+- 사용자 시나리오가 완전히 구현됨
+- 에러 처리가 적절히 구현됨
+- 반응형 디자인이 모든 화면 크기에서 작동함
+
+### 9.2 코드 품질 (30%)
+- 깨끗하고 읽기 쉬운 코드 구조
+- TypeScript 사용 및 타입 안전성
+- 컴포넌트 재사용성
+- 에러 처리 및 예외 상황 처리
+- 성능 고려사항
 
 ### 9.3 UI/UX (20%)
-- Intuitive navigation
-- Clear data visualization
-- Consistent design language
-- Loading and error states
-- Responsive behavior
+- 직관적인 네비게이션
+- 명확한 데이터 시각화
+- 일관된 디자인 언어
+- 로딩 및 에러 상태 처리
+- 반응형 동작
+- 접근성 준수
 
-### 9.4 Documentation (10%)
-- Complete README
-- Code comments
-- Setup instructions clarity
-- Design/template usage notes
-
----
-
-## 10. Constraints and Assumptions
-
-### 10.1 Constraints
-- TBD
-
-### 10.2 Assumptions
-- TBD
+### 9.4 문서화 (10%)
+- 완전한 README
+- 코드 주석
+- 설정 지침 명확성
+- 디자인/아키텍처 문서
 
 ---
 
-## 11. Open Issues
+## 10. 제약사항 및 가정
 
-1. TBD
+### 10.1 제약사항
+- 해커톤 기간 내 완성 필요
+- Next.js 16.0.3, React 19.2.0, TypeScript 5, Tailwind CSS 4 사용 필수
+- Node.js 20.x LTS 환경에서 작동해야 함
+- Git Flow를 통한 버전 관리 필수
 
-**Action Items**:
-- TBD
-
----
-
-## 12. Appendix
-
-### 12.1 Reference Links
-- TBD
-
-### 12.2 Related Documents
-- `docs/DEVELOPMENT_PLAN.md` - Development plan
-- `docs/COLLABORATION_GUIDELINES.md` - Collaboration guidelines
-- `README.md` - Project setup and usage guide
-
-### 12.3 Glossary
-- TBD
+### 10.2 가정
+- API는 RESTful 형식으로 제공됨 (필요시)
+- 사용자 인증은 외부 서비스 또는 간단한 구현으로 처리 가능
+- 실시간 업데이트는 폴링 기반으로 처리 가능 (필요시)
+- 브라우저 호환성: 최신 버전의 Chrome, Firefox, Safari, Edge
 
 ---
 
-## Document History
+## 11. 미결 사항
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-29 | Initial | Initial PRD creation |
+1. **API 엔드포인트**: 실제 API 스펙 확인 필요
+2. **인증 방식**: 사용자 인증 필요 여부 및 방식 결정 필요
+3. **데이터 모델**: 주요 데이터 구조 및 관계 정의 필요
+4. **디자인 시스템**: 브랜드 컬러 및 디자인 토큰 확정 필요
+
+**액션 아이템**:
+- API 스펙 문서 확인 및 검토
+- 디자인 시스템 확정 (색상, 타이포그래피 등)
+- 주요 기능 우선순위 재검토
+- 개발 일정 세부 조정
 
 ---
 
-**End of Document**
+## 12. 부록
 
+### 12.1 참고 프로젝트
+
+**PaysByPays Dashboard** (`D:\dev\dashboard`)
+- **경로**: `D:\dev\dashboard`
+- **설명**: 결제대행사 대시보드 애플리케이션으로, SumUp 프로젝트의 레퍼런스 프로젝트로 활용
+- **기술 스택**: Next.js 16.0.3, React 19.2.0, TypeScript 5, Tailwind CSS 4
+- **주요 특징**:
+  - 대시보드 홈 페이지 (KPI 카드, 차트, 최근 거래)
+  - 거래 내역 관리 (필터링, 정렬, 페이징, 상세 보기)
+  - 가맹점 관리 (목록, 상세, 등록)
+  - 정산 관리 (통계, 타임라인, 내역)
+  - 분석 및 통계 (결제 수단별, 트렌드 분석)
+  - 시스템 모니터링 (헬스 체크, 상태 로그)
+  - 사용자 설정 (테마, 언어, 날짜 형식, 통화)
+- **아키텍처 특징**:
+  - 모듈화된 컴포넌트 구조 (50+ 재사용 가능한 컴포넌트)
+  - 커스텀 훅 패턴 (12개 커스텀 훅)
+  - Zustand 상태 관리
+  - 자체 개발 패키지 (@hua-labs/ui, @hua-labs/i18n-core)
+- **참고 문서**:
+  - `D:\dev\dashboard\docs\PRD.md` - 제품 요구사항 문서
+  - `D:\dev\dashboard\docs\DEVELOPMENT.md` - 개발 진행 및 결과
+  - `D:\dev\dashboard\docs\ARCHITECTURE.md` - 아키텍처 문서
+  - `D:\dev\dashboard\docs\FEATURES.md` - 기능 설명
+  - `D:\dev\dashboard\README.md` - 프로젝트 개요
+
+**참고 사항**:
+- 이 프로젝트의 구조, 컴포넌트 패턴, 아키텍처를 참고하여 SumUp 프로젝트를 개발
+- UI 디자인 가이드라인 및 컴포넌트 구조를 참고
+- 개발 프로세스 및 문서화 방식을 참고
+
+### 12.2 참고 링크
+- Next.js 공식 문서: https://nextjs.org/docs
+- React 공식 문서: https://react.dev
+- TypeScript 공식 문서: https://www.typescriptlang.org/docs
+- Tailwind CSS 공식 문서: https://tailwindcss.com/docs
+
+### 12.3 관련 문서
+- `docs/DEVELOPMENT_PLAN.md` - 개발 계획
+- `docs/COLLABORATION_GUIDELINES.md` - 협업 가이드라인
+- `docs/GITFLOW.md` - Git Flow 문서
+- `docs/UI_DESIGN_GUIDELINES.md` - UI 디자인 가이드라인
+- `README.md` - 프로젝트 설정 및 사용 가이드
+
+### 12.4 용어집
+- **PRD**: Product Requirements Document (제품 요구사항 문서)
+- **KPI**: Key Performance Indicator (핵심 성과 지표)
+- **API**: Application Programming Interface (애플리케이션 프로그래밍 인터페이스)
+- **WCAG**: Web Content Accessibility Guidelines (웹 콘텐츠 접근성 가이드라인)
+- **Git Flow**: Git 브랜치 전략 중 하나
+
+---
+
+## 문서 이력
+
+| 버전 | 날짜 | 작성자 | 변경사항 |
+|------|------|--------|---------|
+| 1.0 | 2025-11-29 | Initial | 초기 PRD 작성 |
+
+---
+
+**문서 종료**
