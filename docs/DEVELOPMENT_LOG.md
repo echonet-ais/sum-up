@@ -38,6 +38,31 @@
 
 ## 개발 로그
 
+### 2025-11-29 - Supabase 기반 Projects CRUD 전환 (P1)
+
+**완료된 작업:**
+- Projects API Routes 구현 (Supabase 연동)
+  - `GET /api/projects` (필터/검색/페이지네이션)
+  - `POST /api/projects` (새 프로젝트 생성)
+  - `GET /api/projects/[id]` (단건 조회)
+  - `PUT /api/projects/[id]` (업데이트/즐겨찾기 토글 포함)
+  - `DELETE /api/projects/[id]` (Soft Delete: archived + deleted_at)
+- 훅 전환 (목 데이터 제거 → 실제 API 호출)
+  - `useProjects` → `/api/projects` 호출로 리스트/페이지네이션/생성 연동
+  - `useProject` → `/api/projects/[id]` 호출로 조회/수정/삭제/아카이브/즐겨찾기 연동
+
+**변경된 파일:**
+- `src/app/api/projects/route.ts` (신규)
+- `src/app/api/projects/[id]/route.ts` (신규)
+- `src/hooks/useProjects.ts` (API 연동)
+- `src/hooks/useProject.ts` (API 연동)
+
+**비고:**
+- Supabase `public.projects`, `public.project_favorites` 스키마 기준으로 컬럼/즐겨찾기 매핑 적용
+- 팀/권한 RLS는 Supabase 정책 기준으로 처리 (추가 서버 권한 체크는 후속 작업)
+
+---
+
 ### 2025-11-29 - Supabase 기반 Issues CRUD 전환 (P0)
 
 **완료된 작업:**

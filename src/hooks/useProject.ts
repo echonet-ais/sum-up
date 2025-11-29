@@ -26,12 +26,8 @@ export function useProject(projectId: string): UseProjectReturn {
     setError(null);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // const response = await apiClient.get<Project>(`/projects/${projectId}`);
-      // setProject(response);
-
-      // 임시: Mock 데이터
-      setProject(null);
+      const response = await apiClient.get<Project>(`/api/projects/${projectId}`);
+      setProject(response);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("프로젝트를 불러오는데 실패했습니다"));
     } finally {
@@ -44,12 +40,11 @@ export function useProject(projectId: string): UseProjectReturn {
       if (!project) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Project>(`/projects/${projectId}`, updates);
-        // setProject(response);
-
-        // 임시: 로컬 상태 업데이트
-        setProject({ ...project, ...updates });
+        const response = await apiClient.put<Project>(
+          `/api/projects/${projectId}`,
+          updates
+        );
+        setProject(response);
       } catch (err) {
         throw err instanceof Error ? err : new Error("프로젝트를 업데이트하는데 실패했습니다");
       }
@@ -59,8 +54,7 @@ export function useProject(projectId: string): UseProjectReturn {
 
   const deleteProject = useCallback(async () => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.delete(`/projects/${projectId}`);
+      await apiClient.delete(`/api/projects/${projectId}`);
       setProject(null);
     } catch (err) {
       throw err instanceof Error ? err : new Error("프로젝트를 삭제하는데 실패했습니다");
