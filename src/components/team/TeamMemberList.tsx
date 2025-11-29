@@ -8,6 +8,7 @@ import { Icon } from "@hua-labs/ui";
 import { Select, SelectOption } from "@hua-labs/ui";
 import { Dropdown, DropdownMenu, DropdownItem } from "@hua-labs/ui";
 import type { Team, TeamMember } from "@/types";
+import { ConfirmDialog } from "@/components/common";
 
 export interface TeamMemberListProps {
   team: Team;
@@ -24,6 +25,7 @@ export function TeamMemberList({
   onRemoveMember,
   showActions = true,
 }: TeamMemberListProps) {
+  const [removeMemberId, setRemoveMemberId] = React.useState<string | null>(null);
   const currentUserMember = team.members.find((m) => m.userId === currentUserId);
   const isOwner = currentUserMember?.role === "OWNER";
   const isAdmin = currentUserMember?.role === "ADMIN" || isOwner;
@@ -41,8 +43,13 @@ export function TeamMemberList({
 
   const handleRemoveMember = (memberId: string) => {
     if (!isAdmin) return;
-    if (confirm("정말 이 멤버를 제거하시겠습니까?")) {
-      onRemoveMember?.(memberId);
+    setRemoveMemberId(memberId);
+  };
+
+  const confirmRemoveMember = () => {
+    if (removeMemberId) {
+      onRemoveMember?.(removeMemberId);
+      setRemoveMemberId(null);
     }
   };
 
@@ -127,6 +134,16 @@ export function TeamMemberList({
           )}
         </div>
       </CardContent>
+      <ConfirmDialog
+        open={!!removeMemberId}
+        onOpenChange={(open) => !open && setRemoveMemberId(null)}
+        title="멤버 제거"
+        description="정말 이 멤버를 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+        confirmLabel="제거"
+        cancelLabel="취소"
+        variant="destructive"
+        onConfirm={confirmRemoveMember}
+      />
     </Card>
   );
 }

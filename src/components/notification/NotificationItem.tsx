@@ -30,29 +30,7 @@ const notificationColors: Record<Notification["type"], string> = {
   MENTION: "text-red-600 dark:text-red-400",
 };
 
-function formatTimeAgo(date: Date | string): string {
-  const now = new Date();
-  const notificationDate = typeof date === "string" ? new Date(date) : date;
-  const diffInSeconds = Math.floor((now.getTime() - notificationDate.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return "방금 전";
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60);
-    return `${minutes}분 전`;
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours}시간 전`;
-  } else if (diffInSeconds < 604800) {
-    const days = Math.floor(diffInSeconds / 86400);
-    return `${days}일 전`;
-  } else {
-    return notificationDate.toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-    });
-  }
-}
+import { formatTimeAgo } from "@/lib/utils/date";
 
 export function NotificationItem({
   notification,

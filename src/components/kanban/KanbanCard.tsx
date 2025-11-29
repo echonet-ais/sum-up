@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@hua-labs/ui";
 import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { cn } from "../../lib/utils";
+import { formatShortDate } from "@/lib/utils/date";
 
 export interface KanbanCardProps extends React.HTMLAttributes<HTMLDivElement> {
   id: string;
@@ -48,11 +49,6 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
     },
     ref
   ) => {
-    const formatDate = (date: Date | string | undefined) => {
-      if (!date) return null;
-      const d = typeof date === "string" ? new Date(date) : date;
-      return d.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-    };
 
     const isOverdue = dueDate && new Date(dueDate) < new Date();
 
@@ -134,7 +130,7 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
                 )}
               >
                 <Icon name="calendar" className="h-3 w-3" />
-                <span>{formatDate(dueDate)}</span>
+                <span>{formatShortDate(dueDate)}</span>
               </div>
             )}
           </div>

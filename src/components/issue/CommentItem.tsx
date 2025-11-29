@@ -7,6 +7,8 @@ import { Icon } from "@hua-labs/ui";
 import { Markdown } from "@/components/common";
 import { CommentForm } from "./CommentForm";
 import type { Comment } from "@/types";
+import { formatTimeAgo } from "@/lib/utils/date";
+import { ConfirmDialog } from "@/components/common";
 
 export interface CommentItemProps extends React.HTMLAttributes<HTMLDivElement> {
   comment: Comment;
@@ -36,10 +38,9 @@ const CommentItem = React.forwardRef<HTMLDivElement, CommentItemProps>(
     ref
   ) => {
     const [isDeleting, setIsDeleting] = React.useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
     const handleDelete = async () => {
-      if (!confirm("댓글을 삭제하시겠습니까?")) return;
-      
       setIsDeleting(true);
       try {
         await onDelete?.();
@@ -47,23 +48,10 @@ const CommentItem = React.forwardRef<HTMLDivElement, CommentItemProps>(
         console.error("Failed to delete comment:", error);
       } finally {
         setIsDeleting(false);
+        setShowDeleteConfirm(false);
       }
     };
 
-    const formatDate = (date: string | Date) => {
-      const d = typeof date === "string" ? new Date(date) : date;
-      const now = new Date();
-      const diff = now.getTime() - d.getTime();
-      const minutes = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-
-      if (minutes < 1) return "방금 전";
-      if (minutes < 60) return `${minutes}분 전`;
-      if (hours < 24) return `${hours}시간 전`;
-      if (days < 7) return `${days}일 전`;
-      return d.toLocaleDateString("ko-KR");
-    };
 
     return (
       <div
@@ -100,7 +88,7 @@ const CommentItem = React.forwardRef<HTMLDivElement, CommentItemProps>(
                     {comment.author?.name || "알 수 없음"}
                   </div>
                   <div className="text-xs text-[var(--text-muted)]">
-                    {formatDate(comment.createdAt)}
+                    {formatTimeAgo(comment.createdAt)}
                   </div>
                 </div>
                 {(canEdit || canDelete) && (
@@ -116,19 +104,28 @@ const CommentItem = React.forwardRef<HTMLDivElement, CommentItemProps>(
                       </Button>
                     )}
                     {canDelete && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleDelete}
-                        disabled={isDeleting}
-                        className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                      >
-                        {isDeleting ? (
-                          <Icon name="loader" size={14} className="animate-spin" />
-                        ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowDeleteConfirm(true)}
+                          disabled={isDeleting}
+                          className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        >
                           <Icon name="trash" size={14} />
-                        )}
-                      </Button>
+                        </Button>
+                        <ConfirmDialog
+                          open={showDeleteConfirm}
+                          onOpenChange={setShowDeleteConfirm}
+                          title="댓글 삭제"
+                          description="댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                          confirmLabel="삭제"
+                          cancelLabel="취소"
+                          variant="destructive"
+                          onConfirm={handleDelete}
+                          isLoading={isDeleting}
+                        />
+                      </>
                     )}
                   </div>
                 )}

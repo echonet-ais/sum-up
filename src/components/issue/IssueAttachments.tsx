@@ -3,6 +3,8 @@
 import * as React from "react";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
+import { useToast } from "@hua-labs/ui";
+import { formatFullDate } from "@/lib/utils/date";
 import type { IssueAttachment } from "@/types";
 
 export interface IssueAttachmentsProps {
@@ -16,6 +18,8 @@ export function IssueAttachments({
   onDelete,
   canDelete = false,
 }: IssueAttachmentsProps) {
+  const { addToast } = useToast();
+
   if (!attachments || attachments.length === 0) {
     return null;
   }
@@ -36,7 +40,38 @@ export function IssueAttachments({
   };
 
   const handleDownload = (attachment: IssueAttachment) => {
-    window.open(attachment.fileUrl, "_blank");
+    try {
+      // URL 유효성 검사
+      if (!attachment.fileUrl || attachment.fileUrl.trim() === "") {
+        addToast({
+          title: "다운로드 실패",
+          message: "파일 URL이 유효하지 않습니다.",
+          type: "error",
+        });
+        return;
+      }
+
+      // 새 창에서 열기 시도
+      const newWindow = window.open(attachment.fileUrl, "_blank");
+      
+      // 팝업 차단된 경우 대체 방법 시도
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
+        // 대체 방법: 링크를 생성하여 클릭 이벤트로 다운로드
+        const link = document.createElement("a");
+        link.href = attachment.fileUrl;
+        link.download = attachment.fileName;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      addToast({
+        title: "다운로드 실패",
+        message: err instanceof Error ? err.message : "파일을 다운로드하는 중 오류가 발생했습니다.",
+        type: "error",
+      });
+    }
   };
 
   return (
@@ -60,7 +95,7 @@ export function IssueAttachments({
                 </p>
                 <p className="text-xs text-[var(--text-muted)]">
                   {formatFileSize(attachment.fileSize)} ·{" "}
-                  {new Date(attachment.uploadedAt).toLocaleDateString("ko-KR")}
+                  {formatFullDate(attachment.uploadedAt)}
                 </p>
               </div>
             </div>

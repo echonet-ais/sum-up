@@ -5,6 +5,7 @@ import { Button } from "@hua-labs/ui";
 import { Textarea } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { useAuthStore } from "@/store/auth-store";
+import { useToast } from "@hua-labs/ui";
 
 export interface CommentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSubmit'> {
   issueId: string;
@@ -34,6 +35,7 @@ const CommentForm = React.forwardRef<HTMLDivElement, CommentFormProps>(
     ref
   ) => {
     const { user } = useAuthStore();
+    const { addToast } = useToast();
     const [content, setContent] = React.useState(initialContent);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -53,7 +55,11 @@ const CommentForm = React.forwardRef<HTMLDivElement, CommentFormProps>(
       
       if (!content.trim()) return;
       if (!user) {
-        alert("로그인이 필요합니다");
+        addToast({
+          title: "로그인 필요",
+          message: "로그인이 필요합니다",
+          type: "warning",
+        });
         return;
       }
 

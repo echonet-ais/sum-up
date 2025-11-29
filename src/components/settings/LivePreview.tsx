@@ -2,17 +2,14 @@
 
 import type { FontScale } from "@/store/preferences-store";
 import { FONT_SCALE_MAP } from "@/store/preferences-store";
+import { formatFullDate } from "@/lib/utils/date";
 
 export interface LivePreviewProps {
   fontScale: FontScale;
 }
 
 export function LivePreview({ fontScale }: LivePreviewProps) {
-  const formattedDate = new Date().toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = formatFullDate(new Date());
 
   return (
     <div className="flex h-full flex-col gap-4">

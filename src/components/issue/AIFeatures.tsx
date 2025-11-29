@@ -8,6 +8,7 @@ import { useAI } from "@/hooks/useAI";
 import { useAuthStore } from "@/store/auth-store";
 import type { Issue, Comment } from "@/types";
 import { Markdown } from "@/components/common";
+import { useToast } from "@hua-labs/ui";
 
 interface AIFeaturesProps {
   issue: Issue;
@@ -17,6 +18,7 @@ interface AIFeaturesProps {
 export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
   const { user } = useAuthStore();
   const { generateSummary, generateSuggestion, generateCommentSummary, isLoading, error } = useAI();
+  const { addToast } = useToast();
   
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<string | null>(null);
@@ -25,12 +27,20 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
 
   const handleGenerateSummary = async () => {
     if (!issue.description || issue.description.length <= 10) {
-      alert("설명이 10자 이하여서 AI 요약을 생성할 수 없습니다.");
+      addToast({
+        title: "요약 생성 불가",
+        message: "설명이 10자 이하여서 AI 요약을 생성할 수 없습니다.",
+        type: "warning",
+      });
       return;
     }
 
     if (!user?.id) {
-      alert("로그인이 필요합니다.");
+      addToast({
+        title: "로그인 필요",
+        message: "로그인이 필요합니다.",
+        type: "warning",
+      });
       return;
     }
 
@@ -40,7 +50,11 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
       setSummary(result.content);
     } catch (err) {
       console.error("Failed to generate summary:", err);
-      alert(err instanceof Error ? err.message : "요약 생성에 실패했습니다.");
+      addToast({
+        title: "요약 생성 실패",
+        message: err instanceof Error ? err.message : "요약 생성에 실패했습니다.",
+        type: "error",
+      });
     } finally {
       setLoadingType(null);
     }
@@ -48,12 +62,20 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
 
   const handleGenerateSuggestion = async () => {
     if (!issue.description || issue.description.length <= 10) {
-      alert("설명이 10자 이하여서 AI 제안을 생성할 수 없습니다.");
+      addToast({
+        title: "제안 생성 불가",
+        message: "설명이 10자 이하여서 AI 제안을 생성할 수 없습니다.",
+        type: "warning",
+      });
       return;
     }
 
     if (!user?.id) {
-      alert("로그인이 필요합니다.");
+      addToast({
+        title: "로그인 필요",
+        message: "로그인이 필요합니다.",
+        type: "warning",
+      });
       return;
     }
 
@@ -63,7 +85,11 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
       setSuggestion(result.content);
     } catch (err) {
       console.error("Failed to generate suggestion:", err);
-      alert(err instanceof Error ? err.message : "제안 생성에 실패했습니다.");
+      addToast({
+        title: "제안 생성 실패",
+        message: err instanceof Error ? err.message : "제안 생성에 실패했습니다.",
+        type: "error",
+      });
     } finally {
       setLoadingType(null);
     }
@@ -71,12 +97,20 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
 
   const handleGenerateCommentSummary = async () => {
     if (comments.length < 5) {
-      alert("댓글이 5개 이상일 때만 요약할 수 있습니다.");
+      addToast({
+        title: "댓글 요약 불가",
+        message: "댓글이 5개 이상일 때만 요약할 수 있습니다.",
+        type: "warning",
+      });
       return;
     }
 
     if (!user?.id) {
-      alert("로그인이 필요합니다.");
+      addToast({
+        title: "로그인 필요",
+        message: "로그인이 필요합니다.",
+        type: "warning",
+      });
       return;
     }
 
@@ -96,7 +130,11 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
       setCommentSummary(result.content);
     } catch (err) {
       console.error("Failed to generate comment summary:", err);
-      alert(err instanceof Error ? err.message : "댓글 요약 생성에 실패했습니다.");
+      addToast({
+        title: "댓글 요약 생성 실패",
+        message: err instanceof Error ? err.message : "댓글 요약 생성에 실패했습니다.",
+        type: "error",
+      });
     } finally {
       setLoadingType(null);
     }

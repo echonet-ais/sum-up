@@ -3,10 +3,12 @@
 import * as React from "react";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
+import { useToast } from "@hua-labs/ui";
 import { cn } from "../../lib/utils";
 
 export interface FileUploadProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   onFileSelect?: (file: File | null) => void;
+  onFilesSelect?: (files: File[]) => void; // 여러 파일 선택 시 사용
   accept?: string;
   maxSize?: number; // in MB
   error?: boolean;
@@ -21,6 +23,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     {
       className,
       onFileSelect,
+      onFilesSelect,
       accept,
       maxSize,
       error,
@@ -32,6 +35,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     },
     ref
   ) => {
+    const { addToast } = useToast();
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -47,20 +51,28 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           if (maxSize && file.size > maxSize * 1024 * 1024) {
-            alert(`파일 "${file.name}"의 크기는 ${maxSize}MB 이하여야 합니다.`);
+            addToast({
+              title: "파일 크기 초과",
+              message: `파일 "${file.name}"의 크기는 ${maxSize}MB 이하여야 합니다.`,
+              type: "error",
+            });
             continue;
           }
           validFiles.push(file);
         }
         if (validFiles.length > 0) {
-          // 여러 파일 중 첫 번째 파일을 선택된 파일로 표시
+          // 여러 파일 중 첫 번째 파일을 선택된 파일로 표시 (UI용)
           setSelectedFile(validFiles[0]);
           if (preview && validFiles[0].type.startsWith("image/")) {
             const url = URL.createObjectURL(validFiles[0]);
             setPreviewUrl(url);
           }
-          // 모든 유효한 파일을 콜백으로 전달
-          onFileSelect?.(validFiles[0]); // 단일 파일 콜백이므로 첫 번째만 전달
+          // 여러 파일 콜백이 있으면 모든 파일 전달, 없으면 단일 파일 콜백에 첫 번째만 전달
+          if (onFilesSelect) {
+            onFilesSelect(validFiles);
+          } else {
+            onFileSelect?.(validFiles[0]);
+          }
         }
       } else {
         const file = files?.[0] || null;
@@ -68,7 +80,11 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
         if (file) {
           // Check file size
           if (maxSize && file.size > maxSize * 1024 * 1024) {
-            alert(`파일 크기는 ${maxSize}MB 이하여야 합니다.`);
+            addToast({
+              title: "파일 크기 초과",
+              message: `파일 크기는 ${maxSize}MB 이하여야 합니다.`,
+              type: "error",
+            });
             return;
           }
 
