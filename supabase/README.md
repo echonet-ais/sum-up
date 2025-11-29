@@ -2,6 +2,9 @@
 
 ## 1. 스키마(schema.sql) 실행
 
+**중요:** `schema.sql`은 모든 마이그레이션을 통합한 최신 버전입니다.  
+새로운 Supabase 프로젝트를 시작할 때는 이 파일 하나만 실행하면 됩니다.
+
 1. **Supabase 대시보드 접속**
    - [Supabase Dashboard](https://supabase.com/dashboard)에 로그인
    - 프로젝트 선택
@@ -18,7 +21,7 @@
 4. **확인**
    - 좌측 메뉴의 "Table Editor"에서 테이블이 생성되었는지 확인
    - 다음 테이블들이 생성되어야 합니다:
-     - users
+     - users (email_confirmed_at 포함)
      - teams
      - team_members
      - projects
@@ -30,10 +33,24 @@
      - comments
      - notifications
      - activities
+     - issue_attachments (마이그레이션: 2025-11-29)
+     - user_preferences (마이그레이션: 2025-11-29)
 
-## 2. 시드 데이터(seed.sql) 실행 (데모용)
+## 마이그레이션 파일 (참고용)
 
-**주의:** `seed.sql`은 데모용 데이터입니다. 기존 데이터를 모두 지우고 새로 삽입합니다.
+`migrations/` 폴더에는 이전에 실행했던 개별 마이그레이션 파일들이 있습니다:
+- `2025-01-30_add_email_confirmed_at_to_users.sql` - users 테이블에 email_confirmed_at 필드 추가
+- `2025-11-29_add_issue_attachments_and_user_preferences.sql` - issue_attachments, user_preferences 테이블 추가
+- `2025-11-29_fix_users_rls_insert_policy.sql` - users 테이블 INSERT RLS 정책 수정
+
+**이미 배포된 인스턴스에 적용한 마이그레이션들은 `schema.sql`에 모두 통합되어 있습니다.**  
+새 프로젝트를 시작할 때는 `schema.sql`만 실행하면 됩니다.
+
+## 2. 시드 데이터 실행 (데모용)
+
+**주의:** 시드 데이터는 데모용입니다. 기존 데이터를 모두 지우고 새로 삽입합니다.
+
+### 2-1. 기본 시드 데이터 (seed.sql)
 
 1. **SQL Editor에서 새 쿼리 열기**
    - 다시 "New query" 클릭
@@ -45,7 +62,22 @@
 
 3. **확인**
    - `teams`, `projects`, `issues`, `subtasks` 테이블에 예제 데이터가 들어간 것을 확인
-   - 이 데이터는 프론트엔드 데모(프로젝트/이슈/칸반 화면)에 사용하면 됩니다.
+
+### 2-2. 추가 시드 데이터 (seed_v2.sql)
+
+1. **SQL Editor에서 새 쿼리 열기**
+   - 다시 "New query" 클릭
+
+2. **시드 실행**
+   - `seed_v2.sql` 파일의 전체 내용을 복사
+   - SQL Editor에 붙여넣기
+   - "Run" 버튼 클릭
+
+3. **확인**
+   - `issue_labels`, `issue_label_mappings` 테이블에 예제 데이터가 들어간 것을 확인
+   - 추가 이슈 데이터도 확인
+
+**실행 순서:** `seed.sql` → `seed_v2.sql` (순서대로 실행)
 
 ## 주의사항
 
