@@ -6,3 +6,5 @@ export type { PasswordInputProps } from "./PasswordInput";
 
 export { PasswordChecklist } from "./PasswordChecklist";
 
+export { TermsModal } from "./TermsModal";
+
