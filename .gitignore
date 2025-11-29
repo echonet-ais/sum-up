@@ -40,6 +40,6 @@ next-env.d.ts
 docs/backup/
 
 # local packages
-*.tgz
-hua-labs-ui-*.tgz
+# *.tgz
+# hua-labs-ui-*.tgz
 
