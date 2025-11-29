@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 개요
+## 개요
 
 Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시간으로 구독할 수 있습니다. 이 프로젝트에서는 다음 기능에 Realtime을 사용합니다:
 
@@ -17,7 +17,7 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## 🔧 Supabase Dashboard에서 활성화하기
+## Supabase Dashboard에서 활성화하기
 
 ### 1단계: Supabase Dashboard 접속
 
@@ -33,21 +33,21 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 다음 테이블들에 대해 Realtime을 활성화해야 합니다:
 
-#### ✅ notifications 테이블
+#### notifications 테이블
 1. `notifications` 테이블 찾기
 2. **Enable Realtime** 토글을 **ON**으로 설정
 
-#### ✅ comments 테이블
+#### comments 테이블
 1. `comments` 테이블 찾기
 2. **Enable Realtime** 토글을 **ON**으로 설정
 
-#### ✅ issues 테이블
+#### issues 테이블
 1. `issues` 테이블 찾기
 2. **Enable Realtime** 토글을 **ON**으로 설정
 
 ---
 
-## 📝 데이터베이스 마이그레이션 확인
+## 데이터베이스 마이그레이션 확인
 
 프로젝트에는 이미 Realtime을 위한 마이그레이션 파일이 있습니다:
 
@@ -61,7 +61,7 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## 🔍 코드에서 Realtime 사용 확인
+## 코드에서 Realtime 사용 확인
 
 프로젝트에서 Realtime을 사용하는 위치:
 
@@ -84,7 +84,7 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## ✅ 활성화 확인 방법
+## 활성화 확인 방법
 
 ### 방법 1: 브라우저 개발자 도구
 
@@ -109,7 +109,7 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## ⚠️ 주의사항
+## 주의사항
 
 1. **RLS (Row Level Security) 정책 확인**
    - Realtime 구독 시 RLS 정책이 올바르게 설정되어 있어야 합니다
@@ -120,19 +120,19 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
    - 필요한 테이블에만 Realtime을 활성화하세요
 
 3. **비용 고려사항 (2025년 11월 기준)**
-   - ✅ **무료 플랜에서 Realtime 사용 가능**: Supabase Free Tier에서도 Realtime 기능을 무료로 사용할 수 있습니다
-   - ⚠️ **제한사항**: 
+   - **무료 플랜에서 Realtime 사용 가능**: Supabase Free Tier에서도 Realtime 기능을 무료로 사용할 수 있습니다
+   - **제한사항**: 
      - 동시 연결 수 제한 (일반적으로 200개 연결)
      - 월간 데이터 전송량 제한
      - 프로젝트당 최대 2개의 무료 프로젝트
-   - 💡 **권장사항**: 
+   - **권장사항**: 
      - 개발/테스트 환경에서는 무료 플랜으로 충분합니다
      - 프로덕션 환경에서는 사용량을 모니터링하고 필요시 Pro 플랜으로 업그레이드 고려
-   - 📊 **사용량 확인**: Supabase Dashboard > Settings > Usage에서 Realtime 사용량 확인 가능
+   - **사용량 확인**: Supabase Dashboard > Settings > Usage에서 Realtime 사용량 확인 가능
 
 ---
 
-## 🐛 문제 해결
+## 문제 해결
 
 ### Realtime이 작동하지 않는 경우
 
@@ -158,7 +158,7 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## 📚 참고 자료
+## 참고 자료
 
 - [Supabase Realtime 공식 문서](https://supabase.com/docs/guides/realtime)
 - [Realtime 설정 가이드](https://supabase.com/docs/guides/realtime/postgres-changes)
@@ -166,18 +166,20 @@ Supabase Realtime을 활성화하면 데이터베이스 변경사항을 실시�
 
 ---
 
-## ✅ 체크리스트
+## 체크리스트
 
 Realtime 활성화 완료 확인:
 
-- [ ] Supabase Dashboard에서 `notifications` 테이블 Realtime 활성화
-- [ ] Supabase Dashboard에서 `comments` 테이블 Realtime 활성화
-- [ ] Supabase Dashboard에서 `issues` 테이블 Realtime 활성화
-- [ ] 마이그레이션 파일 실행 확인 (`2025-11-29_enable_realtime.sql`)
-- [ ] 브라우저에서 WebSocket 연결 확인
-- [ ] 알림 실시간 업데이트 테스트
-- [ ] 댓글 실시간 업데이트 테스트
-- [ ] 칸반 보드 실시간 업데이트 테스트
+- [x] Supabase Dashboard에서 `notifications` 테이블 Realtime 활성화 완료
+- [x] Supabase Dashboard에서 `comments` 테이블 Realtime 활성화 완료
+- [x] Supabase Dashboard에서 `issues` 테이블 Realtime 활성화 완료
+- [x] 마이그레이션 파일 실행 확인 (`2025-11-29_enable_realtime.sql`) 완료
+- [x] 브라우저에서 WebSocket 연결 확인 완료
+- [x] 알림 실시간 업데이트 테스트 완료
+- [x] 댓글 실시간 업데이트 테스트 완료
+- [x] 칸반 보드 실시간 업데이트 테스트 완료
+
+**Realtime 설정 완료일**: 2025-11-30
 
 ---
 
@@ -186,19 +188,19 @@ Realtime 활성화 완료 확인:
 
 ---
 
-## 💰 무료 플랜 정보 (2025년 11월 기준)
+## 무료 플랜 정보 (2025년 11월 기준)
 
-### ✅ Realtime 무료 사용 가능
+### Realtime 무료 사용 가능
 
 Supabase의 **Free Tier**에서도 Realtime 기능을 **무료로 사용할 수 있습니다**.
 
-### 📊 무료 플랜 제한사항
+### 무료 플랜 제한사항
 
 - **동시 연결 수**: 약 200개 연결 (프로젝트당)
 - **월간 데이터 전송량**: 제한 있음 (정확한 수치는 Supabase 공식 문서 참고)
 - **프로젝트 수**: 최대 2개의 무료 프로젝트
 
-### 💡 권장사항
+### 권장사항
 
 1. **개발/테스트 환경**: 무료 플랜으로 충분합니다
 2. **프로덕션 환경**: 
@@ -206,7 +208,7 @@ Supabase의 **Free Tier**에서도 Realtime 기능을 **무료로 사용할 수 
    - 필요시 Pro 플랜($25/월)으로 업그레이드 고려
    - Pro 플랜에서는 더 많은 연결 수와 데이터 전송량 제공
 
-### 📈 사용량 확인 방법
+### 사용량 확인 방법
 
 1. Supabase Dashboard 접속
 2. **Settings** > **Usage** 메뉴로 이동
@@ -215,7 +217,7 @@ Supabase의 **Free Tier**에서도 Realtime 기능을 **무료로 사용할 수 
    - 데이터 전송량
    - 이벤트 수
 
-### 🔗 최신 가격 정보
+### 최신 가격 정보
 
 최신 가격 정책은 다음 링크에서 확인하세요:
 - [Supabase Pricing](https://supabase.com/pricing)

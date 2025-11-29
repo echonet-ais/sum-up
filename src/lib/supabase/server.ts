@@ -27,7 +27,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * @param request - API Routes에서 사용할 경우 NextRequest (선택사항)
  * @param response - API Routes에서 사용할 경우 NextResponse (선택사항)
  */
-export function createServerClient(
+export async function createServerClient(
   request?: NextRequest,
   response?: NextResponse
 ) {

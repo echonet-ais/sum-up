@@ -12,7 +12,10 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      // 비로그인 상태일 때 로그인 페이지로 리다이렉트
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("returnUrl", request.url);
+      return NextResponse.redirect(loginUrl);
     }
 
     // 전체 프로젝트 수 (아카이브되지 않은 것만)

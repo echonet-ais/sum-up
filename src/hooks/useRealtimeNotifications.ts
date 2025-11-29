@@ -8,6 +8,7 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { isRealtimeEnabled } from "@/lib/utils/realtime";
 
 export interface UseRealtimeNotificationsOptions {
   userId: string;
@@ -25,7 +26,8 @@ export function useRealtimeNotifications({
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    // Realtime이 비활성화되어 있으면 early return
+    if (!isRealtimeEnabled() || !userId) return;
 
     // Realtime 채널 생성
     const channel = supabase

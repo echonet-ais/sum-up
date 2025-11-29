@@ -173,7 +173,8 @@ export async function POST(request: NextRequest) {
     });
 
     // 세션 토큰을 클라이언트에 반환
-    response.json({
+    // response는 이미 쿠키가 설정된 NextResponse이므로, 새로운 NextResponse.json()을 반환
+    return NextResponse.json({
       message: "로그인 성공",
       user: {
         id: authData.user.id,
@@ -187,9 +188,9 @@ export async function POST(request: NextRequest) {
         refresh_token: authData.session.refresh_token,
         expires_at: authData.session.expires_at,
       },
+    }, {
+      headers: response.headers, // 쿠키 헤더 포함
     });
-
-    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

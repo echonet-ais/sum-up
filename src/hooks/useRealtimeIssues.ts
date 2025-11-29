@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { Issue } from "@/types";
+import { isRealtimeEnabled } from "@/lib/utils/realtime";
 
 export interface UseRealtimeIssuesOptions {
   projectId?: string;
@@ -26,6 +27,8 @@ export function useRealtimeIssues({
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
+    // Realtime이 비활성화되어 있으면 early return
+    if (!isRealtimeEnabled()) return;
     // Realtime 채널 생성
     const channelName = projectId ? `issues:project:${projectId}` : "issues:all";
     const channel = supabase

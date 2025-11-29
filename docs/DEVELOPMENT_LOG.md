@@ -9,6 +9,63 @@
 
 ## 개발 로그
 
+### 2025-11-30 - 문서 정리 및 README 재작성
+
+**완료된 작업:**
+- 중복/통합 가능한 문서들을 백업 폴더로 이동 (16개 문서)
+  - CODE_REVIEW_V2.md → CODE_REVIEW.md로 통합
+  - MISSING_FEATURES.md, MISSING_FEATURES_SUMMARY.md, REMAINING_FEATURES.md → FEATURE_STATUS.md로 통합
+  - FEATURE_STATUS_CHECK.md, FINAL_STATUS.md → FEATURE_STATUS.md로 통합
+  - OFFICIAL_PRD_REVIEW.md, PRD_FEATURE_COMPARISON.md → PRD_REVIEW.md로 통합
+  - REFACTORING_OPPORTUNITIES.md, REFACTORING_CHECKLIST.md → REFACTORING_ANALYSIS.md로 통합
+  - OAUTH_SETUP.md, GOOGLE_OAUTH_SETUP.md → SUPABASE_SETUP_GUIDE.md로 통합
+  - RESEND_SETUP.md → EMAIL_SETUP_GUIDE.md로 통합
+  - REALTIME_OPTIONAL.md → REALTIME_SETUP.md로 통합
+  - UI_TASKS.md, DETAILED_TASKS.md → DEVELOPMENT_PLAN.md로 통합
+  - API_AUTH_FIX.md → 백업 (이미 해결된 문제)
+- CODE_REVIEW.md 업데이트
+  - CODE_REVIEW_V2.md의 최신 내용으로 통합
+  - 타입 안전성, 에러 처리, 정합성, 에러 바운더리 이슈 정리
+- README.md 재작성
+  - 프로젝트 루트 README.md: 프로젝트 개요, 빠른 시작, 기술 스택, 주요 기능
+  - docs/README.md: 문서 인덱스, 문서 구조, 빠른 링크
+
+**변경된 파일:**
+- `docs/CODE_REVIEW.md` (최신 버전으로 업데이트)
+- `README.md` (재작성)
+- `docs/README.md` (재작성)
+- `docs/backup/` (16개 문서 이동)
+
+**효과:**
+- 문서 구조 명확화 및 중복 제거
+- 문서 찾기 용이성 향상
+- 프로젝트 온보딩 개선
+
+---
+
+### 2025-11-30 - Supabase Realtime 설정 완료
+
+**완료된 작업:**
+- Supabase Dashboard에서 Realtime 활성화 완료
+  - `notifications` 테이블 Realtime 활성화
+  - `comments` 테이블 Realtime 활성화
+  - `issues` 테이블 Realtime 활성화
+- 실시간 기능 테스트 완료
+  - 알림 실시간 업데이트 확인
+  - 댓글 실시간 업데이트 확인
+  - 칸반 보드 실시간 업데이트 확인
+- WebSocket 연결 확인 완료
+
+**효과:**
+- 사용자 경험 대폭 개선: 폴링 방식에서 WebSocket 기반 실시간 업데이트로 전환 완료
+- 알림, 댓글, 이슈 변경 사항이 즉시 반영되어 협업 효율성 향상
+- 서버 부하 감소: 폴링 대신 이벤트 기반 업데이트로 불필요한 요청 제거
+
+**참고 문서:**
+- `docs/REALTIME_SETUP.md` (설정 가이드 및 체크리스트)
+
+---
+
 ### 2025-11-29 - Google OAuth 로그인 기능 활성화
 
 **완료된 작업:**

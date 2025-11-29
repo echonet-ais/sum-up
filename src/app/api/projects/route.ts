@@ -151,14 +151,12 @@ export async function GET(request: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser();
 
-    // 디버깅: 인증 상태 확인
+    // 인증 상태 확인
     if (userError || !user) {
-      console.error("Auth error in projects API:", {
-        error: userError?.message,
-        hasUser: !!user,
-        cookies: request.cookies.getAll().map(c => c.name),
-      });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      // 비로그인 상태일 때 로그인 페이지로 리다이렉트
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("returnUrl", request.url);
+      return NextResponse.redirect(loginUrl);
     }
 
     const { searchParams } = new URL(request.url);
@@ -258,7 +256,10 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      // 비로그인 상태일 때 로그인 페이지로 리다이렉트
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("returnUrl", request.url);
+      return NextResponse.redirect(loginUrl);
     }
 
     const body = await request.json();
