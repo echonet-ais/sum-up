@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AppLayout } from "@/components/layout";
 import type { KanbanStatus, KanbanCardType } from "@/components/kanban";
@@ -72,6 +73,7 @@ const initialCards: KanbanCardType[] = [
 export default function KanbanPage() {
   const [statuses] = useState<KanbanStatus[]>(initialStatuses);
   const [cards, setCards] = useState<KanbanCardType[]>(initialCards);
+  const router = useRouter();
 
   const handleCardMove = (cardId: string, newStatusId: string, newOrder: number) => {
     setCards((prevCards) =>
@@ -99,7 +101,7 @@ export default function KanbanPage() {
 
   const handleCardClick = (cardId: string) => {
     // TODO: 이슈 상세 페이지로 이동
-    window.location.href = `/issues/${cardId}`;
+    router.push(`/issues/${cardId}`);
   };
 
   return (

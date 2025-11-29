@@ -50,31 +50,31 @@ export default function Home() {
             title="전체 프로젝트"
             value={stats.totalProjects.toString()}
             icon={<Icon name="folder" size={24} />}
-            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
           />
           <StatCard
             title="전체 이슈"
             value={stats.totalIssues.toString()}
             icon={<Icon name="alert-circle" size={24} />}
-            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
           />
           <StatCard
             title="진행 중 이슈"
             value={stats.openIssues.toString()}
             icon={<Icon name="clock" size={24} />}
-            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
           />
           <StatCard
             title="완료된 이슈"
             value={stats.completedIssues.toString()}
             icon={<Icon name="check-circle" size={24} />}
-            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
           />
         </DashboardGrid>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm p-6">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm p-6">
               <h2 className="text-xl font-semibold text-[var(--text-strong)] mb-4">
                 최근 활동
               </h2>
@@ -82,7 +82,7 @@ export default function Home() {
             </div>
           </div>
           <div className="lg:col-span-1">
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm p-6">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm p-6">
               <h2 className="text-xl font-semibold text-[var(--text-strong)] mb-4">
                 빠른 작업
               </h2>

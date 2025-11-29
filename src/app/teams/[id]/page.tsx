@@ -2,20 +2,18 @@
 
 import { use, useState } from "react";
 import dynamic from "next/dynamic";
-import { AppLayout } from "@/components/layout";
+import { DetailPageLayout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
-import { Drawer, DrawerHeader, DrawerContent } from "@hua-labs/ui";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@hua-labs/ui";
-import { EmptyState, ErrorState, LoadingState } from "@/components/common";
+import { EmptyState } from "@/components/common";
 import { TeamMemberList } from "@/components/team";
-
-const InviteMemberForm = dynamic(() => import("@/components/team").then((mod) => ({ default: mod.InviteMemberForm })));
+import { FormDrawer, MetaInfoCard } from "@/components/common";
 import { useTeam } from "@/hooks/useTeam";
 import { useAuthStore } from "@/store/auth-store";
-import Link from "next/link";
 import { useToast } from "@hua-labs/ui";
+
+const InviteMemberForm = dynamic(() => import("@/components/team").then((mod) => ({ default: mod.InviteMemberForm })));
 
 export default function TeamDetailPage({
   params,
@@ -79,49 +77,27 @@ export default function TeamDetailPage({
     }
   };
 
-  if (isLoading) {
-    return (
-      <AppLayout title="팀" activeItem="teams">
-        <LoadingState message="팀 정보를 불러오는 중..." />
-      </AppLayout>
-    );
-  }
-
-  if (error || !team) {
-    return (
-      <AppLayout title="팀을 찾을 수 없습니다" activeItem="teams">
-        <ErrorState
-          title="팀을 찾을 수 없습니다"
-          message={error?.message || "요청하신 팀이 존재하지 않거나 삭제되었습니다."}
-          onRetry={() => window.location.reload()}
-          retryLabel="다시 시도"
-        />
-      </AppLayout>
-    );
-  }
+  // 헤더 액션
+  const headerActions = team ? (
+    <Button onClick={() => setIsInviteFormOpen(true)} className="w-full sm:w-auto">
+      <Icon name="userPlus" size={16} className="mr-2" />
+      멤버 초대
+    </Button>
+  ) : undefined;
 
   return (
-    <AppLayout
-      title={team.name}
-      description={team.description || `팀 #${team.id}`}
+    <DetailPageLayout
+      title={team?.name || "팀"}
+      description={team?.description || (team ? `팀 #${team.id}` : undefined)}
       activeItem="teams"
+      isLoading={isLoading}
+      error={error}
+      backHref="/teams"
+      backLabel="팀 목록으로"
+      actions={headerActions}
     >
-      <div className="flex flex-col gap-6">
-        {/* 헤더 액션 */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-          <Link
-            href="/teams"
-            className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-strong)]"
-          >
-            <Icon name="chevronLeft" size={16} />
-            팀 목록으로
-          </Link>
-          <Button onClick={() => setIsInviteFormOpen(true)} className="w-full sm:w-auto">
-            <Icon name="userPlus" size={16} className="mr-2" />
-            멤버 초대
-          </Button>
-        </div>
 
+      {team && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* 메인 콘텐츠 */}
           <div className="lg:col-span-2 space-y-6">
@@ -160,46 +136,34 @@ export default function TeamDetailPage({
           {/* 사이드바 */}
           <div className="space-y-6">
             {/* 메타 정보 */}
-            <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-              <CardHeader>
-                <CardTitle>정보</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <div className="text-[var(--text-muted)]">생성일</div>
-                  <div className="text-[var(--text-strong)]">
-                    {new Date(team.createdAt).toLocaleString("ko-KR")}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[var(--text-muted)]">수정일</div>
-                  <div className="text-[var(--text-strong)]">
-                    {new Date(team.updatedAt).toLocaleString("ko-KR")}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <MetaInfoCard
+              items={[
+                {
+                  label: "생성일",
+                  value: new Date(team.createdAt).toLocaleString("ko-KR"),
+                },
+                {
+                  label: "수정일",
+                  value: new Date(team.updatedAt).toLocaleString("ko-KR"),
+                },
+              ]}
+            />
           </div>
         </div>
-      </div>
+      )}
 
       {/* 멤버 초대 Drawer */}
-      <Drawer
+      <FormDrawer
         open={isInviteFormOpen}
         onOpenChange={setIsInviteFormOpen}
-        side="right"
+        title="멤버 초대"
         size="md"
       >
-        <DrawerHeader showCloseButton onClose={() => setIsInviteFormOpen(false)}>
-          <h2 className="text-lg font-semibold text-[var(--text-strong)]">멤버 초대</h2>
-        </DrawerHeader>
-        <DrawerContent>
-          <InviteMemberForm
-            onInvite={handleInvite}
-            isLoading={false}
-          />
-        </DrawerContent>
-      </Drawer>
-    </AppLayout>
+        <InviteMemberForm
+          onInvite={handleInvite}
+          isLoading={false}
+        />
+      </FormDrawer>
+    </DetailPageLayout>
   );
 }

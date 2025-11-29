@@ -5,9 +5,8 @@ import { AppLayout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
-import { Drawer, DrawerHeader, DrawerContent } from "@hua-labs/ui";
 import { Input } from "@hua-labs/ui";
-import { EmptyState, LoadingState, ErrorState } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, FormDrawer } from "@/components/common";
 import { TeamCard, TeamForm } from "@/components/team";
 import { useTeams } from "@/hooks/useTeams";
 import Link from "next/link";
@@ -110,25 +109,19 @@ export default function TeamsPage() {
       </div>
 
       {/* 팀 생성 Drawer */}
-      <Drawer
+      <FormDrawer
         open={isTeamFormOpen}
         onOpenChange={setIsTeamFormOpen}
-        side="right"
-        size="lg"
+        title="새 팀 생성"
       >
-        <DrawerHeader showCloseButton onClose={() => setIsTeamFormOpen(false)}>
-          <h2 className="text-lg font-semibold text-[var(--text-strong)]">새 팀 생성</h2>
-        </DrawerHeader>
-        <DrawerContent>
-          <TeamForm
-            onSuccess={() => {
-              setIsTeamFormOpen(false);
-              refetch();
-            }}
-            onCancel={() => setIsTeamFormOpen(false)}
-          />
-        </DrawerContent>
-      </Drawer>
+        <TeamForm
+          onSuccess={() => {
+            setIsTeamFormOpen(false);
+            refetch();
+          }}
+          onCancel={() => setIsTeamFormOpen(false)}
+        />
+      </FormDrawer>
     </AppLayout>
   );
 }

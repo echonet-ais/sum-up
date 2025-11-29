@@ -6,7 +6,7 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
-import { Drawer, DrawerHeader, DrawerContent } from "@hua-labs/ui";
+import { FormDrawer } from "@/components/common";
 import { Input } from "@hua-labs/ui";
 import { Select, SelectOption } from "@hua-labs/ui";
 import dynamic from "next/dynamic";
@@ -111,7 +111,7 @@ export default function IssuesPage() {
     >
       <div className="flex flex-col gap-6">
         {/* 필터 및 검색 */}
-        <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+        <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
               <div className="flex-1">
@@ -152,7 +152,7 @@ export default function IssuesPage() {
 
         {/* 통계 */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
             <CardContent className="p-4">
               <div className="text-sm text-[var(--text-muted)]">전체</div>
               <div className="text-2xl font-semibold text-[var(--text-strong)]">
@@ -160,7 +160,7 @@ export default function IssuesPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
             <CardContent className="p-4">
               <div className="text-sm text-[var(--text-muted)]">할 일</div>
               <div className="text-2xl font-semibold text-[var(--text-strong)]">
@@ -168,7 +168,7 @@ export default function IssuesPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
             <CardContent className="p-4">
               <div className="text-sm text-[var(--text-muted)]">진행 중</div>
               <div className="text-2xl font-semibold text-[var(--text-strong)]">
@@ -176,7 +176,7 @@ export default function IssuesPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
             <CardContent className="p-4">
               <div className="text-sm text-[var(--text-muted)]">완료</div>
               <div className="text-2xl font-semibold text-[var(--text-strong)]">
@@ -187,7 +187,7 @@ export default function IssuesPage() {
         </div>
 
         {/* 이슈 테이블 */}
-        <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+        <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>이슈 목록</CardTitle>
             <Button onClick={() => setIsIssueFormOpen(true)}>
@@ -209,7 +209,7 @@ export default function IssuesPage() {
                   !searchQuery && statusFilter === "ALL" && priorityFilter === "ALL"
                     ? {
                         label: "새 이슈 생성",
-                        onClick: () => (window.location.href = "/issues/new"),
+                        onClick: () => setIsIssueFormOpen(true),
                         variant: "primary" as const,
                       }
                     : undefined
@@ -325,26 +325,20 @@ export default function IssuesPage() {
       </div>
 
       {/* 이슈 생성/수정 Drawer */}
-      <Drawer
+      <FormDrawer
         open={isIssueFormOpen}
         onOpenChange={setIsIssueFormOpen}
-        side="right"
-        size="lg"
+        title="새 이슈 생성"
       >
-        <DrawerHeader showCloseButton onClose={() => setIsIssueFormOpen(false)}>
-          <h2 className="text-lg font-semibold text-[var(--text-strong)]">새 이슈 생성</h2>
-        </DrawerHeader>
-        <DrawerContent>
-          <IssueForm
-            onSuccess={() => {
-              setIsIssueFormOpen(false);
-              refetchIssues();
-            }}
-            onCancel={() => setIsIssueFormOpen(false)}
-            projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-          />
-        </DrawerContent>
-      </Drawer>
+        <IssueForm
+          onSuccess={() => {
+            setIsIssueFormOpen(false);
+            refetchIssues();
+          }}
+          onCancel={() => setIsIssueFormOpen(false)}
+          projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+        />
+      </FormDrawer>
     </AppLayout>
   );
 }

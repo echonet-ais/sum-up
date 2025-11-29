@@ -131,7 +131,7 @@ export function GlobalSearch({ open = false, onOpenChange, className }: GlobalSe
       {/* 검색 모달 */}
       <div
         className={cn(
-          "relative w-full max-w-2xl bg-[var(--surface)] rounded-xl border border-[var(--border-subtle)]",
+          "relative w-full max-w-2xl bg-[var(--surface)] rounded-lg border border-[var(--border-subtle)]",
           "shadow-xl",
           className
         )}

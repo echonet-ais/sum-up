@@ -6,8 +6,10 @@ import { useProjects } from "./useProjects";
 import { useTeams } from "./useTeams";
 import type { Issue, Project, Team } from "@/types";
 
+export type SearchResultType = "issue" | "project" | "team";
+
 export interface SearchResult {
-  type: "issue" | "project" | "team";
+  type: SearchResultType;
   id: string;
   title: string;
   description?: string;
@@ -17,7 +19,7 @@ export interface SearchResult {
 
 export interface UseSearchOptions {
   query: string;
-  types?: Array<"issue" | "project" | "team">;
+  types?: SearchResultType[];
   limit?: number;
 }
 

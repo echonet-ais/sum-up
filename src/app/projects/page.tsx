@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
-import { Drawer, DrawerHeader, DrawerContent } from "@hua-labs/ui";
+import { FormDrawer } from "@/components/common";
 import { EmptyState, LoadingState, ErrorState, StatCard, FilterBar } from "@/components/common";
 import dynamic from "next/dynamic";
 
@@ -134,7 +134,7 @@ export default function ProjectsPage() {
                 !searchQuery && !showArchived
                   ? {
                       label: "새 프로젝트 생성",
-                      onClick: () => (window.location.href = "/projects/new"),
+                      onClick: () => setIsProjectFormOpen(true),
                       variant: "primary" as const,
                     }
                   : undefined
@@ -144,7 +144,7 @@ export default function ProjectsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjects.map((project) => (
                 <Link key={project.id} href={`/projects/${project.id}`}>
-                  <Card className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm hover:shadow-md transition-shadow h-full">
+                  <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm hover:shadow-md transition-shadow h-full">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -181,26 +181,20 @@ export default function ProjectsPage() {
       </div>
 
       {/* 프로젝트 생성/수정 Drawer */}
-      <Drawer
+      <FormDrawer
         open={isProjectFormOpen}
         onOpenChange={setIsProjectFormOpen}
-        side="right"
-        size="lg"
+        title="새 프로젝트 생성"
       >
-        <DrawerHeader showCloseButton onClose={() => setIsProjectFormOpen(false)}>
-          <h2 className="text-lg font-semibold text-[var(--text-strong)]">새 프로젝트 생성</h2>
-        </DrawerHeader>
-        <DrawerContent>
-          <ProjectForm
-            onSuccess={() => {
-              setIsProjectFormOpen(false);
-              refetch();
-            }}
-            onCancel={() => setIsProjectFormOpen(false)}
-            teams={teams.map((t) => ({ id: t.id, name: t.name }))}
-          />
-        </DrawerContent>
-      </Drawer>
+        <ProjectForm
+          onSuccess={() => {
+            setIsProjectFormOpen(false);
+            refetch();
+          }}
+          onCancel={() => setIsProjectFormOpen(false)}
+          teams={teams.map((t) => ({ id: t.id, name: t.name }))}
+        />
+      </FormDrawer>
     </AppLayout>
   );
 }

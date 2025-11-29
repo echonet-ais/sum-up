@@ -46,12 +46,8 @@ export function useIssue(issueId: string): UseIssueReturn {
     setError(null);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // const response = await apiClient.get<Issue>(`/issues/${issueId}`);
-      // setIssue(response);
-
-      // 임시: Mock 데이터
-      setIssue(null);
+      const response = await apiClient.get<Issue>(`/api/issues/${issueId}`);
+      setIssue(response);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("이슈를 불러오는데 실패했습니다"));
     } finally {
@@ -64,12 +60,8 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Issue>(`/issues/${issueId}`, updates);
-        // setIssue(response);
-
-        // 임시: 로컬 상태 업데이트
-        setIssue({ ...issue, ...updates });
+        const response = await apiClient.put<Issue>(`/api/issues/${issueId}`, updates);
+        setIssue(response);
       } catch (err) {
         throw err instanceof Error ? err : new Error("이슈를 업데이트하는데 실패했습니다");
       }
@@ -79,8 +71,7 @@ export function useIssue(issueId: string): UseIssueReturn {
 
   const deleteIssue = useCallback(async () => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.delete(`/issues/${issueId}`);
+      await apiClient.delete(`/api/issues/${issueId}`);
       setIssue(null);
     } catch (err) {
       throw err instanceof Error ? err : new Error("이슈를 삭제하는데 실패했습니다");
@@ -92,12 +83,10 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Issue>(`/issues/${issueId}/status`, { status: newStatus });
-        // setIssue(response);
-
-        // 임시: 로컬 상태 업데이트
-        setIssue({ ...issue, status: newStatus, updatedAt: new Date().toISOString() });
+        const response = await apiClient.put<Issue>(`/api/issues/${issueId}`, {
+          status: newStatus,
+        });
+        setIssue(response);
       } catch (err) {
         throw err instanceof Error ? err : new Error("이슈 상태를 변경하는데 실패했습니다");
       }

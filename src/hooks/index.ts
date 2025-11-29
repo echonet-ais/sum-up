@@ -6,5 +6,7 @@ export { useTeams, type UseTeamsOptions, type UseTeamsReturn } from "./useTeams"
 export { useTeam, type UseTeamReturn } from "./useTeam";
 export { useNotifications, type UseNotificationsReturn } from "./useNotifications";
 export { useToast } from "./useToast";
+export { useDeleteDialog } from "./useDeleteDialog";
+export type { UseDeleteDialogOptions } from "./useDeleteDialog";
 export { useSearch, type SearchResult, type UseSearchOptions, type UseSearchReturn } from "./useSearch";
 

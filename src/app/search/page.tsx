@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { EmptyState } from "@/components/common";
-import { useSearch } from "@/hooks/useSearch";
+import { useSearch, type SearchResultType } from "@/hooks/useSearch";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -17,7 +17,7 @@ export default function SearchPage() {
   const { results, isLoading } = useSearch({ query, limit: 50 });
 
   const groupedResults = useMemo(() => {
-    const grouped: Record<string, typeof results> = {
+    const grouped: Record<SearchResultType, typeof results> = {
       issue: [],
       project: [],
       team: [],
@@ -30,7 +30,7 @@ export default function SearchPage() {
     return grouped;
   }, [results]);
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (type: SearchResultType) => {
     switch (type) {
       case "issue":
         return "이슈";
@@ -43,7 +43,7 @@ export default function SearchPage() {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: SearchResultType) => {
     switch (type) {
       case "issue":
         return "alert-circle";
@@ -87,26 +87,31 @@ export default function SearchPage() {
                 총 <strong className="text-[var(--text-strong)]">{results.length}개</strong>의
                 결과
               </span>
-              {Object.entries(groupedResults).map(([type, items]) => (
-                <span key={type}>
-                  {getTypeLabel(type)} <strong className="text-[var(--text-strong)]">{items.length}</strong>
-                </span>
-              ))}
+              {Object.entries(groupedResults).map(([type, items]) => {
+                const typedType = type as SearchResultType;
+                return (
+                  <span key={typedType}>
+                    {getTypeLabel(typedType)}{" "}
+                    <strong className="text-[var(--text-strong)]">{items.length}</strong>
+                  </span>
+                );
+              })}
             </div>
 
             {/* 검색 결과 그룹 */}
             {Object.entries(groupedResults).map(([type, items]) => {
+              const typedType = type as SearchResultType;
               if (items.length === 0) return null;
 
               return (
                 <Card
                   key={type}
-                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm"
                 >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Icon name={getTypeIcon(type)} size={20} />
-                      {getTypeLabel(type)} ({items.length})
+                      <Icon name={getTypeIcon(typedType)} size={20} />
+                      {getTypeLabel(typedType)} ({items.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>

@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import dynamic from "next/dynamic";
-import { AppLayout } from "@/components/layout";
+import { DetailPageLayout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
@@ -14,15 +14,15 @@ const IssueForm = dynamic(() => import("@/components/issue").then((mod) => ({ de
 const CommentList = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.CommentList })));
 const SubtaskManager = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.SubtaskManager })));
 const AIFeatures = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.AIFeatures })));
+const IssueAttachments = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.IssueAttachments })));
 import { Markdown } from "@/components/common";
 import { DatePicker } from "@/components/forms";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common";
 import { useIssue } from "@/hooks/useIssue";
 import { useAuthStore } from "@/store/auth-store";
 import { Dropdown, DropdownMenu, DropdownItem } from "@hua-labs/ui";
-import { Drawer, DrawerHeader, DrawerContent } from "@hua-labs/ui";
-import { ConfirmDialog } from "@/components/common";
-import { useToast } from "@hua-labs/ui";
+import { FormDrawer, MetaInfoCard, ConfirmDialog } from "@/components/common";
+import { useDeleteDialog } from "@/hooks";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Issue, IssueStatus } from "@/types";
@@ -43,11 +43,8 @@ export default function IssueDetailPage({
   const { id } = use(params);
   const { issue, isLoading, error, addComment, updateComment, deleteComment, updateIssue, deleteIssue, refetch } = useIssue(id);
   const { user } = useAuthStore();
-  const { addToast } = useToast();
   const router = useRouter();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   
   // 상태 옵션
   const statusOptions = [
@@ -57,79 +54,72 @@ export default function IssueDetailPage({
     { value: "DONE", label: "완료" },
   ];
 
-  if (isLoading) {
-    return (
-      <AppLayout title="이슈" activeItem="issues">
-        <LoadingState message="이슈를 불러오는 중..." />
-      </AppLayout>
-    );
-  }
+  // 삭제 다이얼로그 훅
+  const {
+    isOpen: isDeleteDialogOpen,
+    setIsOpen: setIsDeleteDialogOpen,
+    isDeleting,
+    handleConfirm: handleDeleteConfirm,
+  } = useDeleteDialog(
+    () => deleteIssue(),
+    {
+      title: "이슈 삭제",
+      description: issue ? `"${issue.title}" 이슈를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.` : "",
+      redirectTo: "/issues",
+    }
+  );
 
-  if (error || !issue) {
-    return (
-      <AppLayout title="이슈를 찾을 수 없습니다" activeItem="issues">
-        <ErrorState
-          title="이슈를 찾을 수 없습니다"
-          message={error?.message || "요청하신 이슈가 존재하지 않거나 삭제되었습니다."}
-          onRetry={() => window.location.reload()}
-          retryLabel="다시 시도"
-        />
-      </AppLayout>
-    );
-  }
+  // 액션 버튼들
+  const actions = (
+    <div className="flex gap-2">
+      <Button variant="outline" onClick={() => setIsEditFormOpen(true)}>
+        수정
+      </Button>
+      <Dropdown
+        trigger={
+          <Button>
+            상태 변경
+          </Button>
+        }
+        align="end"
+      >
+        <DropdownMenu>
+          {statusOptions.map((status) => (
+            <DropdownItem
+              key={status.value}
+              onClick={() => {
+                updateIssue({ status: status.value as IssueStatus });
+              }}
+              disabled={issue?.status === status.value}
+            >
+              {status.label}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </Dropdown>
+      <Button
+        variant="destructive"
+        onClick={() => setIsDeleteDialogOpen(true)}
+      >
+        삭제
+      </Button>
+    </div>
+  );
 
   return (
-    <AppLayout
-      title={issue.title}
-      description={`이슈 #${issue.id}`}
+    <DetailPageLayout
+      title={issue?.title || "이슈"}
+      description={issue ? `이슈 #${issue.id}` : undefined}
       activeItem="issues"
+      isLoading={isLoading}
+      error={error || (!issue && !isLoading ? new Error("이슈를 찾을 수 없습니다") : null)}
+      backHref="/issues"
+      backLabel="이슈 목록으로"
+      actions={actions}
     >
-      <div className="flex flex-col gap-6">
-        {/* 헤더 액션 */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/issues"
-            className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-strong)]"
-          >
-            <Icon name="chevronLeft" size={16} />
-            이슈 목록으로
-          </Link>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsEditFormOpen(true)}>
-              수정
-            </Button>
-            <Dropdown
-              trigger={
-                <Button>
-                  상태 변경
-                </Button>
-              }
-              align="end"
-            >
-              <DropdownMenu>
-                {statusOptions.map((status) => (
-                  <DropdownItem
-                    key={status.value}
-                    onClick={() => {
-                      updateIssue({ status: status.value as IssueStatus });
-                    }}
-                    disabled={issue.status === status.value}
-                  >
-                    {status.label}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Button
-              variant="destructive"
-              onClick={() => setIsDeleteDialogOpen(true)}
-            >
-              삭제
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {issue && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 메인 콘텐츠 */}
           <div className="lg:col-span-2 space-y-6">
             {/* 설명 */}
@@ -148,6 +138,21 @@ export default function IssueDetailPage({
 
             {/* 서브태스크 */}
             <SubtaskManager issueId={issue.id} subtasks={issue.subtasks || []} />
+
+            {/* 첨부파일 */}
+            {issue.attachments && issue.attachments.length > 0 && (
+              <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+                <CardHeader>
+                  <CardTitle>첨부파일</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <IssueAttachments
+                    attachments={issue.attachments}
+                    canDelete={user?.id === issue.assigneeId || user?.role === "ADMIN"}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {/* 댓글 섹션 */}
             <CommentList
@@ -219,51 +224,42 @@ export default function IssueDetailPage({
             <AIFeatures issue={issue} comments={issue.comments || []} />
 
             {/* 메타 정보 */}
-            <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-              <CardHeader>
-                <CardTitle>정보</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <div className="text-[var(--text-muted)]">생성일</div>
-                  <div className="text-[var(--text-strong)]">
-                    {new Date(issue.createdAt).toLocaleString("ko-KR")}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[var(--text-muted)]">수정일</div>
-                  <div className="text-[var(--text-strong)]">
-                    {new Date(issue.updatedAt).toLocaleString("ko-KR")}
-                  </div>
-                </div>
-                {issue.project && (
-                  <div>
-                    <div className="text-[var(--text-muted)]">프로젝트</div>
-                    <Link
-                      href={`/projects/${issue.projectId}`}
-                      className="text-[var(--brand-primary)] hover:underline"
-                    >
-                      {issue.project.name}
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <MetaInfoCard
+              items={[
+                {
+                  label: "생성일",
+                  value: new Date(issue.createdAt).toLocaleString("ko-KR"),
+                },
+                {
+                  label: "수정일",
+                  value: new Date(issue.updatedAt).toLocaleString("ko-KR"),
+                },
+                ...(issue.project
+                  ? [
+                      {
+                        label: "프로젝트",
+                        value: (
+                          <Link
+                            href={`/projects/${issue.projectId}`}
+                            className="text-[var(--brand-primary)] hover:underline"
+                          >
+                            {issue.project.name}
+                          </Link>
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </div>
         </div>
-      </div>
 
-      {/* 이슈 수정 Drawer */}
-      <Drawer
-        open={isEditFormOpen}
-        onOpenChange={setIsEditFormOpen}
-        side="right"
-        size="lg"
-      >
-        <DrawerHeader showCloseButton onClose={() => setIsEditFormOpen(false)}>
-          <h2 className="text-lg font-semibold text-[var(--text-strong)]">이슈 수정</h2>
-        </DrawerHeader>
-        <DrawerContent>
+        {/* 이슈 수정 Drawer */}
+        <FormDrawer
+          open={isEditFormOpen}
+          onOpenChange={setIsEditFormOpen}
+          title="이슈 수정"
+        >
           <IssueForm
             issueId={id}
             onSuccess={() => {
@@ -272,40 +268,22 @@ export default function IssueDetailPage({
             }}
             onCancel={() => setIsEditFormOpen(false)}
           />
-        </DrawerContent>
-      </Drawer>
+        </FormDrawer>
 
-      {/* 삭제 확인 다이얼로그 */}
-      <ConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        title="이슈 삭제"
-        description={`"${issue.title}" 이슈를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
-        confirmLabel="삭제"
-        cancelLabel="취소"
-        variant="destructive"
-        isLoading={isDeleting}
-        onConfirm={async () => {
-          setIsDeleting(true);
-          try {
-            await deleteIssue();
-            addToast({
-              title: "성공",
-              message: "이슈가 삭제되었습니다",
-              type: "success",
-            });
-            router.push("/issues");
-          } catch (err) {
-            addToast({
-              title: "오류",
-              message: err instanceof Error ? err.message : "이슈 삭제에 실패했습니다",
-              type: "error",
-            });
-          } finally {
-            setIsDeleting(false);
-          }
-        }}
-      />
-    </AppLayout>
+        {/* 삭제 확인 다이얼로그 */}
+        <ConfirmDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          title="이슈 삭제"
+          description={issue ? `"${issue.title}" 이슈를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.` : ""}
+          confirmLabel="삭제"
+          cancelLabel="취소"
+          variant="destructive"
+          isLoading={isDeleting}
+          onConfirm={handleDeleteConfirm}
+        />
+        </>
+      )}
+    </DetailPageLayout>
   );
 }

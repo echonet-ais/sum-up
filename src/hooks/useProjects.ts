@@ -46,7 +46,6 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsReturn
     setError(null);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
       const params = new URLSearchParams();
       if (teamId) params.append("teamId", teamId);
       if (search) params.append("search", search);
@@ -54,18 +53,13 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsReturn
       params.append("page", String(page));
       params.append("limit", String(limit));
 
-      // const response = await apiClient.get<PaginatedResponse<Project>>(`/projects?${params}`);
-      // setProjects(response.data);
-      // setTotal(response.pagination.total);
-      // setTotalPages(response.pagination.totalPages);
-      // setCurrentPage(response.pagination.page);
-
-      // 임시: Mock 데이터
-      const mockProjects: Project[] = [];
-      setProjects(mockProjects);
-      setTotal(0);
-      setTotalPages(0);
-      setCurrentPage(1);
+      const response = await apiClient.get<PaginatedResponse<Project>>(
+        `/api/projects?${params.toString()}`
+      );
+      setProjects(response.data);
+      setTotal(response.pagination.total);
+      setTotalPages(response.pagination.totalPages);
+      setCurrentPage(response.pagination.page);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("프로젝트를 불러오는데 실패했습니다"));
     } finally {
@@ -82,26 +76,9 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsReturn
       }
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.post<Project>("/projects", data);
-        // await fetchProjects(); // 목록 새로고침
-        // return response;
-
-        // 임시: Mock 데이터
-        const newProject: Project = {
-          id: `project-${Date.now()}`,
-          name: data.name,
-          description: data.description,
-          teamId: data.teamId,
-          isArchived: false,
-          isFavorite: data.isFavorite || false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        setProjects((prev) => [newProject, ...prev]);
+        const response = await apiClient.post<Project>("/api/projects", data);
         await fetchProjects(); // 목록 새로고침
-        return newProject;
+        return response;
       } catch (err) {
         throw err instanceof Error ? err : new Error("프로젝트를 생성하는데 실패했습니다");
       }
