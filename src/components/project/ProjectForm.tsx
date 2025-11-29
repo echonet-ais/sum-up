@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useProjects, useProject, type CreateProjectData } from "@/hooks";
-import { validateProjectForm } from "@/lib/utils/validation";
+import { validateProjectForm, type ProjectFormData as ValidationProjectFormData } from "@/lib/utils/validation";
+import { useFormValidation } from "@/hooks/useFormValidation";
 import { useToast } from "@hua-labs/ui";
 import { ProjectFormFields, type ProjectFormData } from "./ProjectFormFields";
 import { FormActions } from "@/components/common";
@@ -45,24 +46,36 @@ export function ProjectForm({
     };
   });
 
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [submitError, setSubmitError] = React.useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // 실시간 검증 훅
+  const {
+    errors,
+    handleChange: handleValidationChange,
+    handleBlur: handleValidationBlur,
+    validateForm: validateFormData,
+  } = useFormValidation<ValidationProjectFormData>({
+    validateForm: validateProjectForm,
+    validateOnBlur: true,
+    validateOnChange: false,
+  });
 
   const handleChange = <K extends keyof ProjectFormData>(
     field: K,
     value: ProjectFormData[K]
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // 에러 초기화
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+      // 검증 훅의 handleChange 호출 (에러 초기화)
+      handleValidationChange(field as keyof ValidationProjectFormData, value as ValidationProjectFormData[keyof ValidationProjectFormData], newData as ValidationProjectFormData);
+      return newData;
+    });
     setSubmitError(undefined);
+  };
+
+  const handleBlur = <K extends keyof ProjectFormData>(field: K) => {
+    handleValidationBlur(field as keyof ValidationProjectFormData, formData as ValidationProjectFormData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,9 +83,8 @@ export function ProjectForm({
     setSubmitError(undefined);
 
     // 폼 검증
-    const validation = validateProjectForm(formData);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
+    const isValid = validateFormData(formData as ValidationProjectFormData);
+    if (!isValid) {
       return;
     }
 
@@ -119,6 +131,7 @@ export function ProjectForm({
         formData={formData}
         errors={errors}
         onChange={handleChange}
+        onBlur={handleBlur}
         teams={teams}
       />
       <FormActions

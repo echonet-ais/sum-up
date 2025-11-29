@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
-import { validateProjectForm } from "@/lib/utils/validation";
+import { validateProjectForm, type ProjectFormData } from "@/lib/utils/validation";
 import type { Project, PaginatedResponse } from "@/types";
 
 export interface UseProjectsOptions {
@@ -70,7 +70,7 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsReturn
   const createProject = useCallback(
     async (data: CreateProjectData): Promise<Project> => {
       // 폼 검증
-      const validation = validateProjectForm(data);
+      const validation = validateProjectForm(data as ProjectFormData);
       if (!validation.isValid) {
         throw new Error(Object.values(validation.errors)[0] || "입력값이 올바르지 않습니다");
       }

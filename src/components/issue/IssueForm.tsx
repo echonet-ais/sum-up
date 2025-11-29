@@ -4,7 +4,8 @@ import * as React from "react";
 import { useIssues, useIssue, type CreateIssueData } from "@/hooks";
 import { useAI } from "@/hooks/useAI";
 import { useAuthStore } from "@/store/auth-store";
-import { validateIssueForm } from "@/lib/utils/validation";
+import { validateIssueForm, type IssueFormData as ValidationIssueFormData } from "@/lib/utils/validation";
+import { useFormValidation } from "@/hooks/useFormValidation";
 import { useToast } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
@@ -69,29 +70,42 @@ export function IssueForm({
     };
   });
 
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [submitError, setSubmitError] = React.useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // 실시간 검증 훅
+  const {
+    errors,
+    handleChange: handleValidationChange,
+    handleBlur: handleValidationBlur,
+    validateForm: validateFormData,
+    setErrors,
+  } = useFormValidation<ValidationIssueFormData>({
+    validateForm: validateIssueForm,
+    validateOnBlur: true,
+    validateOnChange: false,
+  });
 
   const handleChange = <K extends keyof IssueFormData>(
     field: K,
     value: IssueFormData[K]
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // 에러 초기화
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+      // 검증 훅의 handleChange 호출 (에러 초기화)
+      handleValidationChange(field as keyof ValidationIssueFormData, value as ValidationIssueFormData[keyof ValidationIssueFormData], newData as ValidationIssueFormData);
+      return newData;
+    });
     setSubmitError(undefined);
     
     // 제목이 변경되면 중복 탐지 (생성 모드일 때만)
     if (field === "title" && !isEditMode && typeof value === "string" && value.length > 5) {
       handleDuplicateDetection(value, formData.description || "");
     }
+  };
+
+  const handleBlur = <K extends keyof IssueFormData>(field: K) => {
+    handleValidationBlur(field as keyof ValidationIssueFormData, formData as ValidationIssueFormData);
   };
 
   // AI 자동 분류
@@ -196,9 +210,8 @@ export function IssueForm({
     setSubmitError(undefined);
 
     // 폼 검증
-    const validation = validateIssueForm(formData);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
+    const isValid = validateFormData(formData as ValidationIssueFormData);
+    if (!isValid) {
       return;
     }
 
@@ -296,6 +309,7 @@ export function IssueForm({
         formData={formData}
         errors={errors}
         onChange={handleChange}
+        onBlur={handleBlur}
         projects={projects}
         users={users}
         labels={labels}

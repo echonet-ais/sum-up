@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import { validateIssueForm } from "@/lib/utils/validation";
+import { validateIssueForm, type IssueFormData } from "@/lib/utils/validation";
 import type { Issue, PaginatedResponse, Subtask, IssueLabel } from "@/types";
 
 export interface UseIssuesOptions {
@@ -92,7 +92,7 @@ export function useIssues(options: UseIssuesOptions = {}): UseIssuesReturn {
   const createIssue = useCallback(
     async (data: CreateIssueData): Promise<Issue> => {
       // 폼 검증
-      const validation = validateIssueForm(data);
+      const validation = validateIssueForm(data as IssueFormData);
       if (!validation.isValid) {
         throw new Error(Object.values(validation.errors)[0] || "입력값이 올바르지 않습니다");
       }
