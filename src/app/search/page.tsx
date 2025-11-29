@@ -1,20 +1,20 @@
 "use client";
 
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
-import { EmptyState } from "@/components/common";
+import { EmptyState, ErrorState, SectionErrorBoundary, LoadingState } from "@/components/common";
 import { useSearch, type SearchResultType } from "@/hooks/useSearch";
 import Link from "next/link";
-import { useMemo } from "react";
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
-  const { results, isLoading } = useSearch({ query, limit: 50 });
+  const { results, isLoading, error } = useSearch({ query, limit: 50 });
 
   const groupedResults = useMemo(() => {
     const grouped: Record<SearchResultType, typeof results> = {
@@ -62,12 +62,20 @@ export default function SearchPage() {
       description={query ? `"${query}" 검색 결과` : "검색어를 입력하세요"}
       activeItem="search"
     >
-      <div className="flex flex-col gap-6">
+      <SectionErrorBoundary sectionName="검색 페이지">
+        <div className="flex flex-col gap-6">
         {!query ? (
           <EmptyState
             title="검색어를 입력하세요"
             description="이슈, 프로젝트, 팀을 검색할 수 있습니다"
             iconName="search"
+          />
+        ) : error ? (
+          <ErrorState
+            title="검색 중 오류가 발생했습니다"
+            message={error.message || "검색을 수행하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."}
+            onRetry={() => window.location.reload()}
+            retryLabel="다시 시도"
           />
         ) : isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -156,8 +164,23 @@ export default function SearchPage() {
             })}
           </>
         )}
-      </div>
+        </div>
+      </SectionErrorBoundary>
     </AppLayout>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <AppLayout title="검색 결과" activeItem="search">
+          <LoadingState message="검색 페이지를 불러오는 중..." />
+        </AppLayout>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }
 
