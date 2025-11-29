@@ -47,10 +47,11 @@ export async function GET(request: NextRequest) {
     }
 
     // 이메일 인증 완료인 경우 (type=signup)
-    if (type === "signup" || type === "email") {
+    // 단, OAuth 로그인은 이메일 인증이 필요 없으므로 제외
+    if ((type === "signup" || type === "email") && authData.user.email && !authData.user.email.includes("@temp.local")) {
       // 이메일 인증 완료 페이지로 리다이렉트
       const verifyUrl = new URL("/verify-email", request.url);
-      verifyUrl.searchParams.set("email", authData.user.email || "");
+      verifyUrl.searchParams.set("email", authData.user.email);
       verifyUrl.searchParams.set("verified", "true");
       return NextResponse.redirect(verifyUrl);
     }
@@ -65,21 +66,30 @@ export async function GET(request: NextRequest) {
 
     // 프로필이 없으면 생성
     if (!existingUser) {
+      // 카카오 OAuth는 이메일이 선택 동의 항목이므로 없을 수 있음
+      // 이메일이 없으면 임시 이메일 생성 (나중에 사용자가 수정 가능)
+      const userEmail = authData.user.email || `kakao_${authData.user.id}@temp.local`;
+      
+      // 이름 추출 (이메일이 없으면 카카오 닉네임 또는 ID 사용)
+      const userName = authData.user.user_metadata?.name || 
+                      authData.user.user_metadata?.full_name || 
+                      authData.user.user_metadata?.preferred_username ||
+                      authData.user.user_metadata?.nickname ||
+                      (authData.user.email ? authData.user.email.split("@")[0] : null) ||
+                      `카카오사용자_${authData.user.id.slice(0, 8)}`;
+
       const { error: insertError } = await serviceClient
         .from("users")
         .insert({
           id: authData.user.id,
-          email: authData.user.email!,
-          name: authData.user.user_metadata?.name || 
-                authData.user.user_metadata?.full_name || 
-                authData.user.user_metadata?.preferred_username ||
-                authData.user.email?.split("@")[0] || 
-                "사용자",
+          email: userEmail,
+          name: userName,
           avatar: authData.user.user_metadata?.avatar_url || 
                   authData.user.user_metadata?.picture ||
+                  authData.user.user_metadata?.profile_image ||
                   null,
           role: "MEMBER",
-          email_confirmed_at: authData.user.email_confirmed_at || null,
+          email_confirmed_at: authData.user.email ? authData.user.email_confirmed_at : null,
         });
 
       if (insertError) {

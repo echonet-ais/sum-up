@@ -40,11 +40,23 @@ const OAuthButton = React.forwardRef<HTMLButtonElement, OAuthButtonProps>(
       setIsLoading(true);
       try {
         // Supabase OAuth 로그인
+        // 카카오의 경우 이메일이 선택 동의 항목이므로 이메일 스코프를 제외
+        const oAuthOptions: any = {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        };
+
+        // 카카오 OAuth의 경우 이메일 스코프 제외
+        if (provider === "kakao") {
+          // 카카오 기본 스코프만 요청 (이메일 제외)
+          // profile_nickname, profile_image는 기본으로 포함됨
+          oAuthOptions.queryParams = {
+            scope: "profile_nickname,profile_image", // account_email 제외
+          };
+        }
+
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: provider,
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-          },
+          options: oAuthOptions,
         });
 
         if (error) {

@@ -177,10 +177,25 @@ export async function POST(request: Request) {
         id: authData.user.id,
         email: authData.user.email,
         email_confirmed_at: authData.user.email_confirmed_at,
+        created_at: authData.user.created_at,
       } : null,
       session: authData?.session ? "exists" : "none",
       error: authError?.message,
+      emailRedirectTo,
+      hasEmailConfirmation: !authData?.user?.email_confirmed_at,
     });
+
+    // 이메일 발송 실패 가능성 경고
+    if (authData?.user && !authData.user.email_confirmed_at && !authData.session) {
+      console.warn("⚠️ 이메일 인증이 활성화되어 있지만 이메일이 발송되지 않았을 수 있습니다.");
+      console.warn("확인 사항:");
+      console.warn("1. Supabase Dashboard > Authentication > Settings > Email Auth");
+      console.warn("   - 'Enable email confirmations' 활성화 확인");
+      console.warn("   - 'Email Templates' > 'Confirm signup' 템플릿 확인");
+      console.warn("2. SMTP 설정 확인 (없으면 Supabase 기본 발송 사용, 제한적)");
+      console.warn("3. 스팸함 확인");
+      console.warn("4. Supabase Dashboard > Logs에서 이메일 발송 로그 확인");
+    }
 
     if (authError) {
       console.error("Supabase Auth Error:", authError);

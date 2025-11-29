@@ -110,9 +110,62 @@ console.log("Signup result:", {
 6. `/verify-email?email=xxx&verified=true`로 리다이렉트
 7. 사용자가 로그인 가능
 
+### 문제 진단: 이메일이 발송되지 않는 경우
+
+로그에서 다음을 확인하세요:
+
+```
+Signup result: {
+  user: { id, email, email_confirmed_at: undefined },
+  session: 'none',
+  error: undefined
+}
+```
+
+**이 경우:**
+- ✅ 이메일 인증이 활성화되어 있음 (`session: 'none'`)
+- ❌ 하지만 이메일이 실제로 발송되지 않음
+
+**가능한 원인:**
+
+1. **SMTP 설정 없음** (가장 흔한 원인)
+   - Supabase의 기본 이메일 발송은 제한적
+   - 개발 환경에서는 이메일이 발송되지 않을 수 있음
+   - **해결**: SMTP 설정 또는 개발 환경에서는 이메일 인증 비활성화
+
+2. **Supabase Dashboard 설정 문제**
+   - Authentication > Settings > Email Auth > "Enable email confirmations" 확인
+   - Email Templates > "Confirm signup" 템플릿 확인
+
+3. **Supabase 로그 확인**
+   - Dashboard > Logs > Auth Logs에서 이메일 발송 실패 로그 확인
+   - 에러 메시지가 있으면 그에 따라 조치
+
+4. **스팸함 확인**
+   - 발송되었지만 스팸함에 있을 수 있음
+
+### 개발 환경 해결 방법
+
+개발 중에는 다음 중 하나를 선택하세요:
+
+**옵션 1: 이메일 인증 비활성화 (빠른 해결)**
+- Supabase Dashboard > Authentication > Settings
+- "Enable email confirmations" 체크 해제
+- 회원가입 후 바로 로그인 가능
+
+**옵션 2: SMTP 설정 (프로덕션 준비)**
+- Supabase Dashboard > Authentication > Settings > SMTP Settings
+- SendGrid, AWS SES, Mailgun 등 설정
+- 개발 환경에서도 이메일 발송 가능
+
+**옵션 3: Supabase Admin API로 수동 인증**
+- 개발 중에는 수동으로 사용자 이메일 인증 처리
+- Supabase Dashboard > Authentication > Users에서 수동 인증
+
 ### 참고
 
 - Supabase의 기본 이메일 발송은 개발 환경에서 제한적일 수 있음
 - 프로덕션에서는 반드시 SMTP 설정 권장
 - 이메일 인증이 비활성화되어 있으면 `signUp` 후 바로 세션이 생성됨
+- `session: 'none'`이고 `email_confirmed_at: null`이면 이메일 인증이 활성화된 상태이지만, 실제 이메일 발송은 SMTP 설정에 따라 달라질 수 있음
 
