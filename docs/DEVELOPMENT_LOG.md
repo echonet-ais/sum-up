@@ -38,6 +38,22 @@
 
 ## 개발 로그
 
+### 2025-11-29 - 타입 에러 수정
+
+**완료된 작업:**
+- validation.ts 타입 에러 수정
+  - Line 173: `value`를 `string`으로 타입 단언 (`includes` 메서드 사용)
+  - Line 194, 226: `IssueFormData`, `ProjectFormData`를 `Record<string, unknown>`으로 타입 단언 (`validateForm` 호출 시)
+
+**변경된 파일:**
+- `src/lib/utils/validation.ts` (타입 단언 추가)
+
+**참고:**
+- 타입 안전성을 유지하면서 타입 단언 사용
+- `validateForm` 함수의 제네릭 타입 제약으로 인한 타입 단언 필요
+
+---
+
 ### 2025-11-29 - 보더 라디우스 통일 작업 (P0)
 
 **완료된 작업:**
