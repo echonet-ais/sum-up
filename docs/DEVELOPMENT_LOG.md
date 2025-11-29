@@ -38,6 +38,116 @@
 
 ## 개발 로그
 
+### 2025-11-29 - 보더 라디우스 통일 작업 (P0)
+
+**완료된 작업:**
+- 모든 컴포넌트의 보더 라디우스를 4-8px로 제한
+  - `rounded-xl` (12px) → `rounded-lg` (8px) 변경
+  - 작은 요소는 `rounded-md` (6px) 또는 `rounded` (4px) 사용
+- 이슈 관련 컴포넌트 (8개 파일)
+  - `SubtaskManager.tsx`, `AIFeatures.tsx`, `CommentList.tsx`
+- 프로젝트 관련 컴포넌트 (3개 파일)
+  - `ProjectForm.tsx`, `ProjectFormFields.tsx`
+- 공통 컴포넌트 (7개 파일)
+  - `StatCard.tsx`, `FilterBar.tsx`, `EmptyState.tsx`, `ErrorState.tsx`
+  - `LoadingState.tsx`, `Markdown.tsx`, `MetaInfoCard.tsx`
+- 폼 컴포넌트 (3개 파일)
+  - `DatePicker.tsx`, `FileUpload.tsx`, `MultiSelect.tsx`
+- 인증 컴포넌트 (2개 파일)
+  - `PasswordInput.tsx`, `PasswordChecklist.tsx`
+- 페이지들 (10개 파일)
+  - `app/issues/page.tsx`, `app/issues/[id]/page.tsx`
+  - `app/projects/page.tsx`, `app/projects/[id]/page.tsx`
+  - `app/kanban/page.tsx`, `app/page.tsx`
+  - `app/search/page.tsx`, `app/register/page.tsx`, `app/login/page.tsx`
+  - `app/profile/page.tsx`
+- 검색 컴포넌트
+  - `GlobalSearch.tsx`
+
+**변경된 파일:**
+- 이슈 관련: `SubtaskManager.tsx`, `AIFeatures.tsx`, `CommentList.tsx`
+- 공통: `StatCard.tsx`, `FilterBar.tsx`, `MetaInfoCard.tsx`
+- 검색: `GlobalSearch.tsx`
+- 페이지: `app/issues/page.tsx`, `app/issues/[id]/page.tsx`, `app/projects/page.tsx`, `app/projects/[id]/page.tsx`, `app/kanban/page.tsx`, `app/page.tsx`, `app/search/page.tsx`, `app/register/page.tsx`, `app/login/page.tsx`, `app/profile/page.tsx`
+
+**참고:**
+- [UI_TASKS.md](./UI_TASKS.md) - UI 작업 제안서
+- UI 디자인 가이드라인에 따라 보더 라디우스 4-8px 제한 준수
+- 총 36개 파일에서 `rounded-xl` 제거 완료
+
+---
+
+### 2025-11-29 - 코드 스플리팅 및 리팩토링 (P0-P1)
+
+**완료된 작업:**
+- 코드 스플리팅 적용
+  - KanbanBoard 동적 import (SSR 비활성화 + 로딩 상태)
+  - GlobalSearch 동적 import (Header에서 사용)
+  - 폼 컴포넌트들 동적 import (IssueForm, ProjectForm, InviteMemberForm)
+  - 상세 페이지 전용 컴포넌트 동적 import (CommentList, AIFeatures, SubtaskManager)
+- 리팩토링
+  - 프로젝트 상세 페이지 StatCard 사용 (약 30줄 감소)
+  - DetailPageLayout 컴포넌트 생성 (상세 페이지 공통 패턴)
+  - useDeleteDialog 훅 생성 (삭제 확인 다이얼로그 로직)
+  - FormDrawer 컴포넌트 생성 (Drawer 패턴 통일)
+  - MetaInfoCard 컴포넌트 생성 (메타 정보 카드 패턴)
+
+**변경된 파일:**
+- `src/app/kanban/page.tsx` (KanbanBoard 동적 import)
+- `src/components/layout/Header.tsx` (GlobalSearch 동적 import)
+- `src/app/issues/[id]/page.tsx` (IssueForm, CommentList, AIFeatures, SubtaskManager 동적 import)
+- `src/app/issues/page.tsx` (IssueForm 동적 import)
+- `src/app/projects/[id]/page.tsx` (ProjectForm 동적 import, StatCard 사용)
+- `src/app/projects/page.tsx` (ProjectForm 동적 import)
+- `src/app/teams/[id]/page.tsx` (InviteMemberForm 동적 import)
+- `src/components/layout/DetailPageLayout.tsx` (신규)
+- `src/components/layout/index.ts` (DetailPageLayout export 추가)
+- `src/hooks/useDeleteDialog.ts` (신규)
+- `src/hooks/index.ts` (useDeleteDialog export 추가)
+- `src/components/common/FormDrawer.tsx` (신규)
+- `src/components/common/MetaInfoCard.tsx` (신규)
+- `src/components/common/index.ts` (FormDrawer, MetaInfoCard export 추가)
+- `docs/REFACTORING_OPPORTUNITIES.md` (신규 - 리팩토링 기회 분석)
+
+**참고:**
+- [REFACTORING_OPPORTUNITIES.md](./REFACTORING_OPPORTUNITIES.md) - 코드 스플리팅 및 리팩토링 기회 분석
+- 예상 효과: 초기 번들 크기 약 110-210KB 감소, 코드 약 30줄 감소
+- 다음 단계: 생성한 컴포넌트들을 실제 페이지에 적용 (P2)
+
+---
+
+### 2025-11-29 - 이슈 첨부파일 기능 추가 (P2)
+
+**완료된 작업:**
+- 이슈 첨부파일 타입 정의
+  - `IssueAttachment` 인터페이스 추가
+  - `Issue` 타입에 `attachments` 필드 추가
+- 파일 업로드 컴포넌트 개선
+  - `FileUpload` 컴포넌트에 `multiple` prop 추가
+  - 여러 파일 선택 지원
+- 이슈 폼에 첨부파일 필드 추가
+  - `IssueFormFields`에 파일 업로드 섹션 추가
+  - 업로드된 파일 목록 표시 및 삭제 기능
+- 이슈 상세 페이지에 첨부파일 표시
+  - `IssueAttachments` 컴포넌트 생성
+  - 파일 다운로드 기능
+  - 권한에 따른 삭제 기능
+
+**변경된 파일:**
+- `src/types/index.ts` (IssueAttachment 타입 추가, Issue에 attachments 필드 추가)
+- `src/components/forms/FileUpload.tsx` (multiple prop 추가)
+- `src/components/issue/IssueFormFields.tsx` (첨부파일 필드 추가)
+- `src/components/issue/IssueAttachments.tsx` (신규)
+- `src/components/issue/index.ts` (IssueAttachments export 추가)
+- `src/app/issues/[id]/page.tsx` (첨부파일 표시 추가)
+
+**참고:**
+- [NEXT_FEATURES.md](./NEXT_FEATURES.md) - 다음 구현할 메인 피처 제안
+- 파일 크기 제한: 10MB (조정 가능)
+- 실제 파일 업로드 API 연동 필요 (현재는 UI만 구현)
+
+---
+
 ### 2025-11-29 - 문서 통합 및 정리
 
 **완료된 작업:**

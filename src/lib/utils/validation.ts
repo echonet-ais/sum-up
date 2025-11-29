@@ -170,7 +170,7 @@ export function validateIssueForm(data: IssueFormData): ValidationResult {
     priority: {
       required: true,
       custom: (value) => {
-        return ["HIGH", "MEDIUM", "LOW"].includes(value) || "우선순위를 선택해주세요";
+        return ["HIGH", "MEDIUM", "LOW"].includes(value as string) || "우선순위를 선택해주세요";
       },
     },
     projectId: {
@@ -191,7 +191,7 @@ export function validateIssueForm(data: IssueFormData): ValidationResult {
     subtasks: {},
   };
 
-  return validateForm(data, rules);
+  return validateForm(data as Record<string, unknown>, rules);
 }
 
 /**
@@ -223,4 +223,6 @@ export function validateProjectForm(data: ProjectFormData): ValidationResult {
     isFavorite: {},
   };
 
-  return validateForm(data, rule
+  return validateForm(data as Record<string, unknown>, rules);
+}
+
