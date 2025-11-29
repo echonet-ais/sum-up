@@ -23,7 +23,13 @@ export async function GET(request: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser();
 
+    // 디버깅: 인증 상태 확인
     if (userError || !user) {
+      console.error("Auth error in projects API:", {
+        error: userError?.message,
+        hasUser: !!user,
+        cookies: request.cookies.getAll().map(c => c.name),
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
