@@ -7,7 +7,7 @@ import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { FormDrawer } from "@/components/common";
-import { EmptyState, LoadingState, ErrorState, StatCard, FilterBar, SectionErrorBoundary } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, StatCard, FilterBar, SectionErrorBoundary, PageHeader } from "@/components/common";
 import dynamic from "next/dynamic";
 
 const ProjectForm = dynamic(() => import("@/components/project").then((mod) => ({ default: mod.ProjectForm })));
@@ -112,15 +112,15 @@ export default function ProjectsPage() {
         {/* 프로젝트 그리드 */}
         <SectionErrorBoundary sectionName="프로젝트 목록">
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-[var(--text-strong)]">
-                {showArchived ? "모든 프로젝트" : "활성 프로젝트"}
-              </h2>
-              <Button onClick={() => setIsProjectFormOpen(true)}>
-                <Icon name="add" size={16} className="mr-2" />
-                새 프로젝트
-              </Button>
-            </div>
+            <PageHeader
+              title={showArchived ? "모든 프로젝트" : "활성 프로젝트"}
+              actions={
+                <Button onClick={() => setIsProjectFormOpen(true)} className="w-full sm:w-auto">
+                  <Icon name="add" size={16} className="mr-2" />
+                  새 프로젝트
+                </Button>
+              }
+            />
           {isLoading ? (
             <LoadingState message="프로젝트를 불러오는 중..." />
           ) : filteredProjects.length === 0 ? (

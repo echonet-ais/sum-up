@@ -257,8 +257,8 @@ export function AIFeatures({ issue, comments = [] }: AIFeaturesProps) {
         )}
 
         {error && (
-          <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="p-3 rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)]">
+            <p className="text-sm text-[var(--color-error)]">
               {error.message}
             </p>
           </div>

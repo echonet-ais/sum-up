@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { TeamMember, User } from "@/types";
+import { notifyMemberInvited } from "@/lib/utils/notifications";
 
 interface TeamMemberRow {
   id: string;
@@ -121,6 +122,7 @@ export async function POST(
       .from("users")
       .select("*")
       .eq("email", email)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 사용자만 조회
       .maybeSingle();
 
     let targetUser = existingUser;
@@ -171,6 +173,51 @@ export async function POST(
     }
 
     const member = mapMemberRowToTeamMember(memberRow);
+
+    // 팀 정보 조회 (이메일 발송용)
+    const { data: teamData } = await supabase
+      .from("teams")
+      .select("name")
+      .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 조회
+      .single();
+
+    // 사용자 정보 조회 (이메일 발송용)
+    const { data: inviterData } = await supabase
+      .from("users")
+      .select("name")
+      .eq("id", user.id)
+      .single();
+
+    // 멤버 추가 활동 로그 기록
+    const { logTeamActivity, createActivityDescription } = await import("@/lib/utils/team-activity");
+    await logTeamActivity(
+      id,
+      user.id,
+      "MEMBER_ADDED",
+      targetUser.id,
+      createActivityDescription("MEMBER_ADDED", { memberName: targetUser.name || targetUser.email })
+    );
+
+    // 팀 초대 이메일 발송
+    const { sendTeamInviteEmail } = await import("@/lib/utils/email");
+    await sendTeamInviteEmail(
+      email,
+      teamData?.name || "팀",
+      inviterData?.name || user.email || "사용자",
+      id
+    );
+
+    // 팀 초대 알림 생성 (FR-090)
+    const { notifyMemberInvited } = await import("@/lib/utils/notifications");
+    await notifyMemberInvited(
+      targetUser.id,
+      id,
+      teamData?.name || "팀",
+      inviterData?.name || user.email || "사용자"
+    ).catch((err) => {
+      console.error("Failed to create team invite notification:", err);
+    });
 
     return NextResponse.json(member, { status: 201 });
   } catch (error) {

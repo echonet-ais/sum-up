@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import type { Issue, Subtask, User } from "@/types";
+import type { Issue, Subtask, User, IssueAttachment, Comment } from "@/types";
+import { useRealtimeComments } from "./useRealtimeComments";
 
 export interface CreateIssueData {
   title: string;
@@ -34,6 +35,8 @@ export interface UseIssueReturn {
   addComment: (content: string) => Promise<void>;
   updateComment: (commentId: string, content: string) => Promise<void>;
   deleteComment: (commentId: string) => Promise<void>;
+  uploadAttachment: (file: File) => Promise<void>;
+  deleteAttachment: (attachmentId: string) => Promise<void>;
 }
 
 export function useIssue(issueId: string): UseIssueReturn {
@@ -99,22 +102,8 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.post<Subtask>(`/issues/${issueId}/subtasks`, { title });
-        // setIssue({ ...issue, subtasks: [...(issue.subtasks || []), response] });
-
-        // 임시: Mock 데이터
-        const newSubtask: Subtask = {
-          id: `subtask-${Date.now()}`,
-          title,
-          completed: false,
-          issueId: issue.id,
-          order: (issue.subtasks?.length || 0) + 1,
-        };
-        setIssue({
-          ...issue,
-          subtasks: [...(issue.subtasks || []), newSubtask],
-        });
+        const response = await apiClient.post<Subtask>(`/api/issues/${issueId}/subtasks`, { title });
+        setIssue({ ...issue, subtasks: [...(issue.subtasks || []), response] });
       } catch (err) {
         throw err instanceof Error ? err : new Error("서브태스크를 추가하는데 실패했습니다");
       }
@@ -127,19 +116,10 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Subtask>(`/issues/${issueId}/subtasks/${subtaskId}`, updates);
-        // setIssue({
-        //   ...issue,
-        //   subtasks: issue.subtasks?.map((st) => (st.id === subtaskId ? response : st)) || [],
-        // });
-
-        // 임시: 로컬 상태 업데이트
+        const response = await apiClient.put<Subtask>(`/api/issues/${issueId}/subtasks/${subtaskId}`, updates);
         setIssue({
           ...issue,
-          subtasks: issue.subtasks?.map((st) =>
-            st.id === subtaskId ? { ...st, ...updates } : st
-          ) || [],
+          subtasks: issue.subtasks?.map((st) => (st.id === subtaskId ? response : st)) || [],
         });
       } catch (err) {
         throw err instanceof Error ? err : new Error("서브태스크를 업데이트하는데 실패했습니다");
@@ -153,14 +133,7 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // await apiClient.delete(`/issues/${issueId}/subtasks/${subtaskId}`);
-        // setIssue({
-        //   ...issue,
-        //   subtasks: issue.subtasks?.filter((st) => st.id !== subtaskId) || [],
-        // });
-
-        // 임시: 로컬 상태 업데이트
+        await apiClient.delete(`/api/issues/${issueId}/subtasks/${subtaskId}`);
         setIssue({
           ...issue,
           subtasks: issue.subtasks?.filter((st) => st.id !== subtaskId) || [],
@@ -187,10 +160,14 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // await apiClient.put(`/issues/${issueId}/subtasks/reorder`, { order: subtaskIds });
+        // 각 서브태스크의 순서를 업데이트
+        const updatePromises = subtaskIds.map((subtaskId, index) =>
+          apiClient.put(`/api/issues/${issueId}/subtasks/${subtaskId}`, { order: index + 1 })
+        );
 
-        // 임시: 로컬 상태 업데이트
+        await Promise.all(updatePromises);
+
+        // 로컬 상태 업데이트
         const subtasksMap = new Map(issue.subtasks?.map((st) => [st.id, st]) || []);
         const reorderedSubtasks = subtaskIds
           .map((id, index) => {
@@ -215,30 +192,8 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.post<Comment>(`/issues/${issueId}/comments`, { content });
-        // setIssue({ ...issue, comments: [...(issue.comments || []), response] });
-
-        // 임시: Mock 데이터
-        const newComment = {
-          id: `comment-${Date.now()}`,
-          content,
-          issueId: issue.id,
-          authorId: "current-user",
-          author: {
-            id: "current-user",
-            name: "현재 사용자",
-            email: "user@example.com",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setIssue({
-          ...issue,
-          comments: [...(issue.comments || []), newComment],
-        });
+        const response = await apiClient.post<Comment>(`/api/issues/${issueId}/comments`, { content });
+        setIssue({ ...issue, comments: [...(issue.comments || []), response] });
       } catch (err) {
         throw err instanceof Error ? err : new Error("댓글을 추가하는데 실패했습니다");
       }
@@ -251,19 +206,10 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Comment>(`/issues/${issueId}/comments/${commentId}`, { content });
-        // setIssue({
-        //   ...issue,
-        //   comments: issue.comments?.map((c) => (c.id === commentId ? response : c)) || [],
-        // });
-
-        // 임시: 로컬 상태 업데이트
+        const response = await apiClient.put<Comment>(`/api/issues/${issueId}/comments/${commentId}`, { content });
         setIssue({
           ...issue,
-          comments: issue.comments?.map((c) =>
-            c.id === commentId ? { ...c, content, updatedAt: new Date().toISOString() } : c
-          ) || [],
+          comments: issue.comments?.map((c) => (c.id === commentId ? response : c)) || [],
         });
       } catch (err) {
         throw err instanceof Error ? err : new Error("댓글을 업데이트하는데 실패했습니다");
@@ -277,14 +223,7 @@ export function useIssue(issueId: string): UseIssueReturn {
       if (!issue) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // await apiClient.delete(`/issues/${issueId}/comments/${commentId}`);
-        // setIssue({
-        //   ...issue,
-        //   comments: issue.comments?.filter((c) => c.id !== commentId) || [],
-        // });
-
-        // 임시: 로컬 상태 업데이트
+        await apiClient.delete(`/api/issues/${issueId}/comments/${commentId}`);
         setIssue({
           ...issue,
           comments: issue.comments?.filter((c) => c.id !== commentId) || [],
@@ -296,9 +235,95 @@ export function useIssue(issueId: string): UseIssueReturn {
     [issue, issueId]
   );
 
+  const uploadAttachment = useCallback(
+    async (file: File) => {
+      if (!issue) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch(`/api/issues/${issueId}/attachments`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "파일 업로드에 실패했습니다");
+        }
+
+        const newAttachment: IssueAttachment = await response.json();
+        setIssue({
+          ...issue,
+          attachments: [...(issue.attachments || []), newAttachment],
+        });
+      } catch (err) {
+        throw err instanceof Error ? err : new Error("파일을 업로드하는데 실패했습니다");
+      }
+    },
+    [issue, issueId]
+  );
+
+  const deleteAttachment = useCallback(
+    async (attachmentId: string) => {
+      if (!issue) return;
+
+      try {
+        await apiClient.delete(`/api/issues/${issueId}/attachments/${attachmentId}`);
+        setIssue({
+          ...issue,
+          attachments: issue.attachments?.filter((a) => a.id !== attachmentId) || [],
+        });
+      } catch (err) {
+        throw err instanceof Error ? err : new Error("파일을 삭제하는데 실패했습니다");
+      }
+    },
+    [issue, issueId]
+  );
+
   useEffect(() => {
     fetchIssue();
   }, [fetchIssue]);
+
+  // 실시간 댓글 업데이트
+  useRealtimeComments({
+    issueId,
+    onCommentInsert: (newComment) => {
+      setIssue((prev) => {
+        if (!prev) return prev;
+        // 중복 체크 (이미 있는 댓글은 제외)
+        const existingCommentIds = (prev.comments || []).map((c) => c.id);
+        if (existingCommentIds.includes(newComment.id)) {
+          return prev;
+        }
+        return {
+          ...prev,
+          comments: [...(prev.comments || []), newComment],
+        };
+      });
+    },
+    onCommentUpdate: (updatedComment) => {
+      setIssue((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comments: (prev.comments || []).map((c) =>
+            c.id === updatedComment.id ? updatedComment : c
+          ),
+        };
+      });
+    },
+    onCommentDelete: (commentId) => {
+      setIssue((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comments: (prev.comments || []).filter((c) => c.id !== commentId),
+        };
+      });
+    },
+  });
 
   return {
     issue,
@@ -319,6 +344,8 @@ export function useIssue(issueId: string): UseIssueReturn {
     addComment,
     updateComment,
     deleteComment,
+    uploadAttachment,
+    deleteAttachment,
   };
 }
 

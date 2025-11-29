@@ -5,6 +5,7 @@ import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import { validateIssueForm, type IssueFormData } from "@/lib/utils/validation";
 import type { Issue, PaginatedResponse, Subtask, IssueLabel } from "@/types";
+import { useRealtimeIssues } from "./useRealtimeIssues";
 
 export interface UseIssuesOptions {
   projectId?: string;
@@ -111,6 +112,41 @@ export function useIssues(options: UseIssuesOptions = {}): UseIssuesReturn {
   useEffect(() => {
     fetchIssues();
   }, [fetchIssues]);
+
+  // 실시간 이슈 업데이트
+  useRealtimeIssues({
+    projectId,
+    onIssueInsert: (newIssue) => {
+      // 새 이슈 추가 (필터 조건에 맞는 경우만)
+      const matchesFilter =
+        (!projectId || newIssue.projectId === projectId) &&
+        (!status || newIssue.status === status) &&
+        (!priority || newIssue.priority === priority);
+      
+      if (matchesFilter) {
+        setIssues((prev) => {
+          // 중복 체크
+          if (prev.some((i) => i.id === newIssue.id)) {
+            return prev;
+          }
+          return [newIssue, ...prev];
+        });
+        // 전체 개수도 업데이트 (정확한 개수는 서버에서 다시 조회 필요)
+        setTotal((prev) => prev + 1);
+      }
+    },
+    onIssueUpdate: (updatedIssue) => {
+      // 이슈 업데이트
+      setIssues((prev) =>
+        prev.map((issue) => (issue.id === updatedIssue.id ? { ...issue, ...updatedIssue } : issue))
+      );
+    },
+    onIssueDelete: (issueId) => {
+      // 이슈 삭제
+      setIssues((prev) => prev.filter((issue) => issue.id !== issueId));
+      setTotal((prev) => Math.max(0, prev - 1));
+    },
+  });
 
   return {
     issues,

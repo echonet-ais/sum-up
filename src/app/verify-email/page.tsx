@@ -85,13 +85,13 @@ function VerifyEmailContent() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
+          <div className="rounded-md bg-[var(--color-info-subtle)] border border-[var(--color-info)] p-4">
             <div className="flex items-start">
               <Icon
                 name="info"
-                className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2 mt-0.5"
+                className="h-5 w-5 text-[var(--color-info)] mr-2 mt-0.5"
               />
-              <div className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="text-sm text-[var(--color-info)]">
                 <p className="font-semibold mb-1">다음 단계:</p>
                 <ol className="list-decimal list-inside space-y-1 ml-2">
                   <li>이메일 받은편지함을 확인해주세요</li>
@@ -103,13 +103,13 @@ function VerifyEmailContent() {
           </div>
 
           {resendSuccess && (
-            <div className="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 text-sm text-green-800 dark:text-green-200">
+            <div className="rounded-md bg-[var(--color-success-subtle)] border border-[var(--color-success)] p-3 text-sm text-[var(--color-success)]">
               이메일 인증 링크를 재전송했습니다. 받은편지함을 확인해주세요.
             </div>
           )}
 
           {error && (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 text-sm text-red-800 dark:text-red-400">
+            <div className="rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)] p-3 text-sm text-[var(--color-error)]">
               {error}
             </div>
           )}

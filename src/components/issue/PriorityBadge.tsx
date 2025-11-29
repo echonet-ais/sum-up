@@ -16,17 +16,17 @@ export interface PriorityBadgeProps extends React.HTMLAttributes<HTMLDivElement>
 const priorityConfig = {
   HIGH: {
     label: "높음",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+    color: "bg-[var(--color-error-subtle)] text-[var(--color-error)]",
     icon: "arrowUp" as const,
   },
   MEDIUM: {
     label: "보통",
-    color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
+    color: "bg-[var(--color-warning-subtle)] text-[var(--color-warning)]",
     icon: "remove" as const,
   },
   LOW: {
     label: "낮음",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+    color: "bg-[var(--color-info-subtle)] text-[var(--color-info)]",
     icon: "arrowDown" as const,
   },
 };

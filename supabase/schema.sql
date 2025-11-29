@@ -1,8 +1,19 @@
 -- ============================================
 -- SumUp 데이터베이스 스키마 (통합 버전)
 -- ============================================
--- Supabase 대시보드의 SQL Editor에서 실행하세요
--- 모든 마이그레이션을 통합한 최신 스키마입니다.
+-- 작성일: 2025-01-30
+-- 목적: 모든 마이그레이션을 통합한 최신 스키마
+-- 
+-- 사용 방법:
+-- 1. Supabase 대시보드의 SQL Editor에서 실행
+-- 2. 또는 Supabase CLI: `supabase db reset` (로컬 개발)
+-- 
+-- 통합된 마이그레이션:
+-- - 2025-01-30_add_email_confirmed_at_to_users.sql
+-- - 2025-11-29_add_custom_statuses_and_wip_limits.sql
+-- - 2025-11-29_add_issue_history_and_team_activities.sql
+-- - 2025-11-29_add_issue_attachments_and_user_preferences.sql
+-- - 2025-11-29_fix_users_rls_insert_policy.sql
 -- ============================================
 
 -- ============================================
@@ -91,11 +102,12 @@ CREATE INDEX IF NOT EXISTS idx_project_favorites_project ON public.project_favor
 -- ============================================
 -- 6. issues 테이블
 -- ============================================
+-- 커스텀 상태를 지원하기 위해 status CHECK 제약조건 제거 (FR-053)
 CREATE TABLE IF NOT EXISTS public.issues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   description TEXT,
-  status TEXT NOT NULL DEFAULT 'TODO' CHECK (status IN ('TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE')),
+  status TEXT NOT NULL DEFAULT 'TODO', -- CHECK 제약조건 제거 (커스텀 상태 지원)
   priority TEXT NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('HIGH', 'MEDIUM', 'LOW')),
   project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE NOT NULL,
   assignee_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
@@ -105,6 +117,9 @@ CREATE TABLE IF NOT EXISTS public.issues (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 기존 CHECK 제약조건 제거 (커스텀 상태 지원)
+ALTER TABLE public.issues DROP CONSTRAINT IF EXISTS issues_status_check;
 
 CREATE INDEX IF NOT EXISTS idx_issues_project ON public.issues(project_id);
 CREATE INDEX IF NOT EXISTS idx_issues_assignee ON public.issues(assignee_id);
@@ -151,6 +166,7 @@ CREATE TABLE IF NOT EXISTS public.subtasks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_subtasks_issue ON public.subtasks(issue_id);
+CREATE INDEX IF NOT EXISTS idx_subtasks_order ON public.subtasks(issue_id, order_position);
 
 -- ============================================
 -- 10. comments 테이블
@@ -187,21 +203,70 @@ CREATE INDEX IF NOT EXISTS idx_notifications_read ON public.notifications(user_i
 -- ============================================
 -- 12. activities 테이블
 -- ============================================
+-- 마이그레이션: 2025-11-29_add_issue_history_and_team_activities.sql 반영
 CREATE TABLE IF NOT EXISTS public.activities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  team_id UUID REFERENCES public.teams(id) ON DELETE CASCADE,
+  team_id UUID REFERENCES public.teams(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
-  type TEXT NOT NULL,
-  target_id TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN (
+    'TEAM_CREATED',
+    'TEAM_UPDATED',
+    'TEAM_DELETED',
+    'MEMBER_ADDED',
+    'MEMBER_REMOVED',
+    'MEMBER_ROLE_CHANGED',
+    'PROJECT_CREATED',
+    'PROJECT_DELETED',
+    'PROJECT_ARCHIVED',
+    'PROJECT_UNARCHIVED'
+  )),
+  target_id TEXT NOT NULL, -- 관련 엔티티 ID (팀 ID, 프로젝트 ID, 사용자 ID 등)
   description TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_activities_team ON public.activities(team_id);
 CREATE INDEX IF NOT EXISTS idx_activities_user ON public.activities(user_id);
+CREATE INDEX IF NOT EXISTS idx_activities_type ON public.activities(type);
+CREATE INDEX IF NOT EXISTS idx_activities_created ON public.activities(created_at DESC);
 
 -- ============================================
--- 13. issue_attachments 테이블
+-- 13. custom_statuses 테이블 (FR-053)
+-- ============================================
+-- 마이그레이션: 2025-11-29_add_custom_statuses_and_wip_limits.sql 반영
+CREATE TABLE IF NOT EXISTS public.custom_statuses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL CHECK (char_length(name) >= 1 AND char_length(name) <= 30),
+  color TEXT, -- HEX 색상 코드 (선택)
+  position INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(project_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_custom_statuses_project ON public.custom_statuses(project_id);
+CREATE INDEX IF NOT EXISTS idx_custom_statuses_position ON public.custom_statuses(project_id, position);
+
+-- ============================================
+-- 14. project_wip_limits 테이블 (FR-054)
+-- ============================================
+-- 마이그레이션: 2025-11-29_add_custom_statuses_and_wip_limits.sql 반영
+CREATE TABLE IF NOT EXISTS public.project_wip_limits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE NOT NULL,
+  status TEXT NOT NULL, -- 기본 상태 (TODO, IN_PROGRESS, IN_REVIEW, DONE) 또는 custom_statuses.id
+  wip_limit INTEGER CHECK (wip_limit >= 1 AND wip_limit <= 50),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(project_id, status)
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_wip_limits_project ON public.project_wip_limits(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_wip_limits_status ON public.project_wip_limits(project_id, status);
+
+-- ============================================
+-- 15. issue_attachments 테이블
 -- ============================================
 -- 마이그레이션: 2025-11-29 추가
 CREATE TABLE IF NOT EXISTS public.issue_attachments (
@@ -219,7 +284,7 @@ CREATE INDEX IF NOT EXISTS idx_issue_attachments_issue ON public.issue_attachmen
 CREATE INDEX IF NOT EXISTS idx_issue_attachments_uploader ON public.issue_attachments(uploaded_by);
 
 -- ============================================
--- 14. user_preferences 테이블
+-- 16. user_preferences 테이블
 -- ============================================
 -- 마이그레이션: 2025-11-29 추가
 CREATE TABLE IF NOT EXISTS public.user_preferences (
@@ -237,7 +302,31 @@ CREATE TABLE IF NOT EXISTS public.user_preferences (
 CREATE INDEX IF NOT EXISTS idx_user_preferences_user ON public.user_preferences(user_id);
 
 -- ============================================
--- 15. 함수 정의
+-- 17. issue_history 테이블
+-- ============================================
+-- 마이그레이션: 2025-11-29_add_issue_history_and_team_activities.sql 반영
+-- 기능: FR-039 - 이슈 변경 히스토리
+CREATE TABLE IF NOT EXISTS public.issue_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_id UUID REFERENCES public.issues(id) ON DELETE CASCADE NOT NULL,
+  field TEXT NOT NULL CHECK (field IN ('title', 'description', 'status', 'priority', 'assignee', 'dueDate', 'labels', 'created', 'deleted')),
+  old_value TEXT,                         -- 변경 전 값
+  new_value TEXT,                         -- 변경 후 값
+  user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,  -- 변경한 사용자
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_issue_history_issue ON public.issue_history(issue_id);
+CREATE INDEX IF NOT EXISTS idx_issue_history_user ON public.issue_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_issue_history_created ON public.issue_history(created_at DESC);
+
+-- ============================================
+-- 18. 뷰 생성
+-- ============================================
+-- (프로젝트 상태 뷰는 별도 테이블 구조로 변경되어 제거됨)
+
+-- ============================================
+-- 19. 함수 정의
 -- ============================================
 
 -- updated_at 자동 업데이트 함수
@@ -283,7 +372,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
--- 16. 트리거 생성
+-- 20. 트리거 생성
 -- ============================================
 
 -- updated_at 트리거
@@ -308,6 +397,12 @@ CREATE TRIGGER update_comments_updated_at BEFORE UPDATE ON public.comments
 CREATE TRIGGER update_user_preferences_updated_at BEFORE UPDATE ON public.user_preferences
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_custom_statuses_updated_at BEFORE UPDATE ON public.custom_statuses
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_project_wip_limits_updated_at BEFORE UPDATE ON public.project_wip_limits
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- email_confirmed_at 동기화 트리거 (auth.users 테이블에)
 DROP TRIGGER IF EXISTS sync_email_confirmed_at_trigger ON auth.users;
 CREATE TRIGGER sync_email_confirmed_at_trigger
@@ -323,7 +418,7 @@ CREATE TRIGGER sync_new_user_email_confirmed_trigger
   EXECUTE FUNCTION sync_new_user_email_confirmed();
 
 -- ============================================
--- 17. Row Level Security (RLS) 활성화
+-- 21. Row Level Security (RLS) 활성화
 -- ============================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
@@ -335,13 +430,16 @@ ALTER TABLE public.issue_labels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.issue_label_mappings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subtasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.issue_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.issue_attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.custom_statuses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_wip_limits ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
--- 18. RLS 정책
+-- 22. RLS 정책
 -- ============================================
 
 -- users: 본인만 조회/수정 가능, 본인 프로필 생성 가능
@@ -452,8 +550,115 @@ DROP POLICY IF EXISTS "Users can manage their own preferences" ON public.user_pr
 CREATE POLICY "Users can manage their own preferences" ON public.user_preferences
   FOR ALL USING (auth.uid() = user_id);
 
+-- issue_history: 이슈를 볼 수 있는 사용자만 히스토리 조회 가능
+DROP POLICY IF EXISTS "Users can view issue history" ON public.issue_history;
+CREATE POLICY "Users can view issue history" ON public.issue_history
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1
+      FROM public.issues i
+      JOIN public.projects p ON p.id = i.project_id
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE i.id = issue_history.issue_id
+      AND tm.user_id = auth.uid()
+      AND i.deleted_at IS NULL
+    )
+  );
+
+-- issue_history: 이슈를 수정할 수 있는 사용자는 히스토리도 생성 가능
+DROP POLICY IF EXISTS "Users can create issue history" ON public.issue_history;
+CREATE POLICY "Users can create issue history" ON public.issue_history
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.issues i
+      JOIN public.projects p ON p.id = i.project_id
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE i.id = issue_history.issue_id
+      AND tm.user_id = auth.uid()
+      AND i.deleted_at IS NULL
+    )
+  );
+
+-- activities: 팀 멤버는 활동 로그 조회 가능
+-- 마이그레이션: 2025-11-29_add_issue_history_and_team_activities.sql 반영
+DROP POLICY IF EXISTS "Team members can view activities" ON public.activities;
+CREATE POLICY "Team members can view activities" ON public.activities
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1
+      FROM public.team_members tm
+      WHERE tm.team_id = activities.team_id
+      AND tm.user_id = auth.uid()
+    )
+  );
+
+-- activities: 팀 멤버는 활동 로그 생성 가능
+DROP POLICY IF EXISTS "Team members can create activities" ON public.activities;
+CREATE POLICY "Team members can create activities" ON public.activities
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.team_members tm
+      WHERE tm.team_id = activities.team_id
+      AND tm.user_id = auth.uid()
+    )
+  );
+
+-- custom_statuses: 프로젝트 팀 멤버만 조회/수정 가능
+DROP POLICY IF EXISTS "Team members can view custom statuses" ON public.custom_statuses;
+CREATE POLICY "Team members can view custom statuses" ON public.custom_statuses
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1
+      FROM public.projects p
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE p.id = custom_statuses.project_id
+      AND tm.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Team admins can manage custom statuses" ON public.custom_statuses;
+CREATE POLICY "Team admins can manage custom statuses" ON public.custom_statuses
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1
+      FROM public.projects p
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE p.id = custom_statuses.project_id
+      AND tm.user_id = auth.uid()
+      AND tm.role IN ('OWNER', 'ADMIN')
+    )
+  );
+
+-- project_wip_limits: 프로젝트 팀 멤버만 조회/수정 가능
+DROP POLICY IF EXISTS "Team members can view wip limits" ON public.project_wip_limits;
+CREATE POLICY "Team members can view wip limits" ON public.project_wip_limits
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1
+      FROM public.projects p
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE p.id = project_wip_limits.project_id
+      AND tm.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Team admins can manage wip limits" ON public.project_wip_limits;
+CREATE POLICY "Team admins can manage wip limits" ON public.project_wip_limits
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1
+      FROM public.projects p
+      JOIN public.team_members tm ON tm.team_id = p.team_id
+      WHERE p.id = project_wip_limits.project_id
+      AND tm.user_id = auth.uid()
+      AND tm.role IN ('OWNER', 'ADMIN')
+    )
+  );
+
 -- ============================================
--- 19. 기존 데이터 동기화 (선택 사항)
+-- 23. 기존 데이터 동기화 (선택 사항)
 -- ============================================
 -- 이미 배포된 인스턴스에서 실행 시, 기존 auth.users의 email_confirmed_at을
 -- public.users로 동기화합니다.

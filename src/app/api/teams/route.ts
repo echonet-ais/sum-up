@@ -1,7 +1,122 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Team, PaginatedResponse } from "@/types";
+import { logTeamActivity, createActivityDescription } from "@/lib/utils/team-activity";
 
+/**
+ * @swagger
+ * /api/teams:
+ *   get:
+ *     summary: 팀 목록 조회
+ *     description: 현재 사용자가 속한 팀 목록을 조회합니다. 검색 및 페이지네이션을 지원합니다.
+ *     tags:
+ *       - Teams
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: 검색어 (팀 이름, 설명 검색)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: 페이지 번호
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           minimum: 1
+ *           maximum: 100
+ *         description: 페이지당 항목 수
+ *     responses:
+ *       200:
+ *         description: 팀 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Team'
+ *       401:
+ *         description: 인증되지 않은 사용자
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   post:
+ *     summary: 팀 생성
+ *     description: 새로운 팀을 생성합니다. 생성자는 자동으로 OWNER 역할을 가집니다.
+ *     tags:
+ *       - Teams
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: 개발팀
+ *                 description: 팀 이름
+ *               description:
+ *                 type: string
+ *                 example: SumUp 웹앱 개발을 담당하는 팀입니다.
+ *                 description: 팀 설명
+ *               avatar:
+ *                 type: string
+ *                 format: uri
+ *                 nullable: true
+ *                 description: 팀 아바타 이미지 URL
+ *     responses:
+ *       201:
+ *         description: 팀 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 팀이 생성되었습니다.
+ *                 team:
+ *                   $ref: '#/components/schemas/Team'
+ *       400:
+ *         description: 입력값 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: 인증되지 않은 사용자
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 function mapTeamRowToTeam(row: any): Team {
   return {
     id: row.id,
@@ -38,6 +153,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from("teams")
       .select("*", { count: "exact" })
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 조회
       .order("updated_at", { ascending: false });
 
     if (search) {
@@ -138,6 +254,15 @@ export async function POST(request: NextRequest) {
     if (memberError) {
       console.error("Error creating team member:", memberError);
     }
+
+    // 팀 생성 활동 로그 기록
+    await logTeamActivity(
+      data.id,
+      user.id,
+      "TEAM_CREATED",
+      data.id,
+      createActivityDescription("TEAM_CREATED", { teamName: name })
+    );
 
     const team = mapTeamRowToTeam(data);
 

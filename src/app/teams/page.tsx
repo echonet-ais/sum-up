@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Input } from "@hua-labs/ui";
-import { EmptyState, LoadingState, ErrorState, FormDrawer, SectionErrorBoundary } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, FormDrawer, SectionErrorBoundary, PageHeader } from "@/components/common";
 import { TeamCard, TeamForm } from "@/components/team";
 import { useTeams } from "@/hooks/useTeams";
 import Link from "next/link";
@@ -69,15 +69,15 @@ export default function TeamsPage() {
 
         {/* 팀 그리드 */}
         <div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-            <h2 className="text-xl font-semibold text-[var(--text-strong)]">
-              팀 목록 ({filteredTeams.length})
-            </h2>
-            <Button onClick={() => setIsTeamFormOpen(true)} className="w-full sm:w-auto">
-              <Icon name="add" size={16} className="mr-2" />
-              새 팀 생성
-            </Button>
-          </div>
+          <PageHeader
+            title={`팀 목록 (${filteredTeams.length})`}
+            actions={
+              <Button onClick={() => setIsTeamFormOpen(true)} className="w-full sm:w-auto">
+                <Icon name="add" size={16} className="mr-2" />
+                새 팀 생성
+              </Button>
+            }
+          />
           {isLoading ? (
             <LoadingState message="팀을 불러오는 중..." />
           ) : filteredTeams.length === 0 ? (

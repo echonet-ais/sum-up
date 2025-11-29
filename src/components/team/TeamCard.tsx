@@ -71,7 +71,7 @@ export function TeamCard({
                     e.stopPropagation();
                     onDelete?.(team);
                   }}
-                  className="p-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                  className="p-2 text-[var(--color-error)] hover:text-[var(--color-error-hover)] transition-colors"
                   aria-label="팀 삭제"
                 >
                   <Icon name="trash" size={16} />

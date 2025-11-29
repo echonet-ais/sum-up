@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { TeamMember, User } from "@/types";
+import { notifyRoleChanged } from "@/lib/utils/notifications";
 
 interface TeamMemberRow {
   id: string;
@@ -71,6 +72,13 @@ export async function PUT(
       );
     }
 
+    // 기존 멤버 정보 조회 (활동 로그용)
+    const { data: existingMember } = await supabase
+      .from("team_members")
+      .select("role, user_id, users(id, name)")
+      .eq("id", memberId)
+      .single();
+
     const { data, error } = await supabase
       .from("team_members")
       .update({ role })
@@ -91,6 +99,56 @@ export async function PUT(
     }
 
     const member = mapMemberRowToTeamMember(data);
+
+    // 역할 변경 활동 로그 기록
+    const { logTeamActivity, createActivityDescription } = await import("@/lib/utils/team-activity");
+    const existingUserData = existingMember?.users;
+    const memberName = Array.isArray(existingUserData)
+      ? existingUserData[0]?.name 
+      : (existingUserData as unknown as { name?: string } | null)?.name || member.user.name;
+    await logTeamActivity(
+      id,
+      user.id,
+      "MEMBER_ROLE_CHANGED",
+      member.userId,
+      createActivityDescription("MEMBER_ROLE_CHANGED", {
+        memberName,
+        oldRole: existingMember?.role || "",
+        newRole: role,
+      })
+    );
+
+    // 역할 변경 알림 생성 (FR-090)
+    if (existingMember?.role !== role) {
+      const { data: teamData } = await supabase
+        .from("teams")
+        .select("name")
+        .eq("id", id)
+        .single();
+
+      const { data: changerData } = await supabase
+        .from("users")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+
+      const roleNames: Record<string, string> = {
+        OWNER: "소유자",
+        ADMIN: "관리자",
+        MEMBER: "멤버",
+      };
+
+      await notifyRoleChanged(
+        member.userId,
+        id,
+        teamData?.name || "팀",
+        roleNames[existingMember?.role || ""] || existingMember?.role || "",
+        roleNames[role] || role,
+        changerData?.name || user.email || "사용자"
+      ).catch((err) => {
+        console.error("Failed to create role change notification:", err);
+      });
+    }
 
     return NextResponse.json(member);
   } catch (error) {
@@ -118,6 +176,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 멤버 정보 조회 (활동 로그용)
+    const { data: memberData } = await supabase
+      .from("team_members")
+      .select("user_id, users(id, name)")
+      .eq("id", memberId)
+      .single();
+
     const { error } = await supabase
       .from("team_members")
       .delete()
@@ -132,6 +197,26 @@ export async function DELETE(
         { status }
       );
     }
+
+    // 멤버 제거 활동 로그 기록
+    const { logTeamActivity, createActivityDescription } = await import("@/lib/utils/team-activity");
+    // 멤버의 사용자 이름 조회
+    let memberName = "알 수 없음";
+    if (memberData?.user_id) {
+      const { data: memberUser } = await supabase
+        .from("users")
+        .select("name")
+        .eq("id", memberData.user_id)
+        .single();
+      memberName = memberUser?.name || "알 수 없음";
+    }
+    await logTeamActivity(
+      id,
+      user.id,
+      "MEMBER_REMOVED",
+      memberData?.user_id || "",
+      createActivityDescription("MEMBER_REMOVED", { memberName })
+    );
 
     return NextResponse.json({ message: "Member removed successfully" });
   } catch (error) {

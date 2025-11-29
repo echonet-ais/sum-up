@@ -6,12 +6,12 @@ import { DatePicker, FileUpload } from "@/components/forms";
 import { MultiSelect } from "@/components/forms";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
-import type { Issue, IssueStatus, IssuePriority } from "@/types";
+import type { Issue, IssueStatus, IssuePriority, CustomStatus } from "@/types";
 
 export interface IssueFormData {
   title: string;
   description?: string;
-  status: IssueStatus;
+  status: IssueStatus | string; // 커스텀 상태 ID도 허용
   priority: IssuePriority;
   projectId: string;
   assigneeId?: string;
@@ -32,6 +32,7 @@ export interface IssueFormFieldsProps {
   projects?: Array<{ id: string; name: string }>;
   users?: Array<{ id: string; name: string; email: string }>;
   labels?: Array<{ id: string; name: string; color: string }>;
+  customStatuses?: CustomStatus[]; // 프로젝트별 커스텀 상태
 }
 
 export function IssueFormFields({
@@ -42,12 +43,27 @@ export function IssueFormFields({
   projects = [],
   users = [],
   labels = [],
+  customStatuses = [],
 }: IssueFormFieldsProps) {
-  const statusOptions: Array<{ value: IssueStatus; label: string }> = [
+  // 기본 상태 옵션
+  const defaultStatusOptions: Array<{ value: IssueStatus | string; label: string; color?: string }> = [
     { value: "TODO", label: "할 일" },
     { value: "IN_PROGRESS", label: "진행 중" },
     { value: "IN_REVIEW", label: "검토 중" },
     { value: "DONE", label: "완료" },
+  ];
+
+  // 커스텀 상태 옵션
+  const customStatusOptions: Array<{ value: string; label: string; color?: string }> = customStatuses.map((status) => ({
+    value: status.id,
+    label: status.name,
+    color: status.color,
+  }));
+
+  // 전체 상태 옵션 (기본 + 커스텀)
+  const statusOptions: Array<{ value: IssueStatus | string; label: string; color?: string }> = [
+    ...defaultStatusOptions,
+    ...customStatusOptions,
   ];
 
   const priorityOptions: Array<{ value: IssuePriority; label: string }> = [
@@ -64,7 +80,7 @@ export function IssueFormFields({
           htmlFor="title"
           className="mb-2 block text-sm font-medium text-[var(--text-strong)]"
         >
-          제목 <span className="text-red-500">*</span>
+          제목 <span className="text-[var(--color-error)]">*</span>
         </label>
         <Input
           id="title"
@@ -72,11 +88,11 @@ export function IssueFormFields({
           value={formData.title}
           onChange={(e) => onChange("title", e.target.value)}
           onBlur={() => onBlur?.("title")}
-          className={errors.title ? "border-red-500" : ""}
+          className={errors.title ? "border-[var(--color-error)]" : ""}
           placeholder="이슈 제목을 입력하세요"
         />
         {errors.title && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.title}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.title}</p>
         )}
       </div>
 
@@ -98,7 +114,7 @@ export function IssueFormFields({
           rows={6}
         />
         {errors.description && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.description}</p>
         )}
       </div>
 
@@ -109,7 +125,7 @@ export function IssueFormFields({
             htmlFor="projectId"
             className="mb-2 block text-sm font-medium text-[var(--text-strong)]"
           >
-            프로젝트 <span className="text-red-500">*</span>
+            프로젝트 <span className="text-[var(--color-error)]">*</span>
           </label>
           <Select
             id="projectId"
@@ -126,7 +142,7 @@ export function IssueFormFields({
             ))}
           </Select>
           {errors.projectId && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.projectId}</p>
+            <p className="mt-1 text-sm text-[var(--color-error)]">{errors.projectId}</p>
           )}
         </div>
 
@@ -141,10 +157,16 @@ export function IssueFormFields({
           <Select
             id="status"
             value={formData.status}
-            onChange={(e) => onChange("status", e.target.value as IssueStatus)}
+            onChange={(e) => onChange("status", e.target.value)}
           >
             {statusOptions.map((option) => (
               <SelectOption key={option.value} value={option.value}>
+                {option.color && (
+                  <span
+                    className="inline-block w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: option.color }}
+                  />
+                )}
                 {option.label}
               </SelectOption>
             ))}
@@ -157,7 +179,7 @@ export function IssueFormFields({
             htmlFor="priority"
             className="mb-2 block text-sm font-medium text-[var(--text-strong)]"
           >
-            우선순위 <span className="text-red-500">*</span>
+            우선순위 <span className="text-[var(--color-error)]">*</span>
           </label>
           <Select
             id="priority"
@@ -173,7 +195,7 @@ export function IssueFormFields({
             ))}
           </Select>
           {errors.priority && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.priority}</p>
+            <p className="mt-1 text-sm text-[var(--color-error)]">{errors.priority}</p>
           )}
         </div>
 
@@ -214,7 +236,7 @@ export function IssueFormFields({
             className={errors.dueDate ? "border-red-500" : ""}
           />
           {errors.dueDate && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.dueDate}</p>
+            <p className="mt-1 text-sm text-[var(--color-error)]">{errors.dueDate}</p>
           )}
         </div>
       </div>
@@ -279,7 +301,7 @@ export function IssueFormFields({
                   const newSubtasks = (formData.subtasks || []).filter((_, i) => i !== index);
                   onChange("subtasks", newSubtasks);
                 }}
-                className="px-3 py-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                className="px-3 py-2 text-sm text-[var(--color-error)] hover:text-[var(--color-error-hover)] transition-colors"
               >
                 삭제
               </button>

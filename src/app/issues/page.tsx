@@ -15,7 +15,7 @@ import { PriorityBadge } from "@/components/issue";
 
 const IssueForm = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.IssueForm })));
 import { StatusBadge } from "@/components/issue";
-import { EmptyState, LoadingState, ErrorState, SectionErrorBoundary } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, SectionErrorBoundary, StatsPanel, ContentCard } from "@/components/common";
 import { useIssues } from "@/hooks/useIssues";
 import { useProjects } from "@/hooks/useProjects";
 import { useIssueFilterStore } from "@/store/issue-filter-store";
@@ -191,52 +191,44 @@ export default function IssuesPage() {
         </Card>
 
         {/* 통계 */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-[var(--text-muted)]">전체</div>
-              <div className="text-2xl font-semibold text-[var(--text-strong)]">
-                {stats.total}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-[var(--text-muted)]">할 일</div>
-              <div className="text-2xl font-semibold text-[var(--text-strong)]">
-                {stats.byStatus.TODO}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-[var(--text-muted)]">진행 중</div>
-              <div className="text-2xl font-semibold text-[var(--text-strong)]">
-                {stats.byStatus.IN_PROGRESS}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-[var(--text-muted)]">완료</div>
-              <div className="text-2xl font-semibold text-[var(--text-strong)]">
-                {stats.byStatus.DONE}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsPanel
+          columns={4}
+          items={[
+            {
+              label: "전체",
+              value: stats.total.toString(),
+              accent: "neutral",
+            },
+            {
+              label: "할 일",
+              value: stats.byStatus.TODO.toString(),
+              accent: "warning",
+            },
+            {
+              label: "진행 중",
+              value: stats.byStatus.IN_PROGRESS.toString(),
+              accent: "primary",
+            },
+            {
+              label: "완료",
+              value: stats.byStatus.DONE.toString(),
+              accent: "secondary",
+            },
+          ]}
+        />
 
         {/* 이슈 테이블 */}
         <SectionErrorBoundary sectionName="이슈 목록">
-          <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>이슈 목록</CardTitle>
-              <Button onClick={() => setIsIssueFormOpen(true)}>
+          <ContentCard
+            title="이슈 목록"
+            actions={
+              <Button onClick={() => setIsIssueFormOpen(true)} className="w-full sm:w-auto">
                 <Icon name="add" size={16} className="mr-2" />
                 새 이슈
               </Button>
-            </CardHeader>
-            <CardContent className="p-0">
+            }
+            contentClassName="p-0"
+          >
             {isLoading ? (
               <LoadingState message="이슈를 불러오는 중..." />
             ) : issues.length === 0 ? (
@@ -323,7 +315,7 @@ export default function IssuesPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <StatusBadge status={statusNameMap[issue.status]} />
+                          <StatusBadge status={statusNameMap[issue.status as IssueStatus]} />
                         </TableCell>
                         <TableCell>
                           <PriorityBadge priority={issue.priority} />
@@ -393,8 +385,7 @@ export default function IssuesPage() {
                 )}
               </>
             )}
-          </CardContent>
-        </Card>
+          </ContentCard>
         </SectionErrorBoundary>
       </div>
 

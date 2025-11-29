@@ -8,6 +8,8 @@ import { FileUpload } from "@/components/forms";
 import { useAuthStore } from "@/store/auth-store";
 import { useToast } from "@hua-labs/ui";
 import { Avatar, AvatarImage, AvatarFallback } from "@hua-labs/ui";
+import { apiClient } from "@/lib/api/client";
+import type { User } from "@/types";
 
 export function ProfileForm() {
   const { user, updateUser } = useAuthStore();
@@ -50,14 +52,7 @@ export function ProfileForm() {
       newErrors.name = "이름을 입력해주세요";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "이메일을 입력해주세요";
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        newErrors.email = "올바른 이메일 형식이 아닙니다";
-      }
-    }
+    // 이메일은 변경 불가하므로 검증 제거
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -78,15 +73,16 @@ export function ProfileForm() {
     setIsSubmitting(true);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.put("/users/profile", formData);
-
-      // 임시: 로컬 상태 업데이트
-      updateUser({
-        ...user!,
+      // 프로필 정보 업데이트 (이메일은 변경 불가하므로 제외)
+      const updatedUser = await apiClient.put<User>("/api/users/me", {
         name: formData.name.trim(),
-        email: formData.email.trim(),
         avatar: formData.avatar.trim() || undefined,
+      });
+
+      // 스토어 업데이트
+      updateUser({
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
       });
 
       addToast({
@@ -119,16 +115,52 @@ export function ProfileForm() {
           <FileUpload
             onFileSelect={async (file) => {
               if (file) {
-                // TODO: 실제 파일 업로드 API 호출
-                // const formData = new FormData();
-                // formData.append("file", file);
-                // const response = await apiClient.post("/upload/avatar", formData);
-                // handleChange("avatar", response.url);
+                try {
+                  // 아바타 업로드
+                  const formData = new FormData();
+                  formData.append("file", file);
 
-                // 임시: 로컬 URL 생성 (실제로는 서버에 업로드 후 URL 받아야 함)
-                const url = URL.createObjectURL(file);
-                handleChange("avatar", url);
+                  const response = await fetch("/api/users/me/avatar", {
+                    method: "POST",
+                    body: formData,
+                  });
+
+                  if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || "아바타 업로드에 실패했습니다");
+                  }
+
+                  const { avatarUrl } = await response.json();
+                  handleChange("avatar", avatarUrl);
+
+                  // 프로필 정보도 즉시 업데이트
+                  const updatedUser = await apiClient.put<User>("/api/users/me", {
+                    avatar: avatarUrl,
+                  });
+                  updateUser({
+                    avatar: updatedUser.avatar,
+                  });
+
+                  addToast({
+                    title: "성공",
+                    message: "프로필 이미지가 업로드되었습니다",
+                    type: "success",
+                  });
+                } catch (err) {
+                  addToast({
+                    title: "오류",
+                    message: err instanceof Error ? err.message : "아바타 업로드에 실패했습니다",
+                    type: "error",
+                  });
+                }
               } else {
+                // 아바타 제거
+                const updatedUser = await apiClient.put<User>("/api/users/me", {
+                  avatar: null,
+                });
+                updateUser({
+                  avatar: updatedUser.avatar,
+                });
                 handleChange("avatar", "");
               }
             }}
@@ -157,29 +189,29 @@ export function ProfileForm() {
           placeholder="이름을 입력하세요"
         />
         {errors.name && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.name}</p>
         )}
       </div>
 
-      {/* 이메일 */}
+      {/* 이메일 (읽기 전용) */}
       <div>
         <label
           htmlFor="email"
           className="mb-2 block text-sm font-medium text-[var(--text-strong)]"
         >
-          이메일 <span className="text-red-500">*</span>
+          이메일
         </label>
         <Input
           id="email"
           type="email"
           value={formData.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-          className={errors.email ? "border-red-500" : ""}
+          disabled
+          className="bg-[var(--surface-muted)] cursor-not-allowed"
           placeholder="이메일을 입력하세요"
         />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
-        )}
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
+          이메일은 변경할 수 없습니다
+        </p>
       </div>
 
       {/* 저장 버튼 */}

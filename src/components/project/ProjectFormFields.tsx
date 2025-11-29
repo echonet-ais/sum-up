@@ -36,7 +36,7 @@ export function ProjectFormFields({
           htmlFor="name"
           className="mb-2 block text-sm font-medium text-[var(--text-strong)]"
         >
-          프로젝트 이름 <span className="text-red-500">*</span>
+          프로젝트 이름 <span className="text-[var(--color-error)]">*</span>
         </label>
         <Input
           id="name"
@@ -48,7 +48,7 @@ export function ProjectFormFields({
           placeholder="프로젝트 이름을 입력하세요"
         />
         {errors.name && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.name}</p>
         )}
       </div>
 
@@ -70,7 +70,7 @@ export function ProjectFormFields({
           rows={4}
         />
         {errors.description && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.description}</p>
         )}
       </div>
 
@@ -97,7 +97,7 @@ export function ProjectFormFields({
           ))}
         </Select>
         {errors.teamId && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.teamId}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.teamId}</p>
         )}
       </div>
 
@@ -108,7 +108,7 @@ export function ProjectFormFields({
           id="isFavorite"
           checked={formData.isFavorite || false}
           onChange={(e) => onChange("isFavorite", e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 text-[var(--brand-primary)] focus:ring-[var(--brand-primary)]"
+          className="h-4 w-4 rounded border-[var(--border-subtle)] text-[var(--brand-primary)] focus:ring-[var(--brand-primary)]"
         />
         <label
           htmlFor="isFavorite"

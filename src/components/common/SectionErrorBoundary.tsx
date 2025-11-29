@@ -50,7 +50,7 @@ export class SectionErrorBoundary extends Component<SectionErrorBoundaryProps, S
       }
       
       return (
-        <div className="p-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+        <div className="p-4 rounded-lg border border-[var(--color-error-border)] bg-[var(--color-error-subtle)]">
           <ErrorState
             title={this.props.sectionName ? `${this.props.sectionName} 섹션 오류` : "섹션 오류"}
             message={this.state.error?.message || "이 섹션에서 오류가 발생했습니다"}

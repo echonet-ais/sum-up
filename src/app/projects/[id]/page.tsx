@@ -10,6 +10,8 @@ import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@hua-labs/ui";
 import { EmptyState, ErrorState, LoadingState, ConfirmDialog, StatCard, FormDrawer, MetaInfoCard, SectionErrorBoundary } from "@/components/common";
+import { PieChart } from "@/components/charts/PieChart";
+import { LineChart } from "@/components/charts/LineChart";
 import { useProject } from "@/hooks/useProject";
 import { useDeleteDialog } from "@/hooks";
 import { useRouter } from "next/navigation";
@@ -17,6 +19,7 @@ import Link from "next/link";
 import type { Project } from "@/types";
 
 const ProjectForm = dynamic(() => import("@/components/project").then((mod) => ({ default: mod.ProjectForm })));
+const ProjectSettings = dynamic(() => import("@/components/project").then((mod) => ({ default: mod.ProjectSettings })));
 
 export default function ProjectDetailPage({
   params,
@@ -54,13 +57,36 @@ export default function ProjectDetailPage({
     </div>
   );
 
-  // TODO: 실제 데이터로 교체
-  const stats = {
-    totalIssues: 24,
-    openIssues: 12,
-    inProgressIssues: 6,
-    completedIssues: 6,
-  };
+  // 프로젝트 통계 조회
+  const [projectStats, setProjectStats] = React.useState<{
+    totalIssues: number;
+    openIssues: number;
+    inProgressIssues: number;
+    completedIssues: number;
+    issuesByStatus: Record<string, number>;
+    issuesByPriority: Record<string, number>;
+    dailyTrend: Array<{ date: string; count: number }>;
+  } | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchProjectStats() {
+      if (!id) return;
+      try {
+        setIsLoadingStats(true);
+        const response = await fetch(`/api/projects/${id}/stats`);
+        if (response.ok) {
+          const data = await response.json();
+          setProjectStats(data);
+        }
+      } catch (err) {
+        console.error("Error fetching project stats:", err);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    }
+    fetchProjectStats();
+  }, [id]);
 
   return (
     <DetailPageLayout
@@ -78,11 +104,88 @@ export default function ProjectDetailPage({
         <>
           {/* 통계 */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard label="전체 이슈" value={stats.totalIssues} />
-          <StatCard label="열린 이슈" value={stats.openIssues} />
-          <StatCard label="진행 중" value={stats.inProgressIssues} />
-          <StatCard label="완료" value={stats.completedIssues} />
-        </div>
+            <StatCard 
+              label="전체 이슈" 
+              value={isLoadingStats ? "..." : (projectStats?.totalIssues || 0)} 
+            />
+            <StatCard 
+              label="열린 이슈" 
+              value={isLoadingStats ? "..." : (projectStats?.openIssues || 0)} 
+            />
+            <StatCard 
+              label="진행 중" 
+              value={isLoadingStats ? "..." : (projectStats?.inProgressIssues || 0)} 
+            />
+            <StatCard 
+              label="완료" 
+              value={isLoadingStats ? "..." : (projectStats?.completedIssues || 0)} 
+            />
+          </div>
+
+          {/* 통계 차트 */}
+          {projectStats && !isLoadingStats && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 상태별 이슈 분포 */}
+              {Object.keys(projectStats.issuesByStatus).length > 0 && (
+                <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+                  <CardHeader>
+                    <CardTitle>상태별 이슈 분포</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PieChart
+                      data={Object.entries(projectStats.issuesByStatus).map(([status, count]) => ({
+                        name: status === "TODO" ? "할 일" : 
+                              status === "IN_PROGRESS" ? "진행 중" :
+                              status === "IN_REVIEW" ? "검토 중" :
+                              status === "DONE" ? "완료" : status,
+                        value: count as number,
+                      }))}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 우선순위별 이슈 분포 */}
+              {Object.keys(projectStats.issuesByPriority).length > 0 && (
+                <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+                  <CardHeader>
+                    <CardTitle>우선순위별 이슈 분포</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PieChart
+                      data={Object.entries(projectStats.issuesByPriority).map(([priority, count]) => ({
+                        name: priority === "HIGH" ? "높음" :
+                              priority === "MEDIUM" ? "보통" :
+                              priority === "LOW" ? "낮음" : priority,
+                        value: count as number,
+                      }))}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 최근 7일 이슈 생성 추이 */}
+              {projectStats.dailyTrend.length > 0 && (
+                <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>최근 7일 이슈 생성 추이</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <LineChart
+                      data={projectStats.dailyTrend.map((item) => ({
+                        name: new Date(item.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" }),
+                        이슈: item.count,
+                      }))}
+                      dataKeys={["이슈"]}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
 
         {/* 메인 콘텐츠 */}
         <Tabs defaultValue="issues" className="w-full">
@@ -151,18 +254,9 @@ export default function ProjectDetailPage({
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
-            <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
-              <CardHeader>
-                <CardTitle>프로젝트 설정</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EmptyState
-                  title="설정 기능 준비 중"
-                  description="프로젝트 설정 기능은 곧 추가될 예정입니다"
-                  iconName="settings"
-                />
-              </CardContent>
-            </Card>
+            <SectionErrorBoundary sectionName="프로젝트 설정">
+              <ProjectSettings projectId={id} />
+            </SectionErrorBoundary>
           </TabsContent>
         </Tabs>
         </>

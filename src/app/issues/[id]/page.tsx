@@ -15,6 +15,7 @@ const CommentList = dynamic(() => import("@/components/issue").then((mod) => ({ 
 const SubtaskManager = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.SubtaskManager })));
 const AIFeatures = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.AIFeatures })));
 const IssueAttachments = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.IssueAttachments })));
+const IssueHistory = dynamic(() => import("@/components/issue").then((mod) => ({ default: mod.IssueHistory })));
 import { Markdown } from "@/components/common";
 import { DatePicker } from "@/components/forms";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common";
@@ -41,7 +42,7 @@ export default function IssueDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { issue, isLoading, error, addComment, updateComment, deleteComment, updateIssue, deleteIssue, refetch } = useIssue(id);
+  const { issue, isLoading, error, addComment, updateComment, deleteComment, updateIssue, deleteIssue, refetch, uploadAttachment, deleteAttachment } = useIssue(id);
   const { user } = useAuthStore();
   const router = useRouter();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
@@ -151,6 +152,7 @@ export default function IssueDetailPage({
                   <CardContent>
                     <IssueAttachments
                       attachments={issue.attachments}
+                      onDelete={deleteAttachment}
                       canDelete={user?.id === issue.assigneeId || user?.role === "ADMIN"}
                     />
                   </CardContent>
@@ -181,7 +183,7 @@ export default function IssueDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <div className="text-sm text-[var(--text-muted)] mb-2">상태</div>
-                  <StatusBadge status={statusNameMap[issue.status]} />
+                  <StatusBadge status={statusNameMap[issue.status as IssueStatus]} />
                 </div>
                 <div>
                   <div className="text-sm text-[var(--text-muted)] mb-2">우선순위</div>
@@ -229,6 +231,11 @@ export default function IssueDetailPage({
             {/* AI 기능 */}
             <SectionErrorBoundary sectionName="AI 기능">
               <AIFeatures issue={issue} comments={issue.comments || []} />
+            </SectionErrorBoundary>
+
+            {/* 변경 히스토리 */}
+            <SectionErrorBoundary sectionName="변경 히스토리">
+              <IssueHistory issueId={issue.id} />
             </SectionErrorBoundary>
 
             {/* 메타 정보 */}

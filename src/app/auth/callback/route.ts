@@ -108,23 +108,29 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // 리다이렉트 응답 생성
-    const response = NextResponse.redirect(new URL("/", request.url));
+    // 사용자 프로필 정보 가져오기
+    const { data: profile } = await serviceClient
+      .from("users")
+      .select("*")
+      .eq("id", authData.user.id)
+      .single();
+
+    // 리다이렉트 URL 생성 (세션 토큰을 쿼리 파라미터로 전달)
+    // 클라이언트에서 세션을 설정할 수 있도록
+    const redirectUrl = new URL("/", request.url);
+    redirectUrl.searchParams.set("session", authData.session.access_token);
+    redirectUrl.searchParams.set("refresh", authData.session.refresh_token);
     
-    // 쿠키에 세션 저장
+    // 리다이렉트 응답 생성
+    const response = NextResponse.redirect(redirectUrl);
+    
+    // 쿠키에 세션 저장 (추가 보안)
     response.cookies.set(authTokenKey, sessionData, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7일
-    });
-
-    // 디버깅: 쿠키가 설정되었는지 확인
-    console.log("OAuth callback: Session cookie set", {
-      key: authTokenKey,
-      hasToken: !!authData.session.access_token,
-      userId: authData.user.id,
     });
 
     return response;

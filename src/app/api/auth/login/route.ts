@@ -2,8 +2,94 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
 /**
- * POST /api/auth/login
- * 로그인
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: 사용자 로그인
+ *     description: 이메일과 비밀번호로 로그인합니다. 성공 시 사용자 정보와 세션 토큰을 반환합니다.
+ *     tags:
+ *       - Authentication
+ *     security: []  # 인증 불필요
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *                 description: 사용자 이메일 주소
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: password123
+ *                 description: 사용자 비밀번호
+ *     responses:
+ *       200:
+ *         description: 로그인 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 로그인 성공
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 session:
+ *                   type: object
+ *                   properties:
+ *                     access_token:
+ *                       type: string
+ *                       description: Supabase Access Token (Bearer 토큰으로 사용)
+ *                     refresh_token:
+ *                       type: string
+ *                       description: Supabase Refresh Token
+ *                     expires_at:
+ *                       type: number
+ *                       description: 토큰 만료 시간 (Unix timestamp)
+ *       400:
+ *         description: 입력값 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: 이메일과 비밀번호를 입력해주세요.
+ *       401:
+ *         description: 인증 실패 (잘못된 자격 증명 또는 이메일 미인증)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Error'
+ *                 - type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: email_not_confirmed
+ *                       description: 에러 코드 (이메일 미인증 시 포함)
+ *             examples:
+ *               invalidCredentials:
+ *                 value:
+ *                   error: 이메일 또는 비밀번호가 올바르지 않습니다.
+ *               emailNotConfirmed:
+ *                 value:
+ *                   error: 이메일 인증이 필요합니다.
+ *                   code: email_not_confirmed
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function POST(request: Request) {
   try {

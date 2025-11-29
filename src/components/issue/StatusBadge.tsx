@@ -12,10 +12,10 @@ export interface StatusBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const defaultStatusColors: Record<string, string> = {
   Backlog: "bg-[var(--surface-muted)] text-[var(--text-strong)]",
-  "In Progress": "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  Done: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-  Review: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
-  Blocked: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+  "In Progress": "bg-[var(--color-info-subtle)] text-[var(--color-info)]",
+  Done: "bg-[var(--color-success-subtle)] text-[var(--color-success)]",
+  Review: "bg-[var(--brand-primary-subtle)] text-[var(--brand-primary)]",
+  Blocked: "bg-[var(--color-error-subtle)] text-[var(--color-error)]",
 };
 
 const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(

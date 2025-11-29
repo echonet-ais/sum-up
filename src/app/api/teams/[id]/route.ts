@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Team, TeamMember, User } from "@/types";
+import { logTeamActivity, createActivityDescription } from "@/lib/utils/team-activity";
 
 interface TeamMemberRow {
   id: string;
@@ -77,6 +78,7 @@ export async function GET(
       .from("teams")
       .select("*")
       .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 조회
       .single();
 
     if (teamError || !teamRow) {
@@ -130,6 +132,21 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 기존 팀 정보 조회 (변경 감지용)
+    const { data: existingTeam } = await supabase
+      .from("teams")
+      .select("*")
+      .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 조회
+      .single();
+
+    if (!existingTeam) {
+      return NextResponse.json(
+        { error: "Team not found" },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
     const { name, description, avatar } = body as Partial<{
       name: string;
@@ -138,12 +155,19 @@ export async function PUT(
     }>;
 
     const updates: Record<string, unknown> = {};
-    if (typeof name === "string") updates.name = name;
-    if (typeof description === "string" || description === null) {
-      updates.description = description ?? null;
+    const changes: Record<string, { old: string | null; new: string | null }> = {};
+
+    if (typeof name === "string" && name !== existingTeam.name) {
+      updates.name = name;
+      changes.name = { old: existingTeam.name || null, new: name || null };
     }
-    if (typeof avatar === "string" || avatar === null) {
+    if ((typeof description === "string" || description === null) && description !== existingTeam.description) {
+      updates.description = description ?? null;
+      changes.description = { old: existingTeam.description || null, new: description || null };
+    }
+    if ((typeof avatar === "string" || avatar === null) && avatar !== existingTeam.avatar) {
       updates.avatar = avatar ?? null;
+      changes.avatar = { old: existingTeam.avatar || null, new: avatar || null };
     }
 
     if (Object.keys(updates).length === 0) {
@@ -157,6 +181,7 @@ export async function PUT(
       .from("teams")
       .update(updates)
       .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 수정 가능
       .select("*")
       .single();
 
@@ -181,6 +206,17 @@ export async function PUT(
       (memberRows || []).map(mapMemberRowToTeamMember);
 
     const team = mapTeamRowToTeam(updatedRow, members);
+
+    // 팀 정보 수정 활동 로그 기록
+    if (Object.keys(changes).length > 0) {
+      await logTeamActivity(
+        id,
+        user.id,
+        "TEAM_UPDATED",
+        id,
+        createActivityDescription("TEAM_UPDATED", {})
+      );
+    }
 
     return NextResponse.json(team);
   } catch (error) {
@@ -208,10 +244,23 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 팀 정보 조회 (활동 로그용)
+    const { data: teamData } = await supabase
+      .from("teams")
+      .select("name")
+      .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 팀만 조회
+      .single();
+
+    // Soft delete
     const { error } = await supabase
       .from("teams")
-      .delete()
-      .eq("id", id);
+      .update({ 
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id)
+      .is("deleted_at", null); // 이미 삭제된 팀은 다시 삭제할 수 없음
 
     if (error) {
       const status = error.code === "PGRST116" ? 404 : 500;
@@ -220,6 +269,15 @@ export async function DELETE(
         { status }
       );
     }
+
+    // 팀 삭제 활동 로그 기록
+    await logTeamActivity(
+      id,
+      user.id,
+      "TEAM_DELETED",
+      id,
+      createActivityDescription("TEAM_DELETED", {})
+    );
 
     return NextResponse.json({ message: "Team deleted successfully" });
   } catch (error) {

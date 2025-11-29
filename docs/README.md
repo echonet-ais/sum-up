@@ -76,22 +76,34 @@
     - 인증 미들웨어
     - AI 기능 설정 및 사용 가이드 (통합됨)
 
-12. **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - 배포 가이드
+12. **[SWAGGER_SETUP_GUIDE.md](./SWAGGER_SETUP_GUIDE.md)** - Swagger/OpenAPI 설정 가이드
+    - Swagger 도입 목적 및 장점
+    - 패키지 설치 및 설정 방법
+    - API Routes에 JSDoc 주석 추가 방법
+    - Swagger UI 사용 방법 (`/api/docs`)
+    - API 테스트 및 문서화
+
+13. **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - 배포 가이드
     - Vercel 배포 방법
     - 환경 변수 설정
     - 배포 후 확인 사항
 
-13. **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - 트러블슈팅 가이드
+14. **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - 트러블슈팅 가이드
     - 일반적인 문제 및 해결 방법
     - 설치/설정 문제
     - 빌드/런타임 문제
 
-14. **[DOCUMENT_VERSIONING.md](./DOCUMENT_VERSIONING.md)** - 문서 버전 관리 가이드
+15. **[DOCUMENT_VERSIONING.md](./DOCUMENT_VERSIONING.md)** - 문서 버전 관리 가이드
     - 문서 버전 관리 규칙
     - 변경 이력 기록 방법
     - 문서 상태 관리
 
-15. **[SUPABASE_SETUP_GUIDE.md](./SUPABASE_SETUP_GUIDE.md)** - Supabase 설정 가이드
+16. **[SUPABASE_SETUP_GUIDE.md](./SUPABASE_SETUP_GUIDE.md)** - Supabase 설정 가이드
+
+17. **[FEATURE_STATUS.md](./FEATURE_STATUS.md)** - 주최측 PRD 기능 개발 현황 체크리스트
+    - 주최측 PRD 57개 기능의 구현 상태 체크
+    - 카테고리별 완료율 및 상세 현황
+    - 우선순위별 미완료 항목 정리
     - Supabase 프로젝트 생성 및 설정
     - 데이터베이스 스키마 설계
     - 인증 구현 (회원가입, 로그인, Google OAuth)

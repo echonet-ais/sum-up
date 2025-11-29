@@ -1,7 +1,96 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Issue, PaginatedResponse, IssueLabel } from "@/types";
+import { validateIssueLabelLimit } from "@/lib/utils/validation-limits";
 
+/**
+ * @swagger
+ * /api/issues:
+ *   get:
+ *     summary: 이슈 목록 조회
+ *     description: 필터링, 정렬, 페이지네이션을 지원하는 이슈 목록을 조회합니다. 프로젝트 멤버만 접근 가능합니다.
+ *     tags:
+ *       - Issues
+ *     parameters:
+ *       - in: query
+ *         name: projectId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 프로젝트 ID로 필터링
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [TODO, IN_PROGRESS, IN_REVIEW, DONE]
+ *         description: 상태로 필터링
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [HIGH, MEDIUM, LOW]
+ *         description: 우선순위로 필터링
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: 검색어 (제목, 설명 검색)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: 페이지 번호
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           minimum: 1
+ *           maximum: 100
+ *         description: 페이지당 항목 수
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [created, updated, title]
+ *           default: updated
+ *         description: 정렬 기준
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: 정렬 순서
+ *     responses:
+ *       200:
+ *         description: 이슈 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Issue'
+ *       401:
+ *         description: 인증되지 않은 사용자
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 function mapIssueRowToIssue(row: any, labels: IssueLabel[] = []): Issue {
   return {
     id: row.id,
@@ -188,6 +277,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 데이터 제한 검증: 프로젝트당 최대 200개 이슈
+    const { validateProjectIssueLimit } = await import("@/lib/utils/validation-limits");
+    try {
+      await validateProjectIssueLimit(projectId);
+    } catch (limitError) {
+      return NextResponse.json(
+        { error: limitError instanceof Error ? limitError.message : "이슈 생성 제한을 초과했습니다." },
+        { status: 400 }
+      );
+    }
+
     // 이슈 생성
     const { data: issueData, error: issueError } = await supabase
       .from("issues")
@@ -213,17 +313,38 @@ export async function POST(request: NextRequest) {
 
     // 라벨 매핑 생성
     if (labels && labels.length > 0) {
+      // 이슈당 라벨 제한 검증 (최대 5개)
+      if (labels.length > 5) {
+        // 이슈는 이미 생성되었으므로 삭제
+        await supabase.from("issues").delete().eq("id", issueData.id);
+        return NextResponse.json(
+          { error: "이슈당 최대 5개의 라벨을 적용할 수 있습니다." },
+          { status: 400 }
+        );
+      }
+
+      // 라벨 제한 검증 (이슈당 최대 5개)
+      try {
+        await validateIssueLabelLimit(issueData.id);
+      } catch (error) {
+        // 라벨 제한 초과 시 이슈는 생성했지만 라벨은 추가하지 않음
+        console.error("Issue label limit exceeded:", error);
+        // 이슈는 이미 생성되었으므로 계속 진행 (라벨만 추가하지 않음)
+      }
+
       const labelMappings = labels.map((labelId) => ({
         issue_id: issueData.id,
         label_id: labelId,
       }));
 
-      const { error: labelError } = await supabase
-        .from("issue_label_mappings")
-        .insert(labelMappings);
+      if (labelMappings.length > 0) {
+        const { error: labelError } = await supabase
+          .from("issue_label_mappings")
+          .insert(labelMappings);
 
-      if (labelError) {
-        console.error("Error creating issue labels:", labelError);
+        if (labelError) {
+          console.error("Error creating issue labels:", labelError);
+        }
       }
     }
 
@@ -243,6 +364,22 @@ export async function POST(request: NextRequest) {
       if (subtaskError) {
         console.error("Error creating subtasks:", subtaskError);
       }
+    }
+
+    // 이슈 생성 히스토리 기록
+    const { error: historyError } = await supabase
+      .from("issue_history")
+      .insert({
+        issue_id: issueData.id,
+        field: "created",
+        old_value: null,
+        new_value: title,
+        user_id: user.id,
+      });
+
+    if (historyError) {
+      console.error("Error creating issue history:", historyError);
+      // 히스토리 기록 실패해도 이슈 생성은 성공으로 처리
     }
 
     // 라벨 정보 조회

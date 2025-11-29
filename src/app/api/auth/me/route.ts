@@ -2,8 +2,37 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
 /**
- * GET /api/auth/me
- * 현재 로그인한 사용자 정보 조회
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: 현재 사용자 정보 조회
+ *     description: 현재 로그인한 사용자의 프로필 정보를 조회합니다.
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       200:
+ *         description: 사용자 정보 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: 인증되지 않은 사용자
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: 인증되지 않은 사용자입니다.
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function GET(request: Request) {
   try {
@@ -27,6 +56,7 @@ export async function GET(request: Request) {
       .from("users")
       .select("*")
       .eq("id", authUser.id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 사용자만 조회
       .single();
 
     if (profileError) {

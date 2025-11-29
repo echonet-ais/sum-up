@@ -10,3 +10,6 @@ export type { InviteMemberFormProps } from "./InviteMemberForm";
 export { TeamForm } from "./TeamForm";
 export type { TeamFormProps } from "./TeamForm";
 
+export { TeamActivityLog } from "./TeamActivityLog";
+export { TeamStats } from "./TeamStats";
+

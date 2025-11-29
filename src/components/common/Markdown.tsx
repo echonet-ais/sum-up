@@ -16,12 +16,18 @@ const Markdown = React.forwardRef<HTMLDivElement, MarkdownProps>(
       <div
         ref={ref}
         className={cn(
-          "prose prose-sm dark:prose-invert max-w-none",
-          "prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-white",
-          "prose-p:text-gray-700 dark:prose-p:text-gray-300",
-          "prose-a:text-blue-600 dark:prose-a:text-blue-400",
-          "prose-code:text-gray-800 dark:prose-code:text-gray-200",
-          "prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800",
+          "prose prose-sm max-w-none",
+          "prose-headings:font-semibold prose-headings:text-[var(--text-strong)]",
+          "prose-p:text-[var(--text-strong)]",
+          "prose-a:text-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]",
+          "prose-code:text-[var(--text-strong)] prose-code:bg-[var(--surface-muted)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded",
+          "prose-pre:bg-[var(--surface-muted)] prose-pre:border prose-pre:border-[var(--border-subtle)]",
+          "prose-strong:text-[var(--text-strong)]",
+          "prose-blockquote:border-[var(--border-subtle)] prose-blockquote:text-[var(--text-muted)]",
+          "prose-hr:border-[var(--border-subtle)]",
+          "prose-table:border-[var(--border-subtle)]",
+          "prose-th:border-[var(--border-subtle)] prose-th:text-[var(--text-strong)]",
+          "prose-td:border-[var(--border-subtle)]",
           className
         )}
         {...props}

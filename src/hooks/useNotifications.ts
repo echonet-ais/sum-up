@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
 import type { Activity } from "@/types";
+import { useRealtimeNotifications } from "./useRealtimeNotifications";
+import { useAuthStore } from "@/store/auth-store";
 
 export interface Notification {
   id: string;
@@ -77,26 +79,43 @@ export function useNotifications(): UseNotificationsReturn {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // 실시간 알림 업데이트 (폴링)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // 30초마다 알림 새로고침
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 30000); // 30초
-
-    // 페이지 포커스 시에도 새로고침
-    const handleFocus = () => {
-      fetchNotifications();
-    };
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [fetchNotifications]);
+  // 실시간 알림 업데이트 (Supabase Realtime)
+  const { user } = useAuthStore();
+  useRealtimeNotifications({
+    userId: user?.id || "",
+    onNotificationInsert: (newNotification) => {
+      // 새 알림 추가
+      const notification: Notification = {
+        id: newNotification.id,
+        type: newNotification.type as Notification["type"],
+        title: newNotification.description || "",
+        message: newNotification.description || "",
+        read: newNotification.read_at != null,
+        link: newNotification.metadata?.link,
+        createdAt: newNotification.created_at,
+      };
+      setNotifications((prev) => [notification, ...prev]);
+    },
+    onNotificationUpdate: (updatedNotification) => {
+      // 알림 업데이트 (예: 읽음 처리)
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === updatedNotification.id
+            ? {
+                ...notif,
+                read: updatedNotification.read_at != null,
+                title: updatedNotification.description || notif.title,
+                message: updatedNotification.description || notif.message,
+              }
+            : notif
+        )
+      );
+    },
+    onNotificationDelete: (notificationId) => {
+      // 알림 삭제
+      setNotifications((prev) => prev.filter((notif) => notif.id !== notificationId));
+    },
+  });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

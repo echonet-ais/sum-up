@@ -49,7 +49,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--text-strong)] mb-1">
             {label}
           </label>
         )}
@@ -68,7 +68,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-strong)] transition-colors"
           >
             <Icon
               name={showPassword ? "eyeOff" : "eye"}
@@ -79,13 +79,13 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         {showStrength && password && strength && (
           <div className="mt-2">
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="flex-1 h-1 bg-[var(--surface-muted)] rounded-full overflow-hidden">
                 <div
                   className={cn("h-full transition-all", strength.color)}
                   style={{ width: `${(strength.strength / 5) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-600 dark:text-gray-400">
+              <span className="text-xs text-[var(--text-muted)]">
                 {strength.label}
               </span>
             </div>

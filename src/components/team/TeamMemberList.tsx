@@ -72,7 +72,7 @@ export function TeamMemberList({
               return (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-2 sm:p-3 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-muted)]"
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-muted)]"
                 >
                   <div className="flex items-center gap-3 flex-1">
                     {member.user.avatar ? (
@@ -87,18 +87,18 @@ export function TeamMemberList({
                       </div>
                     )}
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium text-[var(--text-strong)]">
                           {member.user.name}
                         </span>
                         {isCurrentUser && (
-                          <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs">나</Badge>
+                          <Badge className="bg-[var(--color-info-subtle)] text-[var(--color-info)] text-xs">나</Badge>
                         )}
                       </div>
                       <p className="text-sm text-[var(--text-muted)]">{member.user.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {showActions && canEdit ? (
                       <>
                         <Select
@@ -116,14 +116,14 @@ export function TeamMemberList({
                         </Select>
                         <button
                           onClick={() => handleRemoveMember(member.id)}
-                          className="p-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                          className="p-2 text-[var(--color-error)] hover:text-[var(--color-error-strong)] transition-colors"
                           aria-label="멤버 제거"
                         >
                           <Icon name="trash" size={16} />
                         </button>
                       </>
                     ) : (
-                      <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                      <Badge className="bg-[var(--surface-muted)] text-[var(--text-strong)]">
                         {roleOptions.find((r) => r.value === member.role)?.label || member.role}
                       </Badge>
                     )}

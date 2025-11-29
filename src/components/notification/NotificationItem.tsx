@@ -23,11 +23,11 @@ const notificationIcons: Record<Notification["type"], string> = {
 };
 
 const notificationColors: Record<Notification["type"], string> = {
-  ISSUE_CREATED: "text-blue-600 dark:text-blue-400",
-  ISSUE_UPDATED: "text-yellow-600 dark:text-yellow-400",
-  ISSUE_COMMENTED: "text-green-600 dark:text-green-400",
-  PROJECT_CREATED: "text-purple-600 dark:text-purple-400",
-  MENTION: "text-red-600 dark:text-red-400",
+  ISSUE_CREATED: "text-[var(--color-info)]",
+  ISSUE_UPDATED: "text-[var(--color-warning)]",
+  ISSUE_COMMENTED: "text-[var(--color-success)]",
+  PROJECT_CREATED: "text-[var(--brand-primary)]",
+  MENTION: "text-[var(--color-error)]",
 };
 
 import { formatTimeAgo } from "@/lib/utils/date";
@@ -60,7 +60,7 @@ export function NotificationItem({
       className={cn(
         "flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-md transition-colors cursor-pointer",
         "hover:bg-[var(--surface-muted)]",
-        !notification.read && "bg-blue-50/50 dark:bg-blue-900/20"
+        !notification.read && "bg-[var(--color-info-subtle)]"
       )}
       onClick={handleClick}
     >
@@ -82,7 +82,7 @@ export function NotificationItem({
           </div>
 
           {!notification.read && (
-            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 ring-2 ring-blue-200 dark:ring-blue-800" />
+            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-[var(--color-info)] ring-2 ring-[var(--color-info-subtle)]" />
           )}
         </div>
 

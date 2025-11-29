@@ -193,7 +193,7 @@ export function SubtaskManager({ issueId, subtasks: initialSubtasks }: SubtaskMa
                   onChange={() => handleToggleSubtask(subtask.id)}
                 />
                 {editingId === subtask.id ? (
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
                     <Input
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
@@ -208,23 +208,27 @@ export function SubtaskManager({ issueId, subtasks: initialSubtasks }: SubtaskMa
                       className="flex-1"
                       autoFocus
                     />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSaveEdit(subtask.id)}
-                    >
-                      저장
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setEditingId(null);
-                        setEditingTitle("");
-                      }}
-                    >
-                      취소
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSaveEdit(subtask.id)}
+                        className="flex-1 sm:flex-none"
+                      >
+                        저장
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditingTitle("");
+                        }}
+                        className="flex-1 sm:flex-none"
+                      >
+                        취소
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -259,7 +263,7 @@ export function SubtaskManager({ issueId, subtasks: initialSubtasks }: SubtaskMa
             ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Input
             value={newSubtaskTitle}
             onChange={(e) => setNewSubtaskTitle(e.target.value)}
@@ -267,7 +271,7 @@ export function SubtaskManager({ issueId, subtasks: initialSubtasks }: SubtaskMa
             placeholder="서브태스크 추가..."
             className="flex-1"
           />
-          <Button onClick={handleAddSubtask} size="sm">
+          <Button onClick={handleAddSubtask} size="sm" className="w-full sm:w-auto">
             <Icon name="add" size={16} />
           </Button>
         </div>

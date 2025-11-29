@@ -3,13 +3,123 @@ import { createServerClient } from "@/lib/supabase/server";
 import { validatePassword } from "@/lib/password-validation";
 
 /**
- * POST /api/auth/signup
- * 회원가입
- * 
- * 보안 참고사항:
- * - Supabase Auth가 자동으로 비밀번호를 bcrypt로 해시 처리합니다
- * - 비밀번호는 절대 평문으로 저장되지 않습니다
- * - 비밀번호 검증은 서버 사이드에서도 수행합니다
+ * @swagger
+ * /api/auth/signup:
+ *   post:
+ *     summary: 회원가입
+ *     description: |
+ *       새로운 사용자를 등록합니다. 
+ *       - Supabase Auth가 자동으로 비밀번호를 bcrypt로 해시 처리합니다
+ *       - 비밀번호는 절대 평문으로 저장되지 않습니다
+ *       - 비밀번호 검증은 서버 사이드에서도 수행합니다
+ *     tags:
+ *       - Authentication
+ *     security: []  # 인증 불필요
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *                 description: 사용자 이메일 주소
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: Password123!
+ *                 description: 비밀번호 (최소 8자, 대소문자, 숫자, 특수문자 포함)
+ *               name:
+ *                 type: string
+ *                 example: 홍길동
+ *                 description: 사용자 이름
+ *     responses:
+ *       201:
+ *         description: 회원가입 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 회원가입이 완료되었습니다.
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                     name:
+ *                       type: string
+ *       400:
+ *         description: 입력값 오류 (이메일 형식, 비밀번호 강도 등)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Error'
+ *                 - type: object
+ *                   properties:
+ *                     details:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       description: 비밀번호 검증 상세 오류 (비밀번호 강도 검증 실패 시)
+ *             examples:
+ *               missingFields:
+ *                 value:
+ *                   error: 이메일, 비밀번호, 이름은 필수입니다.
+ *               invalidEmail:
+ *                 value:
+ *                   error: 올바른 이메일 형식이 아닙니다.
+ *               weakPassword:
+ *                 value:
+ *                   error: 비밀번호가 요구사항을 만족하지 않습니다.
+ *                   details: ["비밀번호는 최소 8자 이상이어야 합니다.", "대문자, 소문자, 숫자, 특수문자를 포함해야 합니다."]
+ *       409:
+ *         description: 이메일 중복
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: 이미 사용 중인 이메일입니다.
+ *       429:
+ *         description: Rate Limit (이메일 전송 제한)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Error'
+ *                 - type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: RATE_LIMIT
+ *                     retryAfter:
+ *                       type: integer
+ *                       example: 8
+ *             example:
+ *               error: 보안을 위해 잠시 후 다시 시도해주세요. (최소 8초 대기)
+ *               code: RATE_LIMIT
+ *               retryAfter: 8
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function POST(request: Request) {
   try {

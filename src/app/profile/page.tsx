@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@hua-labs/ui";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { PasswordChangeForm } from "@/components/profile/PasswordChangeForm";
+import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -66,6 +67,11 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* 계정 삭제 섹션 */}
+        <div className="mt-6">
+          <DeleteAccountSection />
+        </div>
         </div>
       </SectionErrorBoundary>
     </AppLayout>

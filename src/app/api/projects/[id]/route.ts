@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Project } from "@/types";
+import type { Project, CustomStatus, WipLimits } from "@/types";
 
 function mapProjectRowToProject(row: any, isFavorite: boolean): Project {
   return {
@@ -10,6 +10,8 @@ function mapProjectRowToProject(row: any, isFavorite: boolean): Project {
     teamId: row.team_id,
     isArchived: row.is_archived ?? false,
     isFavorite,
+    customStatuses: row.custom_statuses ? (row.custom_statuses as CustomStatus[]) : undefined,
+    wipLimits: row.wip_limits ? (row.wip_limits as WipLimits) : undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -35,6 +37,7 @@ export async function GET(
       .from("projects")
       .select("*")
       .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 프로젝트만 조회
       .single();
 
     if (error || !data) {
@@ -52,7 +55,38 @@ export async function GET(
       .eq("project_id", id);
 
     const isFavorite = (favoriteRows?.length ?? 0) > 0;
+
+    // 커스텀 상태 조회
+    const { data: customStatusRows } = await supabase
+      .from("custom_statuses")
+      .select("*")
+      .eq("project_id", id)
+      .order("position", { ascending: true });
+
+    const customStatuses: CustomStatus[] = (customStatusRows || []).map((row: any) => ({
+      id: row.id,
+      projectId: row.project_id,
+      name: row.name,
+      color: row.color ?? undefined,
+      position: row.position,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+
+    // WIP Limit 조회
+    const { data: wipLimitRows } = await supabase
+      .from("project_wip_limits")
+      .select("*")
+      .eq("project_id", id);
+
+    const wipLimits: WipLimits = {};
+    (wipLimitRows || []).forEach((row: any) => {
+      wipLimits[row.status] = row.wip_limit;
+    });
+
     const project = mapProjectRowToProject(data, isFavorite);
+    project.customStatuses = customStatuses.length > 0 ? customStatuses : undefined;
+    project.wipLimits = Object.keys(wipLimits).length > 0 ? wipLimits : undefined;
 
     return NextResponse.json(project);
   } catch (error) {
@@ -102,6 +136,7 @@ export async function PUT(
         .from("projects")
         .update(updates)
         .eq("id", id)
+        .is("deleted_at", null) // Soft Delete: 삭제되지 않은 프로젝트만 수정 가능
         .select("*")
         .single();
 
@@ -120,6 +155,7 @@ export async function PUT(
         .from("projects")
         .select("*")
         .eq("id", id)
+        .is("deleted_at", null) // Soft Delete: 삭제되지 않은 프로젝트만 조회
         .single();
 
       if (error || !data) {
@@ -194,6 +230,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 프로젝트 정보 조회 (활동 로그용)
+    const { data: projectData } = await supabase
+      .from("projects")
+      .select("name, team_id")
+      .eq("id", id)
+      .is("deleted_at", null) // Soft Delete: 삭제되지 않은 프로젝트만 조회
+      .single();
+
     // Soft delete: archived + deleted_at 설정
     const { error } = await supabase
       .from("projects")
@@ -208,6 +252,18 @@ export async function DELETE(
       return NextResponse.json(
         { error: "Failed to delete project" },
         { status }
+      );
+    }
+
+    // 프로젝트 삭제 활동 로그 기록
+    if (projectData?.team_id) {
+      const { logTeamActivity, createActivityDescription } = await import("@/lib/utils/team-activity");
+      await logTeamActivity(
+        projectData.team_id,
+        user.id,
+        "PROJECT_DELETED",
+        id,
+        createActivityDescription("PROJECT_DELETED", { projectName: projectData.name || "알 수 없음" })
       );
     }
 

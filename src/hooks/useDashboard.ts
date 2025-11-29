@@ -8,6 +8,8 @@ export interface DashboardStats {
   totalIssues: number;
   openIssues: number;
   completedIssues: number;
+  issuesByStatus?: Record<string, number>;
+  issuesByPriority?: Record<string, number>;
 }
 
 export interface ActivityItem {

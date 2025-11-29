@@ -5,6 +5,7 @@ import { PasswordInput } from "@/components/auth";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { useToast } from "@hua-labs/ui";
+import { apiClient } from "@/lib/api/client";
 
 export function PasswordChangeForm() {
   const { addToast } = useToast();
@@ -71,11 +72,10 @@ export function PasswordChangeForm() {
     setIsSubmitting(true);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.put("/users/password", {
-      //   currentPassword: formData.currentPassword,
-      //   newPassword: formData.newPassword,
-      // });
+      await apiClient.put("/api/users/me/password", {
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      });
 
       addToast({
         title: "성공",
@@ -118,7 +118,7 @@ export function PasswordChangeForm() {
           placeholder="현재 비밀번호를 입력하세요"
         />
         {errors.currentPassword && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.currentPassword}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.currentPassword}</p>
         )}
       </div>
 
@@ -138,7 +138,7 @@ export function PasswordChangeForm() {
           placeholder="새 비밀번호를 입력하세요 (8자 이상)"
         />
         {errors.newPassword && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.newPassword}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.newPassword}</p>
         )}
       </div>
 
@@ -158,7 +158,7 @@ export function PasswordChangeForm() {
           placeholder="새 비밀번호를 다시 입력하세요"
         />
         {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{errors.confirmPassword}</p>
         )}
       </div>
 

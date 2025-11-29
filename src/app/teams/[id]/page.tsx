@@ -14,6 +14,8 @@ import { useAuthStore } from "@/store/auth-store";
 import { useToast } from "@hua-labs/ui";
 
 const InviteMemberForm = dynamic(() => import("@/components/team").then((mod) => ({ default: mod.InviteMemberForm })));
+const TeamActivityLog = dynamic(() => import("@/components/team").then((mod) => ({ default: mod.TeamActivityLog })));
+const TeamStats = dynamic(() => import("@/components/team").then((mod) => ({ default: mod.TeamStats })));
 
 export default function TeamDetailPage({
   params,
@@ -131,6 +133,16 @@ export default function TeamDetailPage({
               onRoleChange={handleRoleChange}
               onRemoveMember={handleRemoveMember}
             />
+
+            {/* 팀 통계 */}
+            <SectionErrorBoundary sectionName="팀 통계">
+              <TeamStats teamId={team.id} />
+            </SectionErrorBoundary>
+
+            {/* 활동 로그 */}
+            <SectionErrorBoundary sectionName="활동 로그">
+              <TeamActivityLog teamId={team.id} />
+            </SectionErrorBoundary>
           </div>
 
           {/* 사이드바 */}

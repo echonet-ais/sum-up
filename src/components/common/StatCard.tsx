@@ -35,9 +35,9 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
     const variantStyles = {
       default: "border-[var(--border-subtle)] bg-[var(--surface)]",
       primary: "border-[var(--brand-primary)] bg-[var(--surface)]",
-      success: "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950",
-      warning: "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950",
-      danger: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950",
+      success: "border-[var(--color-success-border)] bg-[var(--color-success-subtle)]",
+      warning: "border-[var(--color-warning-border)] bg-[var(--color-warning-subtle)]",
+      danger: "border-[var(--color-error-border)] bg-[var(--color-error-subtle)]",
     };
 
     return (
@@ -64,8 +64,8 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
                   className={cn(
                     "text-xs mt-1 flex items-center gap-1",
                     trend.isPositive
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? "text-[var(--color-success)]"
+                      : "text-[var(--color-error)]"
                   )}
                 >
                   <Icon

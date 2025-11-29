@@ -74,7 +74,7 @@ function RegisterPageContent() {
               </div>
 
               {error && (
-                <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                <div className="rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)] p-3 text-sm text-[var(--color-error)]">
                   {error}
                 </div>
               )}
@@ -147,7 +147,7 @@ function RegisterPageContent() {
                     {passwordValidation.errors.map((error, i) => (
                       <p
                         key={i}
-                        className="text-red-600 dark:text-red-400"
+                        className="text-[var(--color-error)]"
                       >
                         {error}
                       </p>
@@ -156,7 +156,7 @@ function RegisterPageContent() {
                 )}
 
               {error && (
-                <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                <div className="rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)] p-3 text-sm text-[var(--color-error)]">
                   {error}
                 </div>
               )}
@@ -213,7 +213,7 @@ function RegisterPageContent() {
               </div>
 
               {error && (
-                <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                <div className="rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)] p-3 text-sm text-[var(--color-error)]">
                   {error}
                 </div>
               )}
@@ -260,13 +260,13 @@ function RegisterPageContent() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4 sm:p-6">
         <Card className="w-full max-w-md rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] text-white">
             <span className="text-xl font-semibold">S</span>
           </div>
-          <CardTitle className="text-2xl">SumUp 회원가입</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">SumUp 회원가입</CardTitle>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
             이미 계정이 있으신가요?{" "}
             <Link
@@ -294,6 +294,10 @@ function RegisterPageContent() {
               </div>
 
               <div className="space-y-2">
+                <OAuthButton
+                  provider="google"
+                  onError={(error) => setError(error.message)}
+                />
                 <OAuthButton
                   provider="kakao"
                   onError={(error) => setError(error.message)}

@@ -30,7 +30,7 @@ const LoadingState = React.forwardRef<HTMLDivElement, LoadingStateProps>(
       >
         <LoadingSpinner className={sizeClasses[size]} />
         {message && (
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-sm text-[var(--text-muted)]">
             {message}
           </p>
         )}

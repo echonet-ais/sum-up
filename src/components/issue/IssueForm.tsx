@@ -10,7 +10,7 @@ import { useToast } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import Link from "next/link";
-import type { IssueStatus, IssuePriority } from "@/types";
+import type { IssueStatus, IssuePriority, CustomStatus } from "@/types";
 import { IssueFormFields, type IssueFormData } from "./IssueFormFields";
 import { FormActions } from "@/components/common";
 
@@ -42,6 +42,7 @@ export function IssueForm({
   const isEditMode = !!issueId;
   const [duplicateIssues, setDuplicateIssues] = React.useState<Array<{ id: string; title: string }>>([]);
   const [showDuplicates, setShowDuplicates] = React.useState(false);
+  const [customStatuses, setCustomStatuses] = React.useState<CustomStatus[]>([]);
 
   const [formData, setFormData] = React.useState<IssueFormData>(() => {
     if (isEditMode && issue) {
@@ -60,7 +61,7 @@ export function IssueForm({
     return {
       title: initialData?.title || "",
       description: initialData?.description || "",
-      status: (initialData?.status as IssueStatus) || "TODO",
+      status: (initialData?.status as IssueStatus | string) || "TODO",
       priority: (initialData?.priority as IssuePriority) || "MEDIUM",
       projectId: initialData?.projectId || "",
       assigneeId: initialData?.assigneeId,
@@ -190,6 +191,29 @@ export function IssueForm({
     }
   };
 
+  // 프로젝트 선택 시 커스텀 상태 가져오기
+  React.useEffect(() => {
+    async function fetchCustomStatuses() {
+      if (!formData.projectId) {
+        setCustomStatuses([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/projects/${formData.projectId}/custom-statuses`);
+        if (response.ok) {
+          const data = await response.json();
+          setCustomStatuses(data.data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching custom statuses:", err);
+        setCustomStatuses([]);
+      }
+    }
+
+    fetchCustomStatuses();
+  }, [formData.projectId]);
+
   // AI 자동 분류 이벤트 리스너
   React.useEffect(() => {
     const handleAIAutoLabel = (event: Event) => {
@@ -274,10 +298,10 @@ export function IssueForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 중복 이슈 경고 */}
       {showDuplicates && duplicateIssues.length > 0 && !isEditMode && (
-        <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+        <div className="p-4 rounded-lg bg-[var(--color-warning-subtle)] border border-[var(--color-warning)]">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+              <h4 className="text-sm font-medium text-[var(--color-warning)] mb-2">
                 ⚠️ 유사한 이슈가 발견되었습니다
               </h4>
               <ul className="space-y-1">
@@ -285,7 +309,7 @@ export function IssueForm({
                   <li key={dup.id}>
                     <Link
                       href={`/issues/${dup.id}`}
-                      className="text-sm text-yellow-700 dark:text-yellow-300 hover:underline"
+                      className="text-sm text-[var(--color-warning)] hover:underline"
                       target="_blank"
                     >
                       • {dup.title}
@@ -297,7 +321,7 @@ export function IssueForm({
             <button
               type="button"
               onClick={() => setShowDuplicates(false)}
-              className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200"
+              className="text-[var(--color-warning)] hover:text-[var(--color-warning-hover)] transition-colors"
             >
               <Icon name="x" size={16} />
             </button>
@@ -313,6 +337,7 @@ export function IssueForm({
         projects={projects}
         users={users}
         labels={labels}
+        customStatuses={customStatuses}
       />
       <FormActions
         isSubmitting={isSubmitting}

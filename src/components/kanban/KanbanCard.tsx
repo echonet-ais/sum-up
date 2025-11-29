@@ -66,7 +66,7 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
       >
         <CardContent className="p-3 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h4 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">
+            <h4 className="font-semibold text-sm text-[var(--text-strong)] line-clamp-2">
               {title}
             </h4>
             {priority && (
@@ -81,7 +81,7 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
           </div>
 
           {description && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+            <p className="text-xs text-[var(--text-muted)] line-clamp-2">
               {description}
             </p>
           )}
@@ -107,7 +107,7 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
           )}
 
           {subtaskProgress && subtaskProgress.total > 0 && (
-            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <Icon name="checkSquare" className="h-3 w-3" />
               <span>
                 {subtaskProgress.completed}/{subtaskProgress.total}
@@ -126,7 +126,7 @@ const KanbanCard = React.forwardRef<HTMLDivElement, KanbanCardProps>(
               <div
                 className={cn(
                   "flex items-center gap-1 text-xs",
-                  isOverdue ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"
+                  isOverdue ? "text-[var(--color-error)]" : "text-[var(--text-muted)]"
                 )}
               >
                 <Icon name="calendar" className="h-3 w-3" />

@@ -17,17 +17,17 @@ const providerConfig = {
   google: {
     label: "Google로 계속하기",
     icon: "chrome" as const,
-    color: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300",
+    color: "bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-[var(--text-strong)] border border-[var(--border-subtle)]",
   },
   github: {
     label: "GitHub로 계속하기",
     icon: "github" as const,
-    color: "bg-gray-900 hover:bg-gray-800 text-white",
+    color: "bg-[var(--surface-dark)] hover:bg-[var(--surface-dark-hover)] text-white",
   },
   kakao: {
     label: "카카오로 계속하기",
     icon: "message" as const,
-    color: "bg-yellow-400 hover:bg-yellow-500 text-gray-900",
+    color: "bg-[#FEE500] hover:bg-[#FEE500]/90 text-[#000000] dark:text-[#000000]", // 카카오 브랜드 컬러 유지 (다크모드에서도 검정 텍스트)
   },
 };
 

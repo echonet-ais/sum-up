@@ -114,7 +114,7 @@ export function IssueAttachments({
                   variant="ghost"
                   size="sm"
                   onClick={() => onDelete(attachment.id)}
-                  className="h-8 text-red-600 hover:text-red-700"
+                  className="h-8 text-[var(--color-error)] hover:text-[var(--color-error-hover)] transition-colors"
                 >
                   <Icon name="trash" size={16} />
                 </Button>

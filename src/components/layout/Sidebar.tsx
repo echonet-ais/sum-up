@@ -42,7 +42,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           aria-label="사이드바 네비게이션"
           className={cn(
             "fixed lg:sticky top-0 left-0 z-50 h-screen",
-            "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
+            "bg-[var(--surface)] border-r border-[var(--border-subtle)]",
             "transition-transform duration-300 ease-in-out",
             isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
             "w-64 flex flex-col",
@@ -50,8 +50,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           )}
           {...props}
         >
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-[var(--text-strong)]">
               메뉴
             </h2>
             <Button
@@ -75,8 +75,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
+                          ? "bg-[var(--brand-primary-subtle)] text-[var(--brand-primary)]"
+                          : "text-[var(--text-strong)] hover:bg-[var(--surface-muted)]",
                         className
                       )}
                       onClick={onClose}
@@ -84,7 +84,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                       <Icon name={item.icon} className="h-5 w-5" />
                       <span className="flex-1">{item.label}</span>
                       {item.badge && item.badge > 0 && (
-                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+                        <span className="bg-[var(--brand-primary-subtle)] text-[var(--brand-primary)] text-xs font-semibold px-2 py-0.5 rounded-full">
                           {item.badge > 9 ? "9+" : item.badge}
                         </span>
                       )}

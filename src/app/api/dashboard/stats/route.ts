@@ -41,11 +41,35 @@ export async function GET(request: NextRequest) {
       .is("deleted_at", null)
       .eq("status", "DONE");
 
+    // 상태별 이슈 분포
+    const { data: issuesByStatus } = await supabase
+      .from("issues")
+      .select("status")
+      .is("deleted_at", null);
+
+    const statusCounts: Record<string, number> = {};
+    (issuesByStatus || []).forEach((issue) => {
+      statusCounts[issue.status] = (statusCounts[issue.status] || 0) + 1;
+    });
+
+    // 우선순위별 이슈 분포
+    const { data: issuesByPriority } = await supabase
+      .from("issues")
+      .select("priority")
+      .is("deleted_at", null);
+
+    const priorityCounts: Record<string, number> = {};
+    (issuesByPriority || []).forEach((issue) => {
+      priorityCounts[issue.priority] = (priorityCounts[issue.priority] || 0) + 1;
+    });
+
     return NextResponse.json({
       totalProjects: totalProjects ?? 0,
       totalIssues: totalIssues ?? 0,
       openIssues: openIssues ?? 0,
       completedIssues: completedIssues ?? 0,
+      issuesByStatus: statusCounts,
+      issuesByPriority: priorityCounts,
     });
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);

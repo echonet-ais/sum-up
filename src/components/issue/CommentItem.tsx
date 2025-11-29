@@ -110,7 +110,7 @@ const CommentItem = React.forwardRef<HTMLDivElement, CommentItemProps>(
                           size="sm"
                           onClick={() => setShowDeleteConfirm(true)}
                           disabled={isDeleting}
-                          className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                          className="h-8 px-2 text-[var(--color-error)] hover:text-[var(--color-error-hover)] transition-colors"
                         >
                           <Icon name="trash" size={14} />
                         </Button>

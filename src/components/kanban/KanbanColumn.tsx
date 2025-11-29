@@ -46,7 +46,7 @@ const KanbanColumn = React.forwardRef<HTMLDivElement, KanbanColumnProps>(
             className={cn(
               "pb-3 border-b",
               color && `border-l-4`,
-              isWipExceeded && "bg-red-50 dark:bg-red-900/10"
+              isWipExceeded && "bg-[var(--color-error-subtle)]"
             )}
             style={color ? { borderLeftColor: color } : undefined}
           >
@@ -76,7 +76,7 @@ const KanbanColumn = React.forwardRef<HTMLDivElement, KanbanColumnProps>(
               ))}
             </SortableContext>
             {cards.length === 0 && (
-              <div className="text-center text-sm text-gray-400 dark:text-gray-500 py-8">
+              <div className="text-center text-sm text-[var(--text-muted)] py-8">
                 카드가 없습니다
               </div>
             )}
