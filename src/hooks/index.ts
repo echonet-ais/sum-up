@@ -9,4 +9,8 @@ export { useToast } from "./useToast";
 export { useDeleteDialog } from "./useDeleteDialog";
 export type { UseDeleteDialogOptions } from "./useDeleteDialog";
 export { useSearch, type SearchResult, type UseSearchOptions, type UseSearchReturn } from "./useSearch";
+export { useFormValidation, type UseFormValidationOptions, type UseFormValidationReturn } from "./useFormValidation";
+export { useScrollDetection } from "./useScrollDetection";
+export { useTermsSteps } from "./useTermsSteps";
+export { useDashboard, type DashboardStats, type ActivityItem, type UseDashboardReturn } from "./useDashboard";
 

@@ -10,14 +10,18 @@ import { Label } from "@hua-labs/ui";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordChecklist } from "@/components/auth/PasswordChecklist";
 import { OAuthButton } from "@/components/auth/OAuthButton";
+import { TermsModal } from "@/components/auth/TermsModal";
 import { useRegisterForm } from "@/hooks/useRegisterForm";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import { useAuthStore } from "@/store/auth-store";
+import { ErrorBoundary } from "@/components/common";
+import { AppLayout } from "@/components/layout";
 import Link from "next/link";
 
 function RegisterPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const {
     currentStep,
@@ -37,22 +41,12 @@ function RegisterPageContent() {
     confirmPassword: formData.confirmPassword,
   });
 
-  const { loginWithOAuth } = useAuthStore();
+  // OAuth는 리다이렉트 방식이므로 스토어 사용 불필요
 
-  // OAuth 성공 핸들러
-  const handleOAuthSuccess = async (
-    provider: "google" | "github" | "kakao",
-    token: string
-  ) => {
-    try {
-      await loginWithOAuth(provider, token);
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "OAuth 로그인에 실패했습니다"
-      );
-    }
+  // OAuth는 리다이렉트 방식이므로 onSuccess 핸들러가 필요 없음
+  // 콜백에서 자동으로 처리됨
+  const handleOAuthError = (error: Error) => {
+    setError(error.message || "OAuth 로그인에 실패했습니다");
   };
 
   // Step별 렌더링
@@ -207,12 +201,13 @@ function RegisterPageContent() {
                   htmlFor="agreeToTerms"
                   className="text-sm text-[var(--text-strong)] cursor-pointer"
                 >
-                  <Link
-                    href="/terms"
+                  <button
+                    type="button"
+                    onClick={() => setShowTermsModal(true)}
                     className="text-[var(--brand-primary)] hover:underline"
                   >
                     이용약관
-                  </Link>
+                  </button>
                   에 동의합니다.
                 </label>
               </div>
@@ -254,7 +249,10 @@ function RegisterPageContent() {
               회원가입 완료!
             </h3>
             <p className="text-[var(--text-muted)]">
-              잠시 후 로그인 페이지로 이동합니다...
+              이메일 인증 페이지로 이동합니다...
+            </p>
+            <p className="text-sm text-[var(--text-muted)]">
+              이메일을 확인하여 인증을 완료해주세요.
             </p>
           </div>
         );
@@ -263,7 +261,7 @@ function RegisterPageContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
-      <Card className="w-full max-w-md rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
+        <Card className="w-full max-w-md rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] text-white">
             <span className="text-xl font-semibold">S</span>
@@ -297,18 +295,7 @@ function RegisterPageContent() {
 
               <div className="space-y-2">
                 <OAuthButton
-                  provider="google"
-                  onSuccess={(token) => handleOAuthSuccess("google", token)}
-                  onError={(error) => setError(error.message)}
-                />
-                <OAuthButton
-                  provider="github"
-                  onSuccess={(token) => handleOAuthSuccess("github", token)}
-                  onError={(error) => setError(error.message)}
-                />
-                <OAuthButton
                   provider="kakao"
-                  onSuccess={(token) => handleOAuthSuccess("kakao", token)}
                   onError={(error) => setError(error.message)}
                 />
               </div>
@@ -316,7 +303,38 @@ function RegisterPageContent() {
           )}
         </CardContent>
       </Card>
-    </div>
+
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onAgree={() => {
+          updateFormData({ agreeToTerms: true });
+          setShowTermsModal(false);
+        }}
+      />
+      </div>
+  );
+}
+
+function RegisterPageWrapper() {
+  const { isAuthenticated } = useAuthStore();
+
+  // 로그인되어 있으면 AppLayout으로 감싸기
+  if (isAuthenticated) {
+    return (
+      <AppLayout>
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+          <RegisterPageContent />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // 로그인 안 되어 있으면 독립적으로 렌더링
+  return (
+    <ErrorBoundary>
+      <RegisterPageContent />
+    </ErrorBoundary>
   );
 }
 
@@ -332,7 +350,7 @@ export default function RegisterPage() {
         </div>
       }
     >
-      <RegisterPageContent />
+      <RegisterPageWrapper />
     </Suspense>
   );
 }
