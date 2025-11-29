@@ -6,7 +6,7 @@ import { DetailPageLayout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
-import { EmptyState } from "@/components/common";
+import { EmptyState, SectionErrorBoundary } from "@/components/common";
 import { TeamMemberList } from "@/components/team";
 import { FormDrawer, MetaInfoCard } from "@/components/common";
 import { useTeam } from "@/hooks/useTeam";
@@ -96,8 +96,8 @@ export default function TeamDetailPage({
       backLabel="팀 목록으로"
       actions={headerActions}
     >
-
-      {team && (
+      <SectionErrorBoundary sectionName="팀 상세">
+        {team && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* 메인 콘텐츠 */}
           <div className="lg:col-span-2 space-y-6">
@@ -150,7 +150,8 @@ export default function TeamDetailPage({
             />
           </div>
         </div>
-      )}
+        )}
+      </SectionErrorBoundary>
 
       {/* 멤버 초대 Drawer */}
       <FormDrawer

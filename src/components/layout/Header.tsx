@@ -1,20 +1,20 @@
 "use client";
 
 import * as React from "react";
+import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
-import { Dropdown, DropdownMenu, DropdownItem } from "@hua-labs/ui";
-import { Badge } from "@hua-labs/ui";
 import dynamic from "next/dynamic";
 import { NotificationDropdown } from "@/components/notification";
 import { useAuthStore } from "@/store/auth-store";
 import Link from "next/link";
 import Image from "next/image";
+import { UserPopover } from "./UserPopover";
+import { cn } from "../../lib/utils";
 
 const GlobalSearch = dynamic(() => import("@/components/search").then((mod) => ({ default: mod.GlobalSearch })));
 import { useRouter } from "next/navigation";
-import { cn } from "../../lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   user?: {
@@ -41,6 +41,25 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
     const router = useRouter();
     const { user: storeUser, logout } = useAuthStore();
     const user = propUser || storeUser;
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const popoverRef = useRef<HTMLDivElement>(null);
+    
+    // 팝오버 외부 클릭 감지
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+          setIsPopoverOpen(false);
+        }
+      };
+
+      if (isPopoverOpen) {
+        document.addEventListener("mousedown", handleClickOutside);
+      }
+
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [isPopoverOpen]);
     
     const handleLogout = () => {
       if (propOnLogout) {
@@ -73,40 +92,31 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
             <NotificationDropdown />
 
             {user && (
-              <Dropdown
-                trigger={
-                  <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <Avatar>
-                      {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  </button>
-                }
-                align="end"
-              >
-                <DropdownMenu className="w-56">
-                  <div className="px-2 py-1.5 border-b border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                  </div>
-                  <DropdownItem
-                    onClick={() => {
-                      if (onProfileClick) {
-                        onProfileClick();
-                      } else {
-                        router.push("/profile");
-                      }
-                    }}
-                  >
-                    <Icon name="user" className="mr-2 h-4 w-4" />
-                    프로필
-                  </DropdownItem>
-                  <DropdownItem onClick={handleLogout}>
-                    <Icon name="logOut" className="mr-2 h-4 w-4" />
-                    로그아웃
-                  </DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
+              <div className="relative" ref={popoverRef}>
+                <button
+                  onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg",
+                    "focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-2",
+                    "transition-colors",
+                    isPopoverOpen && "ring-2 ring-[var(--brand-primary)]"
+                  )}
+                  aria-label="사용자 메뉴"
+                  aria-expanded={isPopoverOpen}
+                >
+                  <Avatar>
+                    {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </button>
+                {isPopoverOpen && (
+                  <UserPopover
+                    user={user}
+                    onClose={() => setIsPopoverOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>

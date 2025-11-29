@@ -4,10 +4,18 @@ import React from "react";
 import { DashboardSidebar, DashboardSidebarSection } from "@hua-labs/ui";
 import { useUIStore } from "../../store/ui-store";
 import { useAuthStore } from "../../store/auth-store";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@hua-labs/ui";
-import { Header } from "./Header";
 import Link from "next/link";
+import { ScrollToTop, SectionErrorBoundary } from "../common";
+import dynamic from "next/dynamic";
+import { NotificationDropdown } from "@/components/notification";
+import { UserPopover } from "./UserPopover";
+import { Avatar, AvatarImage, AvatarFallback } from "@hua-labs/ui";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
+
+const GlobalSearch = dynamic(() => import("@/components/search").then((mod) => ({ default: mod.GlobalSearch })));
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -93,10 +101,13 @@ export function AppLayout({
 }: AppLayoutProps) {
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // 현재 경로에 따라 활성 상태 업데이트
-  const sectionsWithActive = navigationSections.map((section) => ({
+  const sectionsWithActive = navigationSections.map((section => ({
     ...section,
     items: section.items.map((item) => ({
       ...item,
@@ -104,7 +115,29 @@ export function AppLayout({
         ? item.id === activeItem 
         : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href || "")),
     })),
-  }));
+  })));
+
+  // 팝오버 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        setIsPopoverOpen(false);
+      }
+    };
+
+    if (isPopoverOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPopoverOpen]);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[var(--background)]">
@@ -128,14 +161,14 @@ export function AppLayout({
         className="border-r border-[var(--border-subtle)] bg-[var(--surface)]"
       />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex h-16 items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface)] px-6">
+        <header className="flex h-16 items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface)] px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={toggleSidebar}
               className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--surface-muted)] transition-colors"
               aria-label="Toggle sidebar"
             >
-              <Icon name="menu" size={20} />
+              <Icon name="menu" size={20} provider="phosphor" />
             </button>
             {title && (
               <div>
@@ -146,10 +179,45 @@ export function AppLayout({
               </div>
             )}
           </div>
-          <Header user={user || undefined} />
-        </div>
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          
+          <div className="flex items-center gap-2">
+            <GlobalSearch />
+            <NotificationDropdown />
+
+            {user && (
+              <div className="relative" ref={popoverRef}>
+                <button
+                  onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg",
+                    "focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-2",
+                    "transition-colors",
+                    isPopoverOpen && "ring-2 ring-[var(--brand-primary)]"
+                  )}
+                  aria-label="사용자 메뉴"
+                  aria-expanded={isPopoverOpen}
+                >
+                  <Avatar>
+                    {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </button>
+                {isPopoverOpen && (
+                  <UserPopover
+                    user={user}
+                    onClose={() => setIsPopoverOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </header>
+        <SectionErrorBoundary sectionName="메인 콘텐츠">
+          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        </SectionErrorBoundary>
       </div>
+      <ScrollToTop />
     </div>
   );
 }

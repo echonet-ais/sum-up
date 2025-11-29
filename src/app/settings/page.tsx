@@ -7,6 +7,7 @@ import { ThemeSection } from "@/components/settings/ThemeSection";
 import { LivePreview } from "@/components/settings/LivePreview";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AccessibilitySection } from "@/components/settings/AccessibilitySection";
+import { SectionErrorBoundary } from "@/components/common";
 
 export default function SettingsPage() {
   const {
@@ -26,7 +27,8 @@ export default function SettingsPage() {
 
   return (
     <AppLayout title="설정" description="애플리케이션 설정을 관리하세요" activeItem="settings">
-      <div className="flex flex-col gap-6">
+      <SectionErrorBoundary sectionName="설정 페이지">
+        <div className="flex flex-col gap-6">
         {/* 테마 & 타이포그래피 섹션 */}
         <section className="grid gap-6 lg:grid-cols-3">
           <ThemeSection
@@ -60,7 +62,8 @@ export default function SettingsPage() {
             onToggleReducedMotion={toggleReducedMotion}
           />
         </section>
-      </div>
+        </div>
+      </SectionErrorBoundary>
     </AppLayout>
   );
 }

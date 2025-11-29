@@ -8,12 +8,13 @@ import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { OAuthButton, PasswordInput } from "@/components/auth";
 import { useAuthStore } from "@/store/auth-store";
-import { ErrorState } from "@/components/common";
+import { ErrorState, ErrorBoundary } from "@/components/common";
+import { AppLayout } from "@/components/layout";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const { login, loginWithOAuth, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, error, clearError } = useAuthStore();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,21 +34,17 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthSuccess = async (provider: "google" | "github" | "kakao", token: string) => {
-    try {
-      await loginWithOAuth(provider, token);
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      setLocalError(error instanceof Error ? error.message : "OAuth 로그인에 실패했습니다");
-    }
+  // OAuth는 리다이렉트 방식이므로 onSuccess 핸들러가 필요 없음
+  // 콜백에서 자동으로 처리됨
+  const handleOAuthError = (error: Error) => {
+    setLocalError(error.message || "OAuth 로그인에 실패했습니다");
   };
 
   const displayError = error || localError;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
-      <Card className="w-full max-w-md rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
+        <Card className="w-full max-w-md rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] text-white">
             <span className="text-xl font-semibold">L</span>
@@ -139,24 +136,35 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <OAuthButton
-              provider="google"
-              onSuccess={(token) => handleOAuthSuccess("google", token)}
-              onError={(error) => setLocalError(error.message)}
-            />
-            <OAuthButton
-              provider="github"
-              onSuccess={(token) => handleOAuthSuccess("github", token)}
-              onError={(error) => setLocalError(error.message)}
-            />
-            <OAuthButton
               provider="kakao"
-              onSuccess={(token) => handleOAuthSuccess("kakao", token)}
               onError={(error) => setLocalError(error.message)}
             />
           </div>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+  );
+}
+
+export default function LoginPage() {
+  const { isAuthenticated } = useAuthStore();
+
+  // 로그인되어 있으면 AppLayout으로 감싸기
+  if (isAuthenticated) {
+    return (
+      <AppLayout>
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+          <LoginForm />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // 로그인 안 되어 있으면 독립적으로 렌더링
+  return (
+    <ErrorBoundary>
+      <LoginForm />
+    </ErrorBoundary>
   );
 }
 

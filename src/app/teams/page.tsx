@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Input } from "@hua-labs/ui";
-import { EmptyState, LoadingState, ErrorState, FormDrawer } from "@/components/common";
+import { EmptyState, LoadingState, ErrorState, FormDrawer, SectionErrorBoundary } from "@/components/common";
 import { TeamCard, TeamForm } from "@/components/team";
 import { useTeams } from "@/hooks/useTeams";
 import Link from "next/link";
@@ -49,7 +49,8 @@ export default function TeamsPage() {
       description="팀을 관리하고 멤버를 초대하세요"
       activeItem="teams"
     >
-      <div className="flex flex-col gap-6">
+      <SectionErrorBoundary sectionName="팀 페이지">
+        <div className="flex flex-col gap-6">
         {/* 필터 및 검색 */}
         <Card className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
           <CardContent className="p-4">
@@ -106,7 +107,8 @@ export default function TeamsPage() {
             </div>
           )}
         </div>
-      </div>
+        </div>
+      </SectionErrorBoundary>
 
       {/* 팀 생성 Drawer */}
       <FormDrawer

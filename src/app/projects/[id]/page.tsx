@@ -9,7 +9,7 @@ import { Badge } from "@hua-labs/ui";
 import { Icon } from "@hua-labs/ui";
 import { Button } from "@hua-labs/ui";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@hua-labs/ui";
-import { EmptyState, ErrorState, LoadingState, ConfirmDialog, StatCard, FormDrawer, MetaInfoCard } from "@/components/common";
+import { EmptyState, ErrorState, LoadingState, ConfirmDialog, StatCard, FormDrawer, MetaInfoCard, SectionErrorBoundary } from "@/components/common";
 import { useProject } from "@/hooks/useProject";
 import { useDeleteDialog } from "@/hooks";
 import { useRouter } from "next/navigation";
@@ -73,7 +73,8 @@ export default function ProjectDetailPage({
       backLabel="프로젝트 목록으로"
       actions={actions}
     >
-      {project && (
+      <SectionErrorBoundary sectionName="프로젝트 상세">
+        {project && (
         <>
           {/* 통계 */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -165,7 +166,8 @@ export default function ProjectDetailPage({
           </TabsContent>
         </Tabs>
         </>
-      )}
+        )}
+      </SectionErrorBoundary>
 
       {/* 프로젝트 수정 Drawer */}
       <FormDrawer

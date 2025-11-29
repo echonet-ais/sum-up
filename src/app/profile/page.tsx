@@ -8,6 +8,7 @@ import { PasswordChangeForm } from "@/components/profile/PasswordChangeForm";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { SectionErrorBoundary } from "@/components/common";
 
 export default function ProfilePage() {
   const { user, isAuthenticated } = useAuthStore();
@@ -35,7 +36,8 @@ export default function ProfilePage() {
       description="프로필 정보를 관리하세요"
       activeItem="profile"
     >
-      <div className="flex flex-col gap-6 max-w-4xl">
+      <SectionErrorBoundary sectionName="프로필 페이지">
+        <div className="flex flex-col gap-6 max-w-4xl">
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">프로필 정보</TabsTrigger>
@@ -64,7 +66,8 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
+        </div>
+      </SectionErrorBoundary>
     </AppLayout>
   );
 }
