@@ -35,13 +35,8 @@ export function useNotifications(): UseNotificationsReturn {
     setError(null);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // const response = await apiClient.get<Notification[]>("/notifications");
-      // setNotifications(response);
-
-      // 임시: Mock 데이터
-      const mockNotifications: Notification[] = [];
-      setNotifications(mockNotifications);
+      const response = await apiClient.get<Notification[]>("/api/notifications");
+      setNotifications(response);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("알림을 불러오는데 실패했습니다"));
     } finally {
@@ -51,10 +46,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAsRead = useCallback(async (id: string) => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.put(`/notifications/${id}/read`);
-
-      // 임시: 로컬 상태 업데이트
+      await apiClient.put(`/api/notifications/${id}`);
       setNotifications((prev) =>
         prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
       );
@@ -65,10 +57,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAllAsRead = useCallback(async () => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.put("/notifications/read-all");
-
-      // 임시: 로컬 상태 업데이트
+      await apiClient.put("/api/notifications/read-all");
       setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
     } catch (err) {
       throw err instanceof Error ? err : new Error("모든 알림을 읽음 처리하는데 실패했습니다");
@@ -77,10 +66,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const deleteNotification = useCallback(async (id: string) => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.delete(`/notifications/${id}`);
-
-      // 임시: 로컬 상태 업데이트
+      await apiClient.delete(`/api/notifications/${id}`);
       setNotifications((prev) => prev.filter((notif) => notif.id !== id));
     } catch (err) {
       throw err instanceof Error ? err : new Error("알림을 삭제하는데 실패했습니다");

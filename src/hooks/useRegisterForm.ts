@@ -134,20 +134,13 @@ export function useRegisterForm(options: UseRegisterFormOptions = {}) {
     try {
       await registerUser(formData.email, formData.password);
 
-      // 성공
-      addToast({
-        title: "회원가입 성공",
-        message: "환영합니다! 이제 로그인할 수 있습니다.",
-        type: "success",
-      });
-
+      // 성공 - 이메일 인증 대기 페이지로 이동
       goToStep("complete");
       onSuccess?.();
 
-      // 2초 후 로그인 페이지로 이동
+      // 2초 후 이메일 인증 대기 페이지로 이동
       setTimeout(() => {
-        const callbackUrl = searchParams.get("callbackUrl") || "/";
-        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
       }, 2000);
 
       return true;

@@ -27,12 +27,8 @@ export function useTeam(teamId: string): UseTeamReturn {
     setError(null);
 
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // const response = await apiClient.get<Team>(`/teams/${teamId}`);
-      // setTeam(response);
-
-      // 임시: Mock 데이터
-      setTeam(null);
+      const response = await apiClient.get<Team>(`/api/teams/${teamId}`);
+      setTeam(response);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("팀을 불러오는데 실패했습니다"));
     } finally {
@@ -45,12 +41,8 @@ export function useTeam(teamId: string): UseTeamReturn {
       if (!team) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<Team>(`/teams/${teamId}`, updates);
-        // setTeam(response);
-
-        // 임시: 로컬 상태 업데이트
-        setTeam({ ...team, ...updates, updatedAt: new Date().toISOString() });
+        const response = await apiClient.put<Team>(`/api/teams/${teamId}`, updates);
+        setTeam(response);
       } catch (err) {
         throw err instanceof Error ? err : new Error("팀을 업데이트하는데 실패했습니다");
       }
@@ -60,8 +52,7 @@ export function useTeam(teamId: string): UseTeamReturn {
 
   const deleteTeam = useCallback(async () => {
     try {
-      // TODO: 실제 API 엔드포인트로 교체
-      // await apiClient.delete(`/teams/${teamId}`);
+      await apiClient.delete(`/api/teams/${teamId}`);
       setTeam(null);
     } catch (err) {
       throw err instanceof Error ? err : new Error("팀을 삭제하는데 실패했습니다");
@@ -73,36 +64,11 @@ export function useTeam(teamId: string): UseTeamReturn {
       if (!team) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.post<TeamMember>(`/teams/${teamId}/members`, {
-        //   email,
-        //   role,
-        // });
-        // setTeam({
-        //   ...team,
-        //   members: [...team.members, response],
-        // });
-
-        // 임시: Mock 데이터
-        const { user } = useAuthStore.getState();
-        const newMember: TeamMember = {
-          id: `member-${Date.now()}`,
-          userId: `user-${Date.now()}`,
-          teamId: team.id,
+        await apiClient.post<TeamMember>(`/api/teams/${teamId}/members`, {
+          email,
           role,
-          user: {
-            id: `user-${Date.now()}`,
-            name: email.split("@")[0],
-            email,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          joinedAt: new Date().toISOString(),
-        };
-        setTeam({
-          ...team,
-          members: [...team.members, newMember],
         });
+        await fetchTeam();
       } catch (err) {
         throw err instanceof Error ? err : new Error("멤버를 초대하는데 실패했습니다");
       }
@@ -115,23 +81,11 @@ export function useTeam(teamId: string): UseTeamReturn {
       if (!team) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // const response = await apiClient.put<TeamMember>(
-        //   `/teams/${teamId}/members/${memberId}`,
-        //   { role }
-        // );
-        // setTeam({
-        //   ...team,
-        //   members: team.members.map((m) => (m.id === memberId ? response : m)),
-        // });
-
-        // 임시: 로컬 상태 업데이트
-        setTeam({
-          ...team,
-          members: team.members.map((m) =>
-            m.id === memberId ? { ...m, role } : m
-          ),
-        });
+        await apiClient.put<TeamMember>(
+          `/api/teams/${teamId}/members/${memberId}`,
+          { role }
+        );
+        await fetchTeam();
       } catch (err) {
         throw err instanceof Error ? err : new Error("멤버 역할을 변경하는데 실패했습니다");
       }
@@ -144,18 +98,8 @@ export function useTeam(teamId: string): UseTeamReturn {
       if (!team) return;
 
       try {
-        // TODO: 실제 API 엔드포인트로 교체
-        // await apiClient.delete(`/teams/${teamId}/members/${memberId}`);
-        // setTeam({
-        //   ...team,
-        //   members: team.members.filter((m) => m.id !== memberId),
-        // });
-
-        // 임시: 로컬 상태 업데이트
-        setTeam({
-          ...team,
-          members: team.members.filter((m) => m.id !== memberId),
-        });
+        await apiClient.delete(`/api/teams/${teamId}/members/${memberId}`);
+        await fetchTeam();
       } catch (err) {
         throw err instanceof Error ? err : new Error("멤버를 제거하는데 실패했습니다");
       }

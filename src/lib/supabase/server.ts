@@ -29,42 +29,52 @@ export async function createServerClient() {
 
   const cookieStore = await cookies();
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  // Supabase 쿠키 키 형식: sb-{project-ref}-auth-token
+  const supabaseProjectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1] || "project";
+  const authTokenKey = `sb-${supabaseProjectRef}-auth-token`;
+  
+  // 쿠키에서 세션 읽기
+  const sessionCookie = cookieStore.get(authTokenKey)?.value;
+  
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
       storage: {
         getItem: (key: string) => {
-          // Supabase는 sb-{project-ref}-auth-token 형식의 키를 사용
-          const value = cookieStore.get(key)?.value;
-          return value ?? null;
+          if (key === authTokenKey) {
+            return sessionCookie ?? null;
+          }
+          return null;
         },
         setItem: (key: string, value: string) => {
-          // Next.js 15+ 쿠키 API 사용
-          // 동기적으로 설정 (async가 아니어도 됨)
-          try {
-            cookieStore.set(key, value, {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "lax",
-              path: "/",
-              maxAge: 60 * 60 * 24 * 7, // 7일
-            });
-          } catch (error) {
-            console.error("Failed to set cookie:", error);
-          }
+          // 서버 사이드에서는 쿠키를 직접 설정할 수 없음
+          // 콜백에서만 설정 가능
         },
         removeItem: (key: string) => {
-          try {
-            cookieStore.delete(key);
-          } catch (error) {
-            console.error("Failed to delete cookie:", error);
-          }
+          // 서버 사이드에서는 쿠키를 직접 삭제할 수 없음
         },
       },
     },
   });
+
+  // 쿠키에 세션이 있으면 설정
+  if (sessionCookie) {
+    try {
+      const sessionData = JSON.parse(sessionCookie);
+      if (sessionData.access_token && sessionData.refresh_token) {
+        await client.auth.setSession({
+          access_token: sessionData.access_token,
+          refresh_token: sessionData.refresh_token,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to parse session cookie:", error);
+    }
+  }
+
+  return client;
 }
 
 /**

@@ -66,6 +66,7 @@ export interface Issue {
   subtasks?: Subtask[]; // 선택적 필드로 변경
   comments?: Comment[]; // 댓글 목록
   attachments?: IssueAttachment[]; // 첨부파일 목록
+  orderPosition?: number; // 칸반 보드 순서
   createdAt: Date | string;
   updatedAt: Date | string;
 }

@@ -28,8 +28,25 @@ export async function POST(request: Request) {
     if (authError) {
       console.error("Supabase Auth Error:", authError);
       
+      // 이메일 미인증 에러
+      if (authError.code === "email_not_confirmed" || authError.message?.includes("Email not confirmed")) {
+        // 개발 환경에서는 이메일 인증을 우회할 수 있도록 안내
+        const isDevelopment = process.env.NODE_ENV === "development";
+        const errorMessage = isDevelopment
+          ? "이메일 인증이 필요합니다. Supabase 대시보드에서 이메일 인증을 비활성화하거나, 이메일을 확인해주세요."
+          : "이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.";
+        
+        return NextResponse.json(
+          { 
+            error: errorMessage,
+            code: "email_not_confirmed"
+          },
+          { status: 401 }
+        );
+      }
+      
       // 잘못된 자격 증명
-      if (authError.message.includes("Invalid login credentials") || authError.message.includes("Email not confirmed")) {
+      if (authError.message?.includes("Invalid login credentials") || authError.code === "invalid_credentials") {
         return NextResponse.json(
           { error: "이메일 또는 비밀번호가 올바르지 않습니다." },
           { status: 401 }

@@ -50,6 +50,20 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
 
           if (!response.ok) {
+            // 이메일 미인증 에러 처리
+            if (data.code === "email_not_confirmed") {
+              const errorMessage = data.error || "이메일 인증이 완료되지 않았습니다.";
+              set({
+                isLoading: false,
+                error: errorMessage,
+              });
+              // 이메일 인증 페이지로 리다이렉트
+              if (typeof window !== "undefined") {
+                window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
+              }
+              throw new Error(errorMessage);
+            }
+            
             throw new Error(data.error || "로그인에 실패했습니다");
           }
 
@@ -110,36 +124,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       loginWithOAuth: async (provider: "google" | "github" | "kakao", token: string) => {
+        // OAuth 로그인은 OAuthButton에서 signInWithOAuth를 호출하고
+        // 콜백에서 처리되므로 여기서는 아무것도 하지 않음
+        // 실제 인증은 /auth/callback에서 처리됨
         set({ isLoading: true, error: null });
-        try {
-          // TODO: 실제 API로 교체
-          // const response = await apiClient.post(`/auth/oauth/${provider}`, { token });
-          
-          // Mock 데이터
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          
-          const mockUser: User = {
-            id: `oauth-${provider}-user`,
-            name: provider === "google" ? "구글 사용자" : provider === "github" ? "깃허브 사용자" : "카카오 사용자",
-            email: `${provider}@example.com`,
-            avatar: undefined,
-            role: "MEMBER",
-          };
-          
-          set({
-            user: mockUser,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-            error: error instanceof Error ? error.message : "OAuth 로그인에 실패했습니다",
-          });
-          throw error;
-        }
       },
 
       logout: async () => {

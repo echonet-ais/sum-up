@@ -28,7 +28,15 @@ async function parseErrorBody(response: Response): Promise<unknown> {
 }
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  // Next.js API Routes 사용 시: 빈 문자열 또는 설정되지 않은 경우 상대 경로 사용
+  // 외부 API 사용 시: NEXT_PUBLIC_API_BASE_URL에 전체 URL 설정
+  let baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  
+  // api.example.com 같은 예시 URL이 설정된 경우 빈 문자열로 처리 (로컬 API Routes 사용)
+  if (baseUrl.includes("api.example.com") || baseUrl.includes("example.com")) {
+    baseUrl = "";
+  }
+  
   const url = `${baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   try {
@@ -42,6 +50,23 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     if (!response.ok) {
       const errorBody = await parseErrorBody(response);
+      
+      // 401 Unauthorized 에러 발생 시 로그인 페이지로 리다이렉트
+      if (response.status === 401) {
+        // 브라우저 환경에서만 리다이렉트 (서버 사이드에서는 실행되지 않음)
+        if (typeof window !== "undefined") {
+          const currentPath = window.location.pathname;
+          // 로그인/회원가입 페이지에서는 리다이렉트하지 않음 (무한 루프 방지)
+          if (!currentPath.startsWith("/login") && !currentPath.startsWith("/register")) {
+            // 현재 경로를 저장하여 로그인 후 돌아올 수 있도록
+            const returnUrl = encodeURIComponent(currentPath + window.location.search);
+            window.location.href = `/login?returnUrl=${returnUrl}`;
+            // 리다이렉트 중이므로 에러를 throw하지 않고 대기
+            return new Promise(() => {}) as T;
+          }
+        }
+      }
+      
       throw new ApiError(
         `API Error: ${response.status} ${response.statusText}`,
         response.status,
