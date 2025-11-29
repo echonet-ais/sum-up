@@ -142,20 +142,6 @@ function RegisterPageContent() {
                 confirm={formData.confirmPassword}
               />
 
-              {passwordValidation.errors.length > 0 &&
-                formData.password && (
-                  <div className="text-sm space-y-1">
-                    {passwordValidation.errors.map((error, i) => (
-                      <p
-                        key={i}
-                        className="text-[var(--color-error)]"
-                      >
-                        {error}
-                      </p>
-                    ))}
-                  </div>
-                )}
-
               {error && (
                 <div className="rounded-md bg-[var(--color-error-subtle)] border border-[var(--color-error)] p-3 text-sm text-[var(--color-error)]">
                   {error}

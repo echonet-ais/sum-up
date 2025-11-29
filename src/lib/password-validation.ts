@@ -12,7 +12,71 @@ export interface PasswordStrength {
   score: number; // 0-5
 }
 
-const specials = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+export const PASSWORD_SPECIALS = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+export interface PasswordRule {
+  key: string;
+  test: (password: string) => boolean;
+  errorMessage: string;
+  label: {
+    ko: string;
+    en: string;
+  };
+}
+
+/**
+ * 비밀번호 검증 규칙 정의
+ */
+export const PASSWORD_RULES: PasswordRule[] = [
+  {
+    key: "length",
+    test: (pw: string) => pw.length >= 8,
+    errorMessage: "비밀번호는 8자 이상이어야 합니다.",
+    label: {
+      ko: "8자 이상",
+      en: "At least 8 characters",
+    },
+  },
+  {
+    key: "upper",
+    test: (pw: string) => /[A-Z]/.test(pw),
+    errorMessage: "대문자를 포함해야 합니다.",
+    label: {
+      ko: "대문자 포함",
+      en: "Uppercase letter",
+    },
+  },
+  {
+    key: "lower",
+    test: (pw: string) => /[a-z]/.test(pw),
+    errorMessage: "소문자를 포함해야 합니다.",
+    label: {
+      ko: "소문자 포함",
+      en: "Lowercase letter",
+    },
+  },
+  {
+    key: "number",
+    test: (pw: string) => /[0-9]/.test(pw),
+    errorMessage: "숫자를 포함해야 합니다.",
+    label: {
+      ko: "숫자 포함",
+      en: "Number",
+    },
+  },
+  {
+    key: "special",
+    test: (pw: string) => {
+      const specialRegex = new RegExp(`[${PASSWORD_SPECIALS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`);
+      return specialRegex.test(pw);
+    },
+    errorMessage: `특수문자를 포함해야 합니다. (${PASSWORD_SPECIALS})`,
+    label: {
+      ko: `특수문자 포함 (${PASSWORD_SPECIALS})`,
+      en: `Special character (${PASSWORD_SPECIALS})`,
+    },
+  },
+];
 
 /**
  * 비밀번호 규칙 검증
@@ -20,25 +84,10 @@ const specials = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 export function validatePassword(password: string): PasswordValidationResult {
   const errors: string[] = [];
 
-  if (password.length < 8) {
-    errors.push('비밀번호는 8자 이상이어야 합니다.');
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    errors.push('대문자를 포함해야 합니다.');
-  }
-
-  if (!/[a-z]/.test(password)) {
-    errors.push('소문자를 포함해야 합니다.');
-  }
-
-  if (!/[0-9]/.test(password)) {
-    errors.push('숫자를 포함해야 합니다.');
-  }
-
-  const specialRegex = new RegExp(`[${specials.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`);
-  if (!specialRegex.test(password)) {
-    errors.push(`특수문자를 포함해야 합니다. (${specials})`);
+  for (const rule of PASSWORD_RULES) {
+    if (!rule.test(password)) {
+      errors.push(rule.errorMessage);
+    }
   }
 
   return {
@@ -65,7 +114,7 @@ export function getPasswordStrength(password: string): PasswordStrength {
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
   if (/\d/.test(password)) score++;
   
-  const specialRegex = new RegExp(`[${specials.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`);
+  const specialRegex = new RegExp(`[${PASSWORD_SPECIALS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`);
   if (specialRegex.test(password)) score++;
 
   // 강도 레벨 결정

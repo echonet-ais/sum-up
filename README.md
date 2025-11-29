@@ -85,8 +85,9 @@ OPENAI_MODEL=gpt-4o-mini
 1. Supabase 프로젝트 생성
 2. `supabase/schema.sql` 실행 (Supabase SQL Editor에서)
 3. `supabase/seed_complete.sql` 실행 (선택 사항, 데모 데이터)
+   - **주의**: `seed_complete.sql` 파일 내의 사용자 ID를 실제 Supabase Auth 사용자 ID로 교체해야 합니다.
 
-자세한 내용은 [`docs/SUPABASE_SETUP_GUIDE.md`](./docs/SUPABASE_SETUP_GUIDE.md)를 참조하세요.
+자세한 내용은 [`supabase/README.md`](./supabase/README.md) 또는 [`docs/SUPABASE_SETUP_GUIDE.md`](./docs/SUPABASE_SETUP_GUIDE.md)를 참조하세요.
 
 ### 개발 서버 실행
 
@@ -113,8 +114,11 @@ npm start
 - **데이터베이스**: Supabase (PostgreSQL)
 - **인증**: Supabase Auth
 - **실시간**: Supabase Realtime
-- **드래그 앤 드롭**: @dnd-kit
+- **드래그 앤 드롭**: @dnd-kit/core, @dnd-kit/sortable
 - **차트**: Recharts
+- **마크다운**: react-markdown, remark-gfm
+- **API 문서화**: Swagger (swagger-jsdoc, swagger-ui-react)
+- **이메일**: Resend
 - **폰트**: Pretendard
 
 ## 📁 프로젝트 구조
@@ -124,11 +128,22 @@ sumup/
 ├── src/
 │   ├── app/              # Next.js App Router 페이지
 │   │   ├── api/          # API Routes
+│   │   │   ├── auth/     # 인증 API
+│   │   │   ├── ai/       # AI 기능 API
+│   │   │   ├── dashboard/# 대시보드 API
+│   │   │   ├── issues/   # 이슈 API
+│   │   │   ├── projects/ # 프로젝트 API
+│   │   │   ├── teams/    # 팀 API
+│   │   │   └── users/    # 사용자 API
 │   │   ├── dashboard/    # 대시보드 페이지
 │   │   ├── issues/       # 이슈 페이지
 │   │   ├── projects/     # 프로젝트 페이지
+│   │   ├── teams/        # 팀 페이지
 │   │   ├── kanban/       # 칸반 보드
-│   │   └── ...
+│   │   ├── search/       # 전역 검색
+│   │   ├── profile/      # 프로필 페이지
+│   │   ├── settings/     # 설정 페이지
+│   │   └── ...          # 기타 페이지
 │   ├── components/       # 재사용 가능한 컴포넌트
 │   ├── hooks/            # 커스텀 React 훅
 │   ├── lib/              # 유틸리티, API 클라이언트
@@ -136,8 +151,12 @@ sumup/
 │   ├── store/            # Zustand 스토어
 │   └── types/            # TypeScript 타입 정의
 ├── supabase/             # Supabase 관련 파일
-│   ├── schema.sql        # 데이터베이스 스키마
-│   └── seed_complete.sql # 시드 데이터
+│   ├── schema.sql        # 데이터베이스 스키마 (통합 버전)
+│   ├── seed_complete.sql # 시드 데이터 (통합 버전, 권장)
+│   ├── seed.sql          # 시드 데이터 (기본 버전)
+│   ├── seed_v2.sql       # 시드 데이터 (보강 버전)
+│   ├── migrations/       # 마이그레이션 파일들
+│   └── README.md         # Supabase 설정 가이드
 ├── docs/                 # 문서
 └── public/               # 정적 자산
 ```
@@ -155,6 +174,7 @@ sumup/
 - **[Git 워크플로우](./docs/GITFLOW.md)** - 브랜치 전략 및 커밋 컨벤션
 - **[UI 디자인 가이드라인](./docs/UI_DESIGN_GUIDELINES.md)** - 디자인 시스템
 - **[Supabase 설정 가이드](./docs/SUPABASE_SETUP_GUIDE.md)** - 데이터베이스 설정
+- **[Supabase 스키마 가이드](./supabase/README.md)** - 스키마 및 시드 데이터 가이드
 - **[배포 가이드](./docs/DEPLOYMENT_GUIDE.md)** - Vercel 배포 방법
 
 ## 🚢 배포
@@ -185,4 +205,4 @@ sumup/
 
 ---
 
-**마지막 업데이트**: 2025-11-30
+**마지막 업데이트**: 2025-11-29

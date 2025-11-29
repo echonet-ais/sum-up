@@ -153,10 +153,26 @@ export async function GET(request: NextRequest) {
 
     // 인증 상태 확인
     if (userError || !user) {
-      // 비로그인 상태일 때 로그인 페이지로 리다이렉트
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("returnUrl", request.url);
-      return NextResponse.redirect(loginUrl);
+      // API는 401 Unauthorized를 반환 (307 리다이렉트는 REST API 관례에 맞지 않음)
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 실제로 DB에 사용자가 존재하는지 확인 (DB 초기화 후 세션이 남아있을 수 있음)
+    const { data: dbUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (!dbUser) {
+      // DB에 사용자가 없으면 세션이 무효한 것으로 간주
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -256,10 +272,26 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      // 비로그인 상태일 때 로그인 페이지로 리다이렉트
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("returnUrl", request.url);
-      return NextResponse.redirect(loginUrl);
+      // API는 401 Unauthorized를 반환 (307 리다이렉트는 REST API 관례에 맞지 않음)
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 실제로 DB에 사용자가 존재하는지 확인 (DB 초기화 후 세션이 남아있을 수 있음)
+    const { data: dbUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (!dbUser) {
+      // DB에 사용자가 없으면 세션이 무효한 것으로 간주
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();

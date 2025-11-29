@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const error = requestUrl.searchParams.get("error");
   const errorDescription = requestUrl.searchParams.get("error_description");
+  const type = requestUrl.searchParams.get("type"); // signup, recovery, invite 등
 
   // OAuth 에러 처리
   if (error) {
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     
     const tempClient = createClient(supabaseUrl, supabaseAnonKey);
     
-    // 코드를 세션으로 교환
+    // 코드를 세션으로 교환 (이메일 인증 또는 OAuth)
     const { data: authData, error: authError } = await tempClient.auth.exchangeCodeForSession(code);
 
     if (authError || !authData.user || !authData.session) {
@@ -43,6 +44,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         new URL("/login?error=authentication_failed", request.url)
       );
+    }
+
+    // 이메일 인증 완료인 경우 (type=signup)
+    if (type === "signup" || type === "email") {
+      // 이메일 인증 완료 페이지로 리다이렉트
+      const verifyUrl = new URL("/verify-email", request.url);
+      verifyUrl.searchParams.set("email", authData.user.email || "");
+      verifyUrl.searchParams.set("verified", "true");
+      return NextResponse.redirect(verifyUrl);
     }
 
     // public.users 테이블에 프로필이 있는지 확인 (서비스 클라이언트 사용)

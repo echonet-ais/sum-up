@@ -156,15 +156,30 @@ export async function POST(request: Request) {
 
     const supabase = await createServerClient();
 
+    // 이메일 인증 후 리다이렉트할 URL 설정
+    const emailRedirectTo = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`;
+
     // Supabase Auth로 회원가입
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo, // 이메일 인증 링크 클릭 시 리다이렉트할 URL
         data: {
           name, // 사용자 메타데이터에 이름 저장
         },
       },
+    });
+
+    // 디버깅: 이메일 발송 상태 확인
+    console.log("Signup result:", {
+      user: authData?.user ? {
+        id: authData.user.id,
+        email: authData.user.email,
+        email_confirmed_at: authData.user.email_confirmed_at,
+      } : null,
+      session: authData?.session ? "exists" : "none",
+      error: authError?.message,
     });
 
     if (authError) {
@@ -226,12 +241,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "회원가입이 완료되었습니다.",
+        message: "회원가입이 완료되었습니다. 이메일 인증을 완료해주세요.",
         user: {
           id: authData.user.id,
           email: authData.user.email,
           name,
         },
+        needsEmailConfirmation,
       },
       { status: 201 }
     );
