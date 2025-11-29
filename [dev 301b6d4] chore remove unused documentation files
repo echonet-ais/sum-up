@@ -1,0 +1,20 @@
+[33m5b6a593[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m)[m feat: add simple test account creation SQL
+[33m4f895b0[m refactor: add simplified test account creation method
+[33mc88ed8c[m fix: remove confirmed_at from SQL insert (generated column)
+[33m3f1e788[m feat: add SQL script for creating test accounts
+[33m43b8e78[m fix: improve email confirmation debugging and documentation
+[33m0ecc47e[m fix: declare needsEmailConfirmation variable explicitly
+[33m14bf605[m docs: add email confirmation troubleshooting guide
+[33mcce5a08[m fix: improve email confirmation flow and add debugging
+[33m3221e88[m fix: redirect to login page when unauthenticated
+[33mdc74c5e[m fix: add credentials include to fetch calls for cookie-based auth
+[33m5ba2ed7[m docs: add official PRD review based on organizer's requirements
+[33m632b01e[m[33m ([m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m)[m docs: complete PRD review with all sections filled
+[33mb059a10[m docs: update PRD review with detailed codebase analysis
+[33m28ef6f0[m feat: add missing notification functions and fix build errors
+[33m0b36e5f[m chore: add hua-labs-ui package file
+[33m43da1b8[m chore: update gitignore
+[33m8f816d0[m chore: update register page and hooks exports
+[33m20030d8[m feat: add OAuth and password components
+[33m65c1987[m docs: update documentation and dependencies
+[33m007ded4[m feat: add database migrations and schema updates
