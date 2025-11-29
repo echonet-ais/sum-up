@@ -14,6 +14,8 @@
 -- 주의: 이메일 인증이 활성화되어 있으면 이메일 인증이 필요합니다.
 
 -- 1. auth.users에 사용자 생성 (비밀번호는 bcrypt로 해시됨)
+-- 주의: confirmed_at은 생성된 열이므로 직접 삽입할 수 없습니다.
+-- email_confirmed_at을 설정하면 confirmed_at이 자동으로 설정됩니다.
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -40,7 +42,6 @@ INSERT INTO auth.users (
   phone_change,
   phone_change_token,
   phone_change_sent_at,
-  confirmed_at,
   email_change_token_current,
   email_change_confirm_status,
   banned_until,
@@ -55,7 +56,7 @@ INSERT INTO auth.users (
   'authenticated', -- role
   'test@example.com', -- email
   crypt('Test1234!', gen_salt('bf')), -- encrypted_password (bcrypt 해시)
-  NOW(), -- email_confirmed_at (이미 인증된 상태로 설정)
+  NOW(), -- email_confirmed_at (이미 인증된 상태로 설정, confirmed_at이 자동으로 설정됨)
   NOW(), -- confirmation_sent_at
   '', -- confirmation_token
   NULL, -- recovery_sent_at
@@ -74,7 +75,6 @@ INSERT INTO auth.users (
   '', -- phone_change
   '', -- phone_change_token
   NULL, -- phone_change_sent_at
-  NOW(), -- confirmed_at (이미 인증된 상태)
   '', -- email_change_token_current
   0, -- email_change_confirm_status
   NULL, -- banned_until
@@ -117,6 +117,8 @@ DECLARE
   user_id UUID;
 BEGIN
   -- auth.users에 사용자 생성
+  -- 주의: confirmed_at은 생성된 열이므로 제외합니다.
+  -- email_confirmed_at을 설정하면 confirmed_at이 자동으로 설정됩니다.
   INSERT INTO auth.users (
     instance_id,
     id,
@@ -143,7 +145,6 @@ BEGIN
     phone_change,
     phone_change_token,
     phone_change_sent_at,
-    confirmed_at,
     email_change_token_current,
     email_change_confirm_status,
     banned_until,
@@ -158,7 +159,7 @@ BEGIN
     'authenticated',
     'test@example.com',
     crypt('Test1234!', gen_salt('bf')),
-    NOW(),
+    NOW(), -- email_confirmed_at 설정 시 confirmed_at이 자동으로 설정됨
     NOW(),
     '',
     NULL,
@@ -177,7 +178,6 @@ BEGIN
     '',
     '',
     NULL,
-    NOW(),
     '',
     0,
     NULL,
@@ -225,7 +225,7 @@ BEGIN
     email_change_token_new, last_sign_in_at, raw_app_meta_data,
     raw_user_meta_data, is_super_admin, created_at, updated_at,
     phone, phone_confirmed_at, phone_change, phone_change_token,
-    phone_change_sent_at, confirmed_at, email_change_token_current,
+    phone_change_sent_at, email_change_token_current,
     email_change_confirm_status, banned_until, reauthentication_token,
     reauthentication_sent_at, is_sso_user, deleted_at
   ) VALUES (
@@ -233,7 +233,7 @@ BEGIN
     'authenticated', 'admin@example.com', crypt('Admin1234!', gen_salt('bf')),
     NOW(), NOW(), '', NULL, '', NULL, '', '', NULL,
     '{"provider":"email","providers":["email"]}', '{"name":"관리자"}',
-    false, NOW(), NOW(), NULL, NULL, '', '', NULL, NOW(), '', 0, NULL, '', NULL, false, NULL
+    false, NOW(), NOW(), NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL
   ) RETURNING id INTO admin_id;
 
   INSERT INTO public.users (id, email, name, role, email_confirmed_at, created_at, updated_at)
@@ -254,7 +254,7 @@ BEGIN
     email_change_token_new, last_sign_in_at, raw_app_meta_data,
     raw_user_meta_data, is_super_admin, created_at, updated_at,
     phone, phone_confirmed_at, phone_change, phone_change_token,
-    phone_change_sent_at, confirmed_at, email_change_token_current,
+    phone_change_sent_at, email_change_token_current,
     email_change_confirm_status, banned_until, reauthentication_token,
     reauthentication_sent_at, is_sso_user, deleted_at
   ) VALUES (
@@ -262,7 +262,7 @@ BEGIN
     'authenticated', 'user@example.com', crypt('User1234!', gen_salt('bf')),
     NOW(), NOW(), '', NULL, '', NULL, '', '', NULL,
     '{"provider":"email","providers":["email"]}', '{"name":"일반 사용자"}',
-    false, NOW(), NOW(), NULL, NULL, '', '', NULL, NOW(), '', 0, NULL, '', NULL, false, NULL
+    false, NOW(), NOW(), NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL
   ) RETURNING id INTO user_id;
 
   INSERT INTO public.users (id, email, name, role, email_confirmed_at, created_at, updated_at)
@@ -283,7 +283,9 @@ END $$;
 -- ============================================
 -- 1. 이 SQL은 Supabase Dashboard > SQL Editor에서 실행하세요.
 -- 2. 비밀번호는 bcrypt로 해시되어 저장됩니다.
--- 3. email_confirmed_at과 confirmed_at을 NOW()로 설정하여 이메일 인증을 우회합니다.
+-- 3. email_confirmed_at을 NOW()로 설정하여 이메일 인증을 우회합니다.
+--    (confirmed_at은 생성된 열이므로 email_confirmed_at에 따라 자동으로 설정됩니다)
 -- 4. 생성된 계정으로 바로 로그인할 수 있습니다.
 -- 5. 필요에 따라 이메일, 비밀번호, 이름, 역할을 수정하여 사용하세요.
+-- 6. confirmed_at은 생성된 열(generated column)이므로 직접 삽입할 수 없습니다.
 
