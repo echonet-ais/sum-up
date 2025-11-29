@@ -71,38 +71,48 @@ npm start
 - TypeScript 5
 - Tailwind CSS 4
 - Zustand 5.0.8 (상태 관리)
+- Supabase (인증 및 데이터베이스)
 - Pretendard (폰트)
 
 ## Features
 
 ### 핵심 기능 (구현됨)
 
+- **인증 시스템**
+  - Supabase 기반 이메일/비밀번호 회원가입, 로그인, 로그아웃
+  - 세션 관리 및 보호된 라우트
+  - 사용자 프로필 관리 (Zustand 상태 관리)
 - **프로젝트 / 이슈 관리**
   - 프로젝트 목록 / 상세, 이슈 목록 / 상세 페이지
   - 이슈 생성 / 수정 폼 (Drawer), 프로젝트 생성 / 수정 폼
   - 서브태스크 관리, 우선순위 / 상태 배지, 메타 정보 카드
+  - 이슈 페이지네이션 및 프로젝트 필터
 - **칸반 보드**
   - dnd-kit 기반 드래그 앤 드롭 칸반 보드
   - 상태 컬럼 간 카드 이동, 순서 변경
 - **팀 / 멤버 관리**
   - 팀 목록 / 상세, 팀 생성 폼
   - 멤버 초대, 역할(OWNER/ADMIN/MEMBER) 관리
-- **인증**
-  - Supabase 기반 이메일/비밀번호 회원가입, 로그인, 로그아웃
-  - 클라이언트 상태(`auth-store`)와 연동된 보호된 플로우
-- **알림**
+- **알림 시스템**
   - 헤더 알림 드롭다운, 알림 아이템 컴포넌트
-  - 읽음/미읽음 상태 표시, 기본 목데이터 연동
+  - 읽음/미읽음 상태 표시
+- **전역 검색**
+  - `/search` 페이지 (이슈, 프로젝트, 팀 통합 검색)
+  - Header 검색 단축키 (Cmd/Ctrl + K)
 - **AI 기능**
   - `/api/ai/*` 엔드포인트 5종 (요약, 제안, 자동 라벨, 중복 탐지, 댓글 요약)
   - Rate limiting, 캐싱, 프롬프트 템플릿, `useAI` 훅, `AIFeatures` 컴포넌트
+- **데이터베이스**
+  - Supabase PostgreSQL 스키마 정의 (12개 테이블)
+  - 시드 데이터 (팀, 프로젝트, 이슈, 라벨 등)
+  - Row Level Security (RLS) 정책 적용
 
 ### 진행 예정 / 보완 예정
 
-- Supabase DB와의 전체 CRUD 연동 (teams / projects / issues / comments 등)
-- 전역 검색 (`/search`) 및 Header 검색 단축키 (Cmd/Ctrl + K)
+- Supabase DB와의 전체 CRUD 연동 (현재 목데이터 기반인 부분을 실제 DB 연동으로 전환)
 - 프로필 / 마이페이지 (프로필 수정, 비밀번호 변경, 아바타 업로드)
 - 실시간 알림 업데이트 (폴링 또는 WebSocket)
+- 이메일 발송 기능 (팀 초대, 비밀번호 재설정 등)
 
 ## Project Structure
 
@@ -110,12 +120,18 @@ npm start
 sumup/
 ├── src/
 │   ├── app/              # Next.js App Router pages
+│   │   └── api/          # API Routes (인증, AI 등)
 │   ├── components/       # Reusable components
 │   ├── lib/              # Utilities, API clients
-│   │   └── api/          # API client
+│   │   ├── api/          # API client
+│   │   └── supabase/     # Supabase 클라이언트 (클라이언트/서버)
 │   ├── store/            # Zustand stores
 │   ├── hooks/            # Custom React hooks
 │   └── types/            # TypeScript type definitions
+├── supabase/             # Supabase 관련 파일
+│   ├── schema.sql        # 데이터베이스 스키마
+│   ├── seed.sql          # 시드 데이터 (v1)
+│   └── seed_v2.sql       # 시드 데이터 (v2)
 ├── public/               # Static assets
 ├── docs/                 # Documentation
 ├── .env.local           # Environment variables
@@ -139,16 +155,19 @@ sumup/
 Vercel 대시보드에서 다음 환경 변수를 설정하세요:
 
 - `NEXT_PUBLIC_API_BASE_URL`: API Base URL
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase Anon Key
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase Service Role Key (서버 전용)
+- `JWT_SECRET`: JWT 토큰 서명용 시크릿 키
+- `EMAIL_PROVIDER`: 이메일 서비스 제공자
+- `SENDGRID_API_KEY`: SendGrid API 키
+- `SENDGRID_FROM_EMAIL`: 발신자 이메일 주소
+- `AI_PROVIDER`: AI 서비스 제공자
+- `OPENAI_API_KEY`: OpenAI API 키
+- `OPENAI_MODEL`: OpenAI 모델 이름
+- `NEXT_PUBLIC_APP_URL`: 애플리케이션 URL
 
-## 참고 프로젝트
-
-이 프로젝트는 `D:\dev\dashboard` (PaysByPays Dashboard) 프로젝트를 참고하여 개발되었습니다.
-
-- 컴포넌트 구조 및 아키텍처 패턴 참고
-- 상태 관리 방식 (Zustand) 참고
-- UI/UX 패턴 참고
-
-자세한 내용은 `docs/PRD.md`를 참조하세요.
+자세한 내용은 `docs/DEPLOYMENT_GUIDE.md`를 참조하세요.
 
 ## 문서
 

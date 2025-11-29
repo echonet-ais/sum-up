@@ -223,6 +223,25 @@ import { Markdown } from '@/components/common';
 <Markdown content={issueDescription} />
 ```
 
+#### ScrollToTop
+스크롤 투 탑 버튼 컴포넌트
+
+**기능:**
+- 스크롤 위치가 300px 이상일 때 표시
+- 클릭 시 부드럽게 페이지 상단으로 스크롤
+- SumUp 디자인 시스템 적용 (CSS 변수, border-radius 8px)
+
+**사용 예시:**
+```tsx
+import { ScrollToTop } from '@/components/common';
+
+// AppLayout에 통합되어 자동으로 표시됨
+<ScrollToTop />
+```
+
+**참고:**
+- `D:\dev\dashboard\src\components\ScrollToTop.tsx` 참고
+
 ---
 
 ### 2.4 이슈 컴포넌트 (`src/components/issue/`)
@@ -528,12 +547,18 @@ import { NotificationDropdown } from '@/components/notification';
 헤더 컴포넌트 (알림, 프로필)
 
 **Props:**
-- `user?: { name: string; email: string; avatar?: string }`
+- `user?: { name: string; email: string; avatar?: string; role?: "ADMIN" | "MEMBER" | "VIEWER" }`
 - `onProfileClick?: () => void`
 - `onLogout?: () => void`
 
+**기능:**
+- 전역 검색 (`GlobalSearch`)
+- 알림 드롭다운 (`NotificationDropdown`)
+- 사용자 팝오버 (`UserPopover`) - 클릭 시 사용자 메뉴 표시
+
 **참고:**
 - 알림 기능은 내부적으로 `NotificationDropdown` 컴포넌트를 사용합니다.
+- 사용자 메뉴는 `UserPopover` 컴포넌트로 구현되어 있습니다.
 - `notificationCount`와 `onNotificationClick` props는 제거되었습니다.
 
 **사용 예시:**
@@ -542,9 +567,36 @@ import { Header } from '@/components/layout';
 
 <Header 
   user={currentUser} 
-  notificationCount={5} 
-  onNotificationClick={handleNotificationClick} 
   onLogout={handleLogout} 
+/>
+```
+
+#### UserPopover
+사용자 팝오버 컴포넌트 (Header 내부 사용)
+
+**Props:**
+- `user: { name: string; email: string; avatar?: string; role?: "ADMIN" | "MEMBER" | "VIEWER" }`
+- `onClose: () => void` - 팝오버 닫기 핸들러
+- `onLogout: () => void` - 로그아웃 핸들러
+
+**기능:**
+- 사용자 정보 표시 (아바타, 이름, 이메일, 관리자 뱃지)
+- 메뉴 링크 (프로필, 설정, 관리자)
+- 로그아웃 버튼
+- 외부 클릭 시 자동 닫힘
+
+**참고:**
+- `D:\HUA\hua-platform\apps\sum-diary\app\components\layout\HeaderComponents\ProfilePopover.tsx` 참고
+- SumUp 디자인 시스템 적용 (CSS 변수, border-radius 8px)
+
+**사용 예시:**
+```tsx
+import { UserPopover } from '@/components/layout';
+
+<UserPopover
+  user={currentUser}
+  onClose={() => setIsOpen(false)}
+  onLogout={handleLogout}
 />
 ```
 

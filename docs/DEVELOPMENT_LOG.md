@@ -7,6 +7,45 @@
 
 ---
 
+## 개발 로그
+
+### 2025-11-29 - P1 우선순위 리팩토링 완료
+
+**완료된 작업:**
+- 날짜 포맷팅 유틸리티 통합
+  - `src/lib/utils/date.ts` 생성 (formatTimeAgo, formatDate, formatShortDate, formatFullDate)
+  - 5개 컴포넌트에서 중복 로직 제거 및 통합 유틸리티 사용
+    - `CommentItem.tsx` - formatTimeAgo 사용
+    - `NotificationItem.tsx` - formatTimeAgo 사용
+    - `KanbanCard.tsx` - formatShortDate 사용
+    - `IssueAttachments.tsx` - formatFullDate 사용
+    - `LivePreview.tsx` - formatFullDate 사용
+- alert/confirm → Toast/ConfirmDialog로 변경
+  - `FileUpload.tsx` - alert → useToast (2곳)
+  - `CommentItem.tsx` - confirm → ConfirmDialog
+  - `AIFeatures.tsx` - alert → useToast (6곳)
+  - `CommentForm.tsx` - alert → useToast
+  - `TeamMemberList.tsx` - confirm → ConfirmDialog
+
+**변경된 파일:**
+- `src/lib/utils/date.ts` (신규)
+- `src/components/forms/FileUpload.tsx`
+- `src/components/issue/CommentItem.tsx`
+- `src/components/issue/AIFeatures.tsx`
+- `src/components/issue/CommentForm.tsx`
+- `src/components/issue/IssueAttachments.tsx`
+- `src/components/notification/NotificationItem.tsx`
+- `src/components/kanban/KanbanCard.tsx`
+- `src/components/settings/LivePreview.tsx`
+- `src/components/team/TeamMemberList.tsx`
+
+**효과:**
+- 코드 중복 제거: 날짜 포맷팅 로직 통합
+- UX 개선: 브라우저 기본 alert/confirm 대신 커스텀 Toast/ConfirmDialog 사용
+- 일관성 향상: 에러/경고 메시지 표시 방식 통일
+
+---
+
 ## 작성 규칙
 
 1. **최신 항목이 위에 오도록 작성** (역순)
@@ -37,6 +76,269 @@
 ---
 
 ## 개발 로그
+
+### 2025-11-29 - 입력 검증 및 에러 바운더리 개선
+
+**완료된 작업:**
+- `useFormValidation` 커스텀 훅 생성
+  - 실시간 필드 검증 로직 제공
+  - blur 시 자동 검증 지원
+  - touched 상태 관리 (필드 포커스 여부 추적)
+  - 에러 상태 관리 및 초기화 기능
+- `IssueForm`에 실시간 검증 적용
+  - 필드 blur 시 즉시 검증 실행
+  - 사용자 입력 중 실시간 피드백 제공
+  - 제출 전 오류 사전 방지
+- `ProjectForm`에 실시간 검증 적용
+  - 동일한 검증 패턴 적용
+  - 일관된 사용자 경험 제공
+- `SectionErrorBoundary` 컴포넌트 생성
+  - 섹션별 에러 격리
+  - 부분 실패 시에도 나머지 UI 유지
+  - 섹션 이름 기반 에러 메시지 제공
+- 주요 페이지에 섹션별 에러 바운더리 적용
+  - 이슈 상세 페이지: 댓글, 서브태스크, 첨부파일, AI 기능 섹션
+  - 이슈 목록 페이지: 이슈 테이블 섹션
+  - 프로젝트 목록 페이지: 프로젝트 그리드 섹션
+
+**변경된 파일:**
+- `src/hooks/useFormValidation.ts` (신규)
+- `src/components/common/SectionErrorBoundary.tsx` (신규)
+- `src/components/common/index.ts` (export 추가)
+- `src/hooks/index.ts` (export 추가)
+- `src/components/issue/IssueForm.tsx` (실시간 검증 적용)
+- `src/components/issue/IssueFormFields.tsx` (onBlur prop 추가)
+- `src/components/project/ProjectForm.tsx` (실시간 검증 적용)
+- `src/components/project/ProjectFormFields.tsx` (onBlur prop 추가)
+- `src/app/issues/[id]/page.tsx` (섹션별 에러 바운더리 추가)
+- `src/app/issues/page.tsx` (섹션별 에러 바운더리 추가)
+- `src/app/projects/page.tsx` (섹션별 에러 바운더리 추가)
+
+**효과:**
+- 사용자 경험 개선: 입력 중 즉시 피드백 제공, 제출 전 오류 방지
+- 안정성 향상: 섹션별 에러 격리로 부분 실패 시에도 앱 사용 가능
+- 코드 재사용성: `useFormValidation` 훅으로 검증 로직 재사용 가능
+- 유지보수성: 일관된 검증 패턴으로 코드 이해도 향상
+
+---
+
+### 2025-11-29 - 리팩토링 체크리스트 작성
+
+**완료된 작업:**
+- 코드베이스 전반 분석 및 개선점 도출
+- 공통 컴포넌트 미사용 사례 정리
+- 로직상 디자인 개선점 정리
+- 우선순위별 작업 계획 수립
+
+**발견된 주요 개선점:**
+1. **SettingsSelect**: `@hua-labs/ui`의 `Select` 컴포넌트 미사용 (직접 구현)
+2. **날짜 포맷팅 로직 중복**: 5개 컴포넌트에서 각각 구현
+3. **alert/confirm 직접 사용**: `ConfirmDialog` 컴포넌트가 있음에도 직접 사용 (10곳)
+4. **폼 제출 패턴 중복**: 여러 컴포넌트에서 유사한 로직 중복
+5. **에러 메시지 표시 패턴 불일치**: Toast, alert, 인라인 혼재
+
+**생성된 문서:**
+- `docs/REFACTORING_CHECKLIST.md` - 상세 개선 사항 및 우선순위 정리
+
+**참고:**
+- P1 (높음): 날짜 포맷팅 통합, alert/confirm 제거
+- P2 (중간): SettingsSelect 개선, 폼 패턴 통합, 접근성 개선
+- P3 (낮음): 로딩 상태 통합, 스타일링 중복 제거
+
+---
+
+### 2025-11-29 - Supabase 스키마 통합
+
+**완료된 작업:**
+- Supabase 스키마 통합
+  - 모든 마이그레이션 파일을 하나의 `schema.sql`로 통합
+  - 기존 `schema.sql` + 3개 마이그레이션 파일 통합
+    - `2025-01-30_add_email_confirmed_at_to_users.sql` (users 테이블에 email_confirmed_at 필드 추가)
+    - `2025-11-29_add_issue_attachments_and_user_preferences.sql` (issue_attachments, user_preferences 테이블 추가)
+    - `2025-11-29_fix_users_rls_insert_policy.sql` (users 테이블 INSERT RLS 정책 수정)
+  - 통합 스키마에 포함된 내용:
+    - 14개 테이블 (users, teams, team_members, projects, project_favorites, issues, issue_labels, issue_label_mappings, subtasks, comments, notifications, activities, issue_attachments, user_preferences)
+    - 모든 인덱스
+    - 함수 (update_updated_at_column, sync_email_confirmed_at, sync_new_user_email_confirmed)
+    - 트리거 (updated_at 자동 업데이트, email_confirmed_at 동기화)
+    - RLS 활성화 및 정책
+  - `supabase/README.md` 업데이트 (통합 스키마 사용 안내, 마이그레이션 파일 참고용 설명 추가)
+
+**변경된 파일:**
+- `supabase/schema.sql` (통합 버전으로 재작성)
+- `supabase/README.md` (통합 스키마 안내 추가)
+
+**효과:**
+- 새 프로젝트 시작 시 `schema.sql` 하나만 실행하면 모든 스키마가 생성됨
+- 마이그레이션 히스토리는 `migrations/` 폴더에 보관 (참고용)
+- 스키마 관리 단순화 및 일관성 향상
+
+---
+
+### 2025-11-29 - README 업데이트
+
+**완료된 작업:**
+- README.md 업데이트
+  - Tech Stack에 Supabase 추가
+  - Features 섹션 업데이트 (최근 완료된 기능 반영)
+  - Project Structure에 supabase/ 폴더 추가
+  - Vercel 배포 환경 변수 목록 보완
+  - 참고 프로젝트 섹션 제거 (내부용 정보)
+
+**변경된 파일:**
+- `README.md`
+
+---
+
+### 2025-11-29 - 코드리뷰 기반 보완 작업
+
+**완료된 작업:**
+- 검색 페이지 에러 처리 추가
+  - `useSearch`의 `error` 필드를 UI에 표시
+  - `ErrorState` 컴포넌트로 에러 메시지 및 재시도 버튼 제공
+- FileUpload multiple 모드 개선
+  - `onFilesSelect?: (files: File[])` 콜백 추가
+  - 여러 파일 선택 시 모든 파일을 전달하도록 개선
+  - 기존 `onFileSelect`와 호환성 유지 (단일 파일 모드)
+- IssueAttachments 다운로드 에러 처리
+  - URL 유효성 검사 추가
+  - 팝업 차단 시 대체 다운로드 방법 제공 (링크 클릭)
+  - 에러 발생 시 토스트 알림 표시
+
+**변경된 파일:**
+- `src/app/search/page.tsx` (에러 상태 처리 추가)
+- `src/components/forms/FileUpload.tsx` (multiple 모드 개선)
+- `src/components/issue/IssueAttachments.tsx` (다운로드 에러 처리)
+
+**효과:**
+- 사용자 경험 개선: 에러 상황에 대한 명확한 피드백 제공
+- 기능 완성도 향상: 여러 파일 업로드 지원 강화
+- 안정성 향상: 다운로드 실패 시 대체 방법 및 에러 처리
+
+---
+
+### 2025-11-29 - 스크롤 투 탑 및 사용자 팝오버 추가
+
+**완료된 작업:**
+- `ScrollToTop` 컴포넌트 생성 (`D:\dev\dashboard` 참고)
+  - 스크롤 위치 300px 이상일 때 표시
+  - SumUp 디자인 시스템 적용 (CSS 변수, border-radius 8px)
+  - Phosphor Icons 사용
+- `UserPopover` 컴포넌트 생성 (`D:\HUA\hua-platform\apps\sum-diary` 참고)
+  - 사용자 정보 섹션 (아바타, 이름, 이메일, 관리자 뱃지)
+  - 메뉴 링크 (프로필, 설정, 관리자)
+  - 로그아웃 버튼
+  - SumUp 디자인 시스템 적용
+- `Header` 컴포넌트 개선
+  - 기존 Dropdown을 팝오버 방식으로 변경
+  - 외부 클릭 시 자동 닫힘
+  - 접근성 개선 (aria-label, aria-expanded)
+- `AppLayout`에 `ScrollToTop` 통합
+
+**변경된 파일:**
+- `src/components/common/ScrollToTop.tsx` (신규)
+- `src/components/common/index.ts`
+- `src/components/layout/UserPopover.tsx` (신규)
+- `src/components/layout/Header.tsx`
+- `src/components/layout/AppLayout.tsx`
+
+**참고:**
+- `D:\dev\dashboard\src\components\ScrollToTop.tsx` 참고
+- `D:\HUA\hua-platform\apps\sum-diary\app\components\layout\HeaderComponents\ProfilePopover.tsx` 참고
+
+---
+
+### 2025-11-29 - API 인증 처리 및 Issues API 라우트 추가 (P1)
+
+**완료된 작업:**
+- Issues API Routes 구현 (Supabase 연동)
+  - `GET /api/issues` (필터/검색/페이지네이션/정렬)
+  - `POST /api/issues` (새 이슈 생성, 라벨/서브태스크 포함)
+  - `GET /api/issues/[id]` (단건 조회)
+  - `PUT /api/issues/[id]` (업데이트)
+  - `DELETE /api/issues/[id]` (Soft Delete: deleted_at)
+- API 클라이언트 인증 에러 처리 개선
+  - 401 Unauthorized 에러 발생 시 자동으로 로그인 페이지로 리다이렉트
+  - 로그인/회원가입 페이지에서는 리다이렉트하지 않음 (무한 루프 방지)
+  - 현재 경로를 저장하여 로그인 후 돌아올 수 있도록 `returnUrl` 파라미터 추가
+- API Base URL 설정 개선
+  - `api.example.com` 같은 예시 URL 자동 감지 및 상대 경로로 처리
+  - Next.js API Routes와 호환성 개선
+
+**변경된 파일:**
+- `src/app/api/issues/route.ts` (새로 생성)
+- `src/app/api/issues/[id]/route.ts` (새로 생성)
+- `src/lib/api/client.ts` (401 에러 처리 및 리다이렉트 로직 추가)
+
+**참고:**
+- 모든 API 라우트는 Supabase 인증을 요구합니다
+- 로그인하지 않은 사용자는 자동으로 `/login` 페이지로 리다이렉트됩니다
+- 개발 환경에서 테스트하려면 먼저 로그인해야 합니다
+
+---
+
+### 2025-11-29 - 이슈 페이지 페이지네이션 및 프로젝트 필터 추가 (P1)
+
+**완료된 작업:**
+- 이슈 리스트 페이지 개선
+  - 페이지네이션 UI 추가 (`@hua-labs/ui` Pagination 컴포넌트 사용)
+  - 프로젝트 필터 추가 (전체 프로젝트 / 특정 프로젝트 선택)
+  - 클라이언트 사이드 필터링/정렬 제거 (API에서 이미 처리하므로 중복 제거)
+  - 페이지 변경 시 자동 스크롤 상단 이동
+  - 필터 변경 시 첫 페이지로 자동 리셋
+- API 기반 페이지네이션 연동
+  - `useIssues` 훅의 `totalPages`, `currentPage` 활용
+  - 페이지 변경 시 `useIssues`에 `page` 파라미터 전달
+
+**변경된 파일:**
+- `src/app/issues/page.tsx` (페이지네이션 UI, 프로젝트 필터, 클라이언트 필터링 제거)
+
+**참고:**
+- Dashboard 프로젝트(`D:\dev\dashboard`)의 페이지네이션 패턴 참고
+- API에서 필터링/정렬/페이지네이션 처리하므로 클라이언트 사이드 로직 제거
+
+---
+
+### 2025-11-29 - Supabase 기반 Teams & Notifications API 전환 (P1)
+
+**완료된 작업:**
+- Teams API Routes 구현 (Supabase 연동)
+  - `GET /api/teams` (검색/페이지네이션)
+  - `POST /api/teams` (팀 생성 + OWNER 멤버 추가)
+  - `GET /api/teams/[id]` (팀 상세 + 멤버 목록)
+  - `PUT /api/teams/[id]` (팀 정보 수정)
+  - `DELETE /api/teams/[id]` (팀 삭제)
+  - `GET /api/teams/[id]/members` (멤버 목록)
+  - `POST /api/teams/[id]/members` (멤버 초대: 이메일+역할)
+  - `PUT /api/teams/[id]/members/[memberId]` (멤버 역할 변경)
+  - `DELETE /api/teams/[id]/members/[memberId]` (멤버 제거)
+- Notifications API Routes 구현 (Supabase 연동)
+  - `GET /api/notifications` (사용자별 알림 목록)
+  - `PUT /api/notifications/[id]` (단일 알림 읽음 처리)
+  - `DELETE /api/notifications/[id]` (단일 알림 삭제)
+  - `PUT /api/notifications/read-all` (모든 알림 읽음 처리)
+- 훅 전환 (목 데이터 제거 → 실제 API 호출)
+  - `useTeams` → `/api/teams` 호출로 팀 목록/페이지네이션/생성 연동
+  - `useTeam` → `/api/teams/[id]` 및 멤버 하위 엔드포인트로 조회/수정/삭제/멤버 관리 연동
+  - `useNotifications` → `/api/notifications` 계열 엔드포인트로 조회/읽음/삭제 연동
+
+**변경된 파일:**
+- `src/app/api/teams/route.ts` (신규)
+- `src/app/api/teams/[id]/route.ts` (신규)
+- `src/app/api/teams/[id]/members/route.ts` (신규)
+- `src/app/api/teams/[id]/members/[memberId]/route.ts` (신규)
+- `src/app/api/notifications/route.ts` (신규)
+- `src/app/api/notifications/[id]/route.ts` (신규)
+- `src/app/api/notifications/read-all/route.ts` (신규)
+- `src/hooks/useTeams.ts` (API 연동)
+- `src/hooks/useTeam.ts` (API 연동)
+- `src/hooks/useNotifications.ts` (API 연동)
+
+**비고:**
+- Supabase `public.teams`, `public.team_members`, `public.notifications`, `public.users` 스키마 기준으로 매핑
+- 팀/멤버/알림 접근 제어는 Supabase RLS + 현재 사용자 기준 필터로 처리 (세밀한 RBAC는 후속 작업)
+
+---
 
 ### 2025-11-29 - Supabase 기반 Projects CRUD 전환 (P1)
 
