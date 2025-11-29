@@ -17,9 +17,10 @@ function mapProjectRowToProject(row: any, isFavorite: boolean): Project {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createServerClient();
     const {
       data: { user },
@@ -33,7 +34,7 @@ export async function GET(
     const { data, error } = await supabase
       .from("projects")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (error || !data) {
@@ -48,7 +49,7 @@ export async function GET(
       .from("project_favorites")
       .select("project_id")
       .eq("user_id", user.id)
-      .eq("project_id", params.id);
+      .eq("project_id", id);
 
     const isFavorite = (favoriteRows?.length ?? 0) > 0;
     const project = mapProjectRowToProject(data, isFavorite);
@@ -65,9 +66,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createServerClient();
     const {
       data: { user },
@@ -99,7 +101,7 @@ export async function PUT(
       const { data, error } = await supabase
         .from("projects")
         .update(updates)
-        .eq("id", params.id)
+        .eq("id", id)
         .select("*")
         .single();
 
@@ -117,7 +119,7 @@ export async function PUT(
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
       if (error || !data) {
@@ -135,7 +137,7 @@ export async function PUT(
       if (isFavorite) {
         const { error: favError } = await supabase.from("project_favorites").upsert(
           {
-            project_id: params.id,
+            project_id: id,
             user_id: user.id,
           },
           { onConflict: "project_id,user_id" }
@@ -148,7 +150,7 @@ export async function PUT(
         const { error: favError } = await supabase
           .from("project_favorites")
           .delete()
-          .eq("project_id", params.id)
+          .eq("project_id", id)
           .eq("user_id", user.id);
 
         if (favError) {
@@ -161,7 +163,7 @@ export async function PUT(
       .from("project_favorites")
       .select("project_id")
       .eq("user_id", user.id)
-      .eq("project_id", params.id);
+      .eq("project_id", id);
 
     const finalIsFavorite = (favoriteRows?.length ?? 0) > 0;
     const project = mapProjectRowToProject(updatedRow, finalIsFavorite);
@@ -178,9 +180,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createServerClient();
     const {
       data: { user },
@@ -198,7 +201,7 @@ export async function DELETE(
         is_archived: true,
         deleted_at: new Date().toISOString(),
       })
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (error) {
       const status = error.code === "PGRST116" ? 404 : 500;
