@@ -239,6 +239,9 @@ export async function POST(request: Request) {
       // 하지만 가능하면 프로필을 생성해야 하므로 에러를 로깅
     }
 
+    // 이메일 인증 필요 여부 확인
+    const needsEmailConfirmation = !authData.user.email_confirmed_at;
+
     return NextResponse.json(
       {
         message: "회원가입이 완료되었습니다. 이메일 인증을 완료해주세요.",
