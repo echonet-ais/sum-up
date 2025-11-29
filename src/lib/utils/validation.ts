@@ -144,7 +144,7 @@ export function validatePasswordStrength(password: string): {
 /**
  * 이슈 폼 검증
  */
-export interface IssueFormData {
+export interface IssueFormData extends Record<string, unknown> {
   title: string;
   description?: string;
   status?: string;
@@ -197,7 +197,7 @@ export function validateIssueForm(data: IssueFormData): ValidationResult {
 /**
  * 프로젝트 폼 검증
  */
-export interface ProjectFormData {
+export interface ProjectFormData extends Record<string, unknown> {
   name: string;
   description?: string;
   teamId: string;
